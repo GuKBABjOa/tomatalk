@@ -53,5 +53,3 @@ bin
 .settings
 .springBeans
 spring-*/src/main/java/META-INF/MANIFEST.MF
-### .env ###
-*.env
