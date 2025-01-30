@@ -1,3 +1,11 @@
 spring:
   application:
     name: tolonbgeub
+  config:
+    import: optional:file:.env[.properties]
+
+jwt:
+  issuer: ${JWT_ISSUER}
+  secret: ${JWT_SECRET}
+  expiry-seconds: ${JWT_EXPIRY_SECONDS}
+  refresh-expiry-seconds: ${JWT_REFRESH_EXPIRY_SECONDS}
