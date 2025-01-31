@@ -9,3 +9,7 @@ jwt:
   secret: ${JWT_SECRET}
   expiry-seconds: ${JWT_EXPIRY_SECONDS}
   refresh-expiry-seconds: ${JWT_REFRESH_EXPIRY_SECONDS}
+
+auth:
+  scheme: "Bearer"
+  header: Authorization

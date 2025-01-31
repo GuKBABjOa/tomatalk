@@ -2,7 +2,7 @@ package team.overfullow.tolonbgeub.auth.jwt;
 
 public enum JwtClaimName {
     TOKEN_ID("tokenId"),
-    USER_ID("userId"),
+    USER_ID("value"),
     ROLES("roles"),
     TYPE("type"),
     SALT("salt");
