@@ -14,6 +14,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 class JwtTest {
 
     @Nested
+    @DisplayName("JwtProvider 테스트")
     class JWT_생성_테스트 {
 
         @Test
@@ -28,7 +29,7 @@ class JwtTest {
             JwtProvider sut = new JwtProvider(jwtConfigProps, new UniqueIdGenerator());
 
             // when
-            SignedJwt jwt = sut.generate("userId", Collections.emptyList(), JwtType.ACCESS);
+            SignedJwt jwt = sut.generate("value", Collections.emptyList(), JwtType.ACCESS);
 
             // then
             assertSoftly(softly -> {
@@ -40,6 +41,7 @@ class JwtTest {
     }
 
     @Nested
+    @DisplayName("JwtValidator 테스트")
     class JWT_검증_테스트 {
 
         @Test
@@ -52,7 +54,7 @@ class JwtTest {
             jwtConfigProps.setExpirySeconds(3600);
 
             JwtProvider jwtProvider = new JwtProvider(jwtConfigProps, new UniqueIdGenerator());
-            SignedJwt jwt = jwtProvider.generate("userId", Collections.emptyList(), JwtType.ACCESS);
+            SignedJwt jwt = jwtProvider.generate("value", Collections.emptyList(), JwtType.ACCESS);
             JwtValidator sut = new JwtValidator(jwtProvider);
 
             // when
@@ -62,7 +64,7 @@ class JwtTest {
             assertSoftly(softly -> {
                 assertThat(claims.roles()).isEmpty();
                 assertThat(claims.type()).isEqualTo(JwtType.ACCESS);
-                assertThat(claims.userId()).isEqualTo("userId");
+                assertThat(claims.userId()).isEqualTo("value");
             });
         }
 
@@ -76,7 +78,7 @@ class JwtTest {
             jwtConfigProps.setExpirySeconds(0);
 
             JwtProvider jwtProvider = new JwtProvider(jwtConfigProps, new UniqueIdGenerator());
-            SignedJwt jwt = jwtProvider.generate("userId", Collections.emptyList(), JwtType.ACCESS);
+            SignedJwt jwt = jwtProvider.generate("value", Collections.emptyList(), JwtType.ACCESS);
             JwtValidator sut = new JwtValidator(jwtProvider);
 
             // expected
@@ -94,7 +96,7 @@ class JwtTest {
             jwtConfigProps.setExpirySeconds(0);
 
             JwtProvider jwtProvider = new JwtProvider(jwtConfigProps, new UniqueIdGenerator());
-            SignedJwt jwt = jwtProvider.generate("userId", Collections.emptyList(), JwtType.ACCESS);
+            SignedJwt jwt = jwtProvider.generate("value", Collections.emptyList(), JwtType.ACCESS);
 
             jwtConfigProps.setSecret("WRONG_SECRET");
             JwtValidator sut = new JwtValidator(new JwtProvider(jwtConfigProps, new UniqueIdGenerator()));
