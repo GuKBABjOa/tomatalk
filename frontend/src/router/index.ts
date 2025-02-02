@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import DefaultLayout from '@/components/DefaultLayout.vue';
 import MainView from '@/views/MainView.vue';
-import PostDetail from '@/views/PostDetail.vue';
+//import PostDetail from '@/views/PostDetail.vue';
 
 const routes = [
   {

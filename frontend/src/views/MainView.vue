@@ -38,7 +38,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useURL } from '@/utils/useURL'; // API URL 유틸
+//import { useURL } from '@/utils/useURL'; // API URL 유틸
 
 const categories = ref([]);
 const selectedCategory = ref(null);
