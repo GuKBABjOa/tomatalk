@@ -13,10 +13,9 @@ import { RouterView } from 'vue-router';
 </template>
 
 <style>
-
 #app {
- display: flex;
- justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 #app-container {
@@ -24,8 +23,8 @@ import { RouterView } from 'vue-router';
 }
 
 @media (min-width: 390px) {
- #app-container {
-   width: 600px;
- }
+  #app-container {
+    width: 600px;
+  }
 }
 </style>
