@@ -11,7 +11,7 @@ const routes = [
     meta: {
       layout: DefaultLayout,
       headerType: '',
-      showNavBar: true, 
+      showNavBar: true,
     },
   },
   // {
