@@ -36,9 +36,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(GET, "/api/auth/authentication").authenticated() // 인증 테스트 api
                         .requestMatchers(GET, "/api/auth/authorization").hasAuthority(UserRole.ADMIN.role()) // 인가 테스트 api
-                        .requestMatchers(OPTIONS,"/api/**").permitAll()
-                        .requestMatchers("/resources/**").denyAll() // 정적 리소스 요청은 모두 거부
-                        .anyRequest().authenticated())
+                        .requestMatchers(OPTIONS, "/api/**").permitAll()
+                        .requestMatchers("/api/**").authenticated()
+//                        .requestMatchers(
+//                                "/ws/**",
+//                                "/ws"
+//                        ).permitAll() //
+                        .anyRequest().permitAll())
                 .exceptionHandling(eh -> eh
                         .authenticationEntryPoint(authenticationEntryPointImpl)
                         .accessDeniedHandler(accessDeniedHandlerImpl))

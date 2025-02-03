@@ -13,3 +13,6 @@ jwt:
 auth:
   scheme: "Bearer"
   header: Authorization
+
+OPENVIDU_URL: ${OPENVIDU_URL}
+OPENVIDU_SECRET: ${OPENVIDU_SECRET}
