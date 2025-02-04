@@ -1,8 +1,7 @@
-package team.overfullow.tolonbgeub.game.dto;
+package team.overfullow.tolonbgeub.game.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import team.overfullow.tolonbgeub.game.domain.MessageType;
 
 @Data
 @AllArgsConstructor

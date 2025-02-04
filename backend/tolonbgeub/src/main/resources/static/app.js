@@ -6,7 +6,7 @@ stompClient.onConnect = (frame) => {
     setConnected(true);
     console.log('Connected: ' + frame);
     console.log($("#gameId").val())
-    stompClient.subscribe('/topic/game/'+$("#gameId").val(), (message) => {
+    stompClient.subscribe('/sub/game/'+$("#gameId").val(), (message) => {
         showGreeting(message.body)
     });
 };
@@ -43,13 +43,9 @@ function disconnect() {
 }
 
 function sendName() {
-    // stompClient.publish({
-    //     destination: "/app/hello",
-    //     body: JSON.stringify({'name': $("#name").val()})
-    // });
 
     stompClient.publish({
-        destination: "/app/game.join/"+$("#gameId").val(),
+        destination: "/pub/game.join/"+$("#gameId").val(),
         body: JSON.stringify({'userId': $("#userId").val()})
     });
 }

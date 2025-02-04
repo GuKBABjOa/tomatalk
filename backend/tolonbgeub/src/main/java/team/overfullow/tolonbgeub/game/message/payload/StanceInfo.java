@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.game.dto;
+package team.overfullow.tolonbgeub.game.message.payload;
 
 import lombok.Data;
 

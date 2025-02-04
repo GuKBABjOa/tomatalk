@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers(GET, "/api/auth/authentication").authenticated() // 인증 테스트 api
                         .requestMatchers(GET, "/api/auth/authorization").hasAuthority(UserRole.ADMIN.role()) // 인가 테스트 api
                         .requestMatchers(GET, "/api/topics/**").permitAll()
+                        .requestMatchers(GET, "/api/games/sample/**").permitAll()
                         .requestMatchers(OPTIONS, "/api/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())

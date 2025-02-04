@@ -8,7 +8,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import team.overfullow.tolonbgeub.webrtc.OpenviduConfigProps;
+import team.overfullow.tolonbgeub.webrtc.OpenViduConfigProps;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,7 +25,7 @@ import static java.util.Objects.isNull;
 public class MatchingWebSocketHandler extends TextWebSocketHandler {
     private final Map<String, Queue<WebSocketSession>> topicQueues = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper;
-    private final OpenviduConfigProps openviduConfigProps;
+    private final OpenViduConfigProps openviduConfigProps;
     private final String HEADER_TOPIC_ID = "X-Topic-Id";
     private final String HEADER_USER_ID = "X-User-Id";
 
@@ -119,7 +119,7 @@ public class MatchingWebSocketHandler extends TextWebSocketHandler {
             // 게임 메타데이터 생성 및 DB에 저장
 
             MatchingSuccessDto responseDto = MatchingSuccessDto.builder()
-                    .serverUrl(openviduConfigProps.getOpenviduUrl()) // todo game 쪽으로 넘겨야 할 거 같음
+                    .serverUrl(openviduConfigProps.getUrl()) // todo game 쪽으로 넘겨야 할 거 같음
                     .gameId("CreatedGameId")
                     .userIds(List.of( // DB에 저장, 응답으로는 넘기지 않음
                             getFromHeaders(player1, HEADER_USER_ID),
