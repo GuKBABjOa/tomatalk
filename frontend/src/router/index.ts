@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import DefaultLayout from '@/components/DefaultLayout.vue';
 import MainView from '@/views/MainView.vue';
+import MatchingView from '@/views/MatchingView.vue'
+
 //import PostDetail from '@/views/PostDetail.vue';
 
 const routes = [
@@ -9,6 +11,17 @@ const routes = [
     name: 'main',
     component: MainView,
     meta: {
+      layout: DefaultLayout,
+      headerType: '',
+      showNavBar: true,
+    },
+  },
+  {
+    path: '/match',
+    name: 'match',
+    component: MatchingView,
+    meta: {
+      // 필요에 따라 DefaultLayout이나 다른 레이아웃 지정
       layout: DefaultLayout,
       headerType: '',
       showNavBar: true,
