@@ -6,6 +6,7 @@ public class CustomException extends RuntimeException {
     HttpStatus status;
 
     protected CustomException(HttpStatus status) {
+        super("예외가 발생했습니다");
         this.status = status;
     }
 
