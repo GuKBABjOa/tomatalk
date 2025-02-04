@@ -36,12 +36,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(GET, "/api/auth/authentication").authenticated() // 인증 테스트 api
                         .requestMatchers(GET, "/api/auth/authorization").hasAuthority(UserRole.ADMIN.role()) // 인가 테스트 api
+                        .requestMatchers(GET, "/api/topics/**").permitAll()
                         .requestMatchers(OPTIONS, "/api/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
-//                        .requestMatchers(
-//                                "/ws/**",
-//                                "/ws"
-//                        ).permitAll() //
                         .anyRequest().permitAll())
                 .exceptionHandling(eh -> eh
                         .authenticationEntryPoint(authenticationEntryPointImpl)
