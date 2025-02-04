@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import team.overfullow.tolonbgeub.game.domain.Game;
 import team.overfullow.tolonbgeub.game.domain.GameStatus;
 import team.overfullow.tolonbgeub.game.domain.Player;
-import team.overfullow.tolonbgeub.game.dto.GameStateDto;
-import team.overfullow.tolonbgeub.game.dto.StanceInfo;
+import team.overfullow.tolonbgeub.game.message.payload.GameState;
+import team.overfullow.tolonbgeub.game.message.payload.StanceInfo;
 import team.overfullow.tolonbgeub.game.exception.GameErrorCode;
 import team.overfullow.tolonbgeub.game.exception.GameException;
 
@@ -22,7 +22,7 @@ public class GameService {
     private final Map<String, Game> games = new ConcurrentHashMap<>();
 
     // 게임 참여 처리
-    public GameStateDto joinGame(String gameId, String userId) {
+    public GameState joinGame(String gameId, String userId) {
         // todo userId 검증
 
         Game game = games.computeIfAbsent(gameId, id -> {
@@ -51,12 +51,12 @@ public class GameService {
     }
 
     // 게임 초기화
-    public GameStateDto initializeGame(String gameId) {
+    public GameState initializeGame(String gameId) {
         Game game = getGame(gameId);
         synchronized (game) {
             // 주제 설정 (Mocking)
-            game.setTopic("기후변화가 인류에게 미치는 영향");
-            game.setTopicDetail("지구 온난화로 인한 환경 변화가 인류의 생존에 어떤 영향을 미치는가? O:X");
+            game.setTopic("월 200 백수 VS 월 600 개발자");
+            game.setTopicDetail("하나만 고를 수 있다면? 월 200 백수 VS 월 600 개발자");
 
             // 플레이어 순서 무작위 설정
             List<String> playerIds = new ArrayList<>(game.getPlayers().keySet());
@@ -75,7 +75,7 @@ public class GameService {
     }
 
     // 주제 및 입장 발표
-    public GameStateDto announceTopicAndStances(String gameId) {
+    public GameState announceTopicAndStances(String gameId) {
         Game game = getGame(gameId);
         synchronized (game) {
             game.setCurrentRound(1);
@@ -86,7 +86,7 @@ public class GameService {
     }
 
     // 라운드 시작
-    public GameStateDto startRound(String gameId) {
+    public GameState startRound(String gameId) {
         Game game = getGame(gameId);
         synchronized (game) {
             if (game.getCurrentRound() > 3) {
@@ -97,7 +97,7 @@ public class GameService {
     }
 
     // 턴 종료 처리
-    public GameStateDto endTurn(String gameId) {
+    public GameState endTurn(String gameId) {
         Game game = getGame(gameId);
         synchronized (game) {
             if (game.isFirstPlayerTurn()) {
@@ -125,8 +125,8 @@ public class GameService {
     }
 
     // 게임 상태 변환
-    private GameStateDto convertToGameState(Game game) {
-        GameStateDto state = new GameStateDto();
+    private GameState convertToGameState(Game game) {
+        GameState state = new GameState();
         state.setGameId(game.getGameId());
         state.setTopic(game.getTopic());
         state.setTopicDetail(game.getTopicDetail());
@@ -143,6 +143,17 @@ public class GameService {
         });
         state.setPlayerStances(playerStances);
 
+
+//        GameStateRecord state = GameStateRecord.builder()
+//                .gameId(game.getGameId())
+//                .topic(game.getTopic())
+//                .topicDetail(game.getTopicDetail())
+//                .currentRound(game.getCurrentRound())
+//                .currentSpeaker(game.getCurrentSpeaker())
+//                .status(game.getStatus())
+//                .playerStances(playerStances)
+//                .build();
+
         return state;
     }
 
@@ -158,7 +169,7 @@ public class GameService {
      * - 게임 상태 업데이트
      * - 남은 플레이어에게 알림용 게임 상태 반환
      */
-    public GameStateDto handlePlayerDisconnect(String gameId, String userId) {
+    public GameState handlePlayerDisconnect(String gameId, String userId) {
         Game game = getGame(gameId);
 
         synchronized (game) {
