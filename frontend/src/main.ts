@@ -1,3 +1,4 @@
+import './assets/main.css'
 import './registerServiceWorker'
 
 import { createApp } from 'vue'
