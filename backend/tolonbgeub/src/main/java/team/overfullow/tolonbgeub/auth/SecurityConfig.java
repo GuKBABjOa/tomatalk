@@ -37,10 +37,12 @@ public class SecurityConfig {
                         .requestMatchers(GET, "/api/auth/login/**").permitAll()
                         .requestMatchers(GET, "/api/auth/authentication").authenticated() // 인증 테스트 api
                         .requestMatchers(GET, "/api/auth/authorization").hasAuthority(UserRole.ADMIN.role()) // 인가 테스트 api
+                        .requestMatchers(GET, "/api/users/**").permitAll()
                         .requestMatchers(GET, "/api/topics/**").permitAll()
                         .requestMatchers(GET, "/api/games/sample/**").permitAll()
                         .requestMatchers(OPTIONS, "/api/**").permitAll()
-                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers(PUT, "/api/users/change").authenticated()
+                        .requestMatchers("/api/**").permitAll()
                         .anyRequest().permitAll())
                 .exceptionHandling(eh -> eh
                         .authenticationEntryPoint(authenticationEntryPointImpl)
