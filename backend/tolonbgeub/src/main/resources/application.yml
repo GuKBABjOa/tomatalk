@@ -29,10 +29,16 @@ jwt:
   secret: ${JWT_SECRET}
   expiry-seconds: ${JWT_EXPIRY_SECONDS}
   refresh-expiry-seconds: ${JWT_REFRESH_EXPIRY_SECONDS}
-
 auth:
   scheme: "Bearer"
   header: Authorization
+oauth:
+  kakao:
+    client-id: ${KAKAO_REST_API_KEY}
+    client-secret: ${KAKAO_CLIENT_SECRET}
+    redirect-url: ${KAKAO_REDIRECT_URL}
+    access_token_api: ${KAKAO_TOKEN_API}
+    get_userinfo_api: ${KAKAO_USERINFO_API}
 
 OPENVIDU_URL: ${OPENVIDU_URL}
 OPENVIDU_SECRET: ${OPENVIDU_SECRET}
