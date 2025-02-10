@@ -11,7 +11,6 @@ public class UniqueIdGenerator implements IdGenerator {
     public Long generate(){
         long id = (((long) Instant.now().getNano())) << 32 | sequence.incrementAndGet();
         sequence.compareAndSet(Integer.MAX_VALUE, 0);
-        return sequence.longValue(); //todo timestamp:serverId:seq 형태의 유일 아이디 생성
+        return id; //todo timestamp:serverId:seq 형태의 유일 아이디 생성
     }
 }
-
