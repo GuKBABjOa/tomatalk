@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.auth;
+package team.overfullow.tolonbgeub.auth.security;
 
 
 import jakarta.servlet.FilterChain;
@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import team.overfullow.tolonbgeub.auth.AuthConfigProps;
 
 import java.io.IOException;
 

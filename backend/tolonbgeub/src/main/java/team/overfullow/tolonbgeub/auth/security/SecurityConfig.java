@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.auth;
+package team.overfullow.tolonbgeub.auth.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +11,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import team.overfullow.tolonbgeub.auth.AuthConfigProps;
+import team.overfullow.tolonbgeub.auth.UserRole;
 
 import static org.springframework.http.HttpMethod.*;
 
@@ -21,6 +23,7 @@ public class SecurityConfig {
 
     private final AuthConfigProps authConfigProps;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
+    private final KakaoAuthenticationProvider kakaoAuthenticationProvider;
     private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
 
@@ -35,6 +38,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(GET, "/api/auth/login/**").permitAll()
+                        .requestMatchers(POST, "/api/auth/login/**").permitAll()
                         .requestMatchers(GET, "/api/auth/authentication").authenticated() // 인증 테스트 api
                         .requestMatchers(GET, "/api/auth/authorization").hasAuthority(UserRole.ADMIN.role()) // 인가 테스트 api
                         .requestMatchers(GET, "/api/users/**").permitAll()
@@ -53,7 +57,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager() {
-        return new ProviderManager(jwtAuthenticationProvider);
+        return new ProviderManager(kakaoAuthenticationProvider, jwtAuthenticationProvider);
     }
 
     private JwtAuthenticationFilter jwtAuthenticationFilter() {

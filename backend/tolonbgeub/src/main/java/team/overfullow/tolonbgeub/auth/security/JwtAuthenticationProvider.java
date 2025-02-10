@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.auth;
+package team.overfullow.tolonbgeub.auth.security;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+import team.overfullow.tolonbgeub.auth.UserId;
 import team.overfullow.tolonbgeub.auth.jwt.JwtClaims;
 import team.overfullow.tolonbgeub.auth.jwt.JwtValidationException;
 import team.overfullow.tolonbgeub.auth.jwt.JwtValidator;

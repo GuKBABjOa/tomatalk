@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.auth;
+package team.overfullow.tolonbgeub.auth.security;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +10,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+import team.overfullow.tolonbgeub.auth.AuthException;
 
 import java.io.IOException;
 

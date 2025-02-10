@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.auth.oauth;
+package team.overfullow.tolonbgeub.auth.oauth.kakao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,6 +10,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import team.overfullow.tolonbgeub.auth.oauth.OauthException;
+import team.overfullow.tolonbgeub.auth.oauth.OauthUserInfo;
 
 @Slf4j
 @Service
@@ -31,7 +33,12 @@ public class KakaoLoginService {
                 kakaoLoginProperties.redirectUrl);
     }
 
-    public KakaoTokens getKakaoTokens(String code) {
+    public OauthUserInfo login(String code) {
+        KakaoTokens kakaoTokens = getKakaoTokens(code);
+        return getUserInfo(kakaoTokens.accessToken());
+    }
+
+    private KakaoTokens getKakaoTokens(String code) {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(accessTokenApi)
                 .queryParam("grant_type", "authorization_code")
                 .queryParam("client_id", kakaoLoginProperties.clientId)
@@ -50,7 +57,10 @@ public class KakaoLoginService {
         log.info("response: {}", response);
         if (response.getStatusCode() == HttpStatus.OK) {
             return parseKakaoTokens(response.getBody());
-        } else {
+        } else if(response.getStatusCode().is4xxClientError()){
+            log.error("카카오 로그인 클라이언트 오류: {}", response.getBody());
+            throw new OauthException(HttpStatus.BAD_REQUEST, "유효하지 않은 인증 Code 입니다.");
+        }else {
             throw new OauthException(HttpStatus.INTERNAL_SERVER_ERROR, "카카오 로그인 실패");
         }
     }
@@ -70,7 +80,7 @@ public class KakaoLoginService {
         }
     }
 
-    public KakaoUserInfo getUserInfo(String accessToken) {
+    private OauthUserInfo getUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -85,18 +95,17 @@ public class KakaoLoginService {
         }
     }
 
-    private KakaoUserInfo parseKakaoUserInfo(String response) {
+    private OauthUserInfo parseKakaoUserInfo(String response) {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
             JsonNode jsonNode = objectMapper.readTree(response);
 
-            Long oauthId = jsonNode.get("id").asLong();
             String email = jsonNode.path("kakao_account")
                     .path("email")
                     .asText();
 
-            return KakaoUserInfo.of(oauthId, email);
+            return OauthUserInfo.of(email);
         } catch (JsonProcessingException e) {
             throw new OauthException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
