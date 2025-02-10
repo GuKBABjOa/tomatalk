@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import team.overfullow.tolonbgeub.auth.dto.response.LoginUrlResponse;
 import team.overfullow.tolonbgeub.auth.oauth.KakaoLoginService;
 import team.overfullow.tolonbgeub.auth.oauth.KakaoTokens;
+import team.overfullow.tolonbgeub.auth.oauth.KakaoUserInfo;
 
 @Slf4j
 @RestController
@@ -30,10 +31,10 @@ public class AuthController {
     public ResponseEntity<String> loginWithKakao(@RequestParam("code") String code) {
         log.info("카카오 로그인 요청 code = {}", code);
         KakaoTokens kakaoTokens = kakaoLoginService.getKakaoTokens(code);
-//        KakaoUserInfo userInfo = kakaoLoginService.getUserInfo(kakaoTokens.accessToken());
+        KakaoUserInfo userInfo = kakaoLoginService.getUserInfo(kakaoTokens.accessToken());
 
         log.info("kakao login successful");
-//        log.info("userInfo: {}", userInfo);
+        log.info("userInfo: {}", userInfo);
 
         return ResponseEntity.ok("로그인 성공");
     }

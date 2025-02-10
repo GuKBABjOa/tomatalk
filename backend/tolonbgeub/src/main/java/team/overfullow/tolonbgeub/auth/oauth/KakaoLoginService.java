@@ -66,43 +66,39 @@ public class KakaoLoginService {
 
             return KakaoTokens.of(accessToken, refreshToken);
         } catch (JsonProcessingException e) {
-            throw new OauthException(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new OauthException(HttpStatus.INTERNAL_SERVER_ERROR, "카카오 로그인 실패");
         }
     }
 
-//    public KakaoUserInfo getUserInfo(String accessToken) {
-//        String url = userInfoApi;
-//
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.set("Authorization", "Bearer " + accessToken);
-//
-//        HttpEntity<String> entity = new HttpEntity<>(headers);
-//
-//        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity,
-//                String.class);
-//
-//        if (response.getStatusCode().is2xxSuccessful()) {
-//            return parseKakaoUserInfo(response.getBody());
-//        } else {
-//            throw new OauthException(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
-//    private KakaoUserInfo parseKakaoUserInfo(String response) {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//
-//        try {
-//            JsonNode jsonNode = objectMapper.readTree(response);
-//
-//            Long oauthId = jsonNode.get("id").asLong();
-//            String email = jsonNode.path("kakao_account")
-//                    .path("profile")
-//                    .get("email")
-//                    .asText();
-//
-//            return KakaoUserInfo.of(oauthId, email);
-//        } catch (JsonProcessingException e) {
-//            throw new OauthException(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+    public KakaoUserInfo getUserInfo(String accessToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        log.info("userInfoApi: {}", userInfoApi);
+
+        ResponseEntity<String> response = restTemplate.exchange(userInfoApi, HttpMethod.GET, entity, String.class);
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return parseKakaoUserInfo(response.getBody());
+        } else {
+            throw new OauthException(HttpStatus.INTERNAL_SERVER_ERROR, "카카오 로그인 실패");
+        }
+    }
+
+    private KakaoUserInfo parseKakaoUserInfo(String response) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            JsonNode jsonNode = objectMapper.readTree(response);
+
+            Long oauthId = jsonNode.get("id").asLong();
+            String email = jsonNode.path("kakao_account")
+                    .path("email")
+                    .asText();
+
+            return KakaoUserInfo.of(oauthId, email);
+        } catch (JsonProcessingException e) {
+            throw new OauthException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
