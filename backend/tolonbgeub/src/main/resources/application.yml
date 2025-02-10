@@ -36,7 +36,7 @@ oauth:
   kakao:
     client-id: ${KAKAO_REST_API_KEY}
     client-secret: ${KAKAO_CLIENT_SECRET}
-    redirect-url: ${KAKAO_REDIRECT_URL}
+    redirect-url: ${KAKAO_REDIRECT_URL} # 프론트 url
     access_token_api: ${KAKAO_TOKEN_API}
     get_userinfo_api: ${KAKAO_USERINFO_API}
 
