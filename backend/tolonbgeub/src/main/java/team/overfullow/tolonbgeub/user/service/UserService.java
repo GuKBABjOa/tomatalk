@@ -3,9 +3,11 @@ package team.overfullow.tolonbgeub.user.service;
 import team.overfullow.tolonbgeub.user.dto.UserRequest;
 import team.overfullow.tolonbgeub.user.dto.UserResponse;
 
+import java.util.Optional;
+
 public interface UserService {
     // 유저 생성
-    String createUser(UserRequest request);
+    UserResponse createUser(UserRequest request);
 
     // 유저 프로필 조회
     UserResponse getUserProfile(Long userId);
@@ -18,4 +20,6 @@ public interface UserService {
 
     // 사용자 정보 수정 (닉네임 변경)
     UserResponse updateUserNickname(Long userId, String newNickname);
+
+    Optional<UserResponse> findByEmail(String email);
 }

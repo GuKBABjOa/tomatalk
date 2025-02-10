@@ -40,10 +40,10 @@ public class UserController {
     }
 
     //  유저 생성 API
-    // 닉네임 중복 조회
+    @Deprecated
     @PostMapping("/create")
-    public ResponseEntity checkNickname(@RequestBody UserRequest request) {
-        return ResponseEntity.ok(userService.createUser(request));
+    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(request));
     }
 
 

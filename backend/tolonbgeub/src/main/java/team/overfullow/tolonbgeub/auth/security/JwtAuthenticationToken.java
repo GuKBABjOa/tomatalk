@@ -1,12 +1,13 @@
-package team.overfullow.tolonbgeub.auth;
+package team.overfullow.tolonbgeub.auth.security;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
+import team.overfullow.tolonbgeub.auth.UserId;
 import team.overfullow.tolonbgeub.auth.jwt.JwtClaims;
 
 import java.util.Collection;
 
-public class JwtAuthenticationToken extends CustomAuthenticationToken {
+public class JwtAuthenticationToken extends CustomAuthenticationToken implements CustomAuthentication{
     private final UserId principal;
     private final Jwt credentials;
     private final JwtClaims details;

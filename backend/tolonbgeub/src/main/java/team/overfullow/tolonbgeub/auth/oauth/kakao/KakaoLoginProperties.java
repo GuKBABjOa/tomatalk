@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.auth.oauth;
+package team.overfullow.tolonbgeub.auth.oauth.kakao;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.auth.oauth;
+package team.overfullow.tolonbgeub.auth.oauth.kakao;
 
 public record KakaoTokens(
         String accessToken,

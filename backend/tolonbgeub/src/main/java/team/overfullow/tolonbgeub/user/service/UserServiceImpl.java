@@ -1,6 +1,8 @@
 package team.overfullow.tolonbgeub.user.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import team.overfullow.tolonbgeub.user.Repository.UserRepository;
@@ -11,96 +13,88 @@ import team.overfullow.tolonbgeub.user.User;
 
 import team.overfullow.tolonbgeub.auth.util.IdGenerator;
 
-import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Function;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private  final IdGenerator idGenerator;
+    private final IdGenerator idGenerator;
 
-    // user 생성
-    // 일단 id 확인용으로 저장, 출력하고 값을 할당
     @Override
-    public String createUser(UserRequest request) {
-        // 닉네임 중복 검사
-        if (checkNickname(request.nickname())) {
-            throw new UserException(HttpStatus.BAD_REQUEST, "이미 사용 중인 닉네임입니다.");
+    public UserResponse createUser(UserRequest request) {
+        var userBuilder = User.builder()
+                .email(request.email())
+                .nickname(request.nickname());
+        Optional<User> optionalUser = userRepository.findByEmail(request.email());
+        if(optionalUser.isPresent()) {
+            throw new UserException(HttpStatus.CONFLICT, "이미 존재하는 회원 이메일입니다.");
+        } else if(StringUtils.isBlank(request.nickname())){
+            userBuilder.nickname(UUID.randomUUID().toString()); // UUID로 랜덤 별명 지정
+        } else if (checkNickname(request.nickname())) {
+            throw new UserException(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다.");
         }
 
-        try {
-            long id = idGenerator.generate();
-            System.out.println("userId: " + id);
-
-            User user = User.builder()
-                    .id(id)
-                    .nickname(request.nickname())
-                    .build();
-
-            userRepository.save(user);
-            return "사용자 생성 성공! ID: " + id;
-
-        } catch (Exception e) {
-            throw new UserException(HttpStatus.INTERNAL_SERVER_ERROR, "사용자 생성 중 오류 발생: " + e.getMessage());
-        }
+        User user = userRepository.save(userBuilder
+                .id(idGenerator.generate())
+                .build());
+        log.info("유저 생성 성공 id = {}, email = {}", user.getId(), user.getEmail());
+        return mapUserResponse(user);
     }
-
 
     @Override
     public UserResponse getUserProfile(Long userId) {
         return userRepository.findById(userId)
-                .map(u -> UserResponse.builder()
-                        .userId(u.getId())
-                        .nickname(u.getNickname())
-                        .createdAt(u.getCreatedAt())
-                        .lastModifiedAt(u.getLastModifiedAt())
-                        .build())
-                .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND));
+                .map(toUserResponse())
+                .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다"));
     }
 
     @Override
     public UserResponse getMyProfile(Long userId) {
         return userRepository.findById(userId)
-                .map(u -> UserResponse.builder()
-                        .userId(u.getId())
-                        .nickname(u.getNickname())
-                        .createdAt(u.getCreatedAt())
-                        .lastModifiedAt(u.getLastModifiedAt())
-                        .build())
-                .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND));
+                .map(toUserResponse())
+                .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다"));
     }
 
 
     @Override
-    public boolean  checkNickname(String nickname) {
-        return userRepository.countByNickname(nickname) > 0; // 닉네임이 존재하면 true 반환
+    public boolean checkNickname(String nickname) {
+        return userRepository.existsByNickname(nickname);
     }
 
     @Override
-    public UserResponse updateUserNickname(Long userId ,String newNickname) {
+    public UserResponse updateUserNickname(Long userId, String newNickname) {
         // 닉네임 중복 검사
         if (checkNickname(newNickname)) {
-            throw new UserException(HttpStatus.BAD_REQUEST, "이미 사용 중인 닉네임입니다.");
+            throw new UserException(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다.");
         }
 
-        return userRepository.findById(userId)
-                .map(user -> {
-                    // 닉네임 변경
-                    User updatedUser = User.builder()
-                            .id(user.getId()) // 기존 ID 유지
-                            .nickname(newNickname) // 새로운 닉네임 적용
-                            .build();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다"));
 
-                    userRepository.save(updatedUser);
-
-                    return UserResponse.builder()
-                            .userId(updatedUser.getId())
-                            .nickname(updatedUser.getNickname())
-                            .createdAt(updatedUser.getCreatedAt())
-                            .lastModifiedAt(updatedUser.getLastModifiedAt())
-                            .build();
-                })
-                .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+        user.changeNickname(newNickname);
+        return mapUserResponse(user);
     }
 
+    @Override
+    public Optional<UserResponse> findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(toUserResponse());
+    }
+
+    private static Function<User, UserResponse> toUserResponse() {
+        return u -> mapUserResponse(u);
+    }
+
+    private static UserResponse mapUserResponse(User u) {
+        return UserResponse.builder()
+                .userId(u.getId())
+                .nickname(u.getNickname())
+                .createdAt(u.getCreatedAt())
+                .lastModifiedAt(u.getLastModifiedAt())
+                .build();
+    }
 }
