@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.topic;
+package team.overfullow.tolonbgeub.subject;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -9,11 +9,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @Component
 @RequiredArgsConstructor
-public class TopicApiClient {
+public class SubjectApiClient {
 
     private final MockMvc mockMvc;
 
-    public ResultActions getTopic(Long topicId) throws Exception {
-        return mockMvc.perform(get("/api/topics/{topicId}", topicId));
+    public ResultActions callGetById(Long subjectId) throws Exception {
+        return mockMvc.perform(get("/api/subjects/{subjectId}", subjectId));
     }
 }

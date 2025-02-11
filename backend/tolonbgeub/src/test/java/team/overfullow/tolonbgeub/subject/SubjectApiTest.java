@@ -1,6 +1,5 @@
-package team.overfullow.tolonbgeub.topic;
+package team.overfullow.tolonbgeub.subject;
 
-import lombok.Builder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,55 +11,55 @@ import team.overfullow.tolonbgeub.ApiTestSupport;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class TopicApiTest extends ApiTestSupport {
+public class SubjectApiTest extends ApiTestSupport {
 
     @Autowired
-    TopicApiClient topicApiClient;
+    SubjectApiClient subjectApiClient;
 
     @Autowired
-    TopicRepository topicRepository;
+    SubjectRepository subjectRepository;
 
     @BeforeEach
     public void clean() throws Exception {
-        topicRepository.deleteAll();
+        subjectRepository.deleteAll();
     }
 
     @Nested
-    @DisplayName("주제 단건 조회 테스트")
+    @DisplayName("논제 단건 조회 테스트")
     class AuthenticationTest {
         @Test
-        @DisplayName("topicId에 해당하는 주제 상세 정보를 조회한다")
+        @DisplayName("id에 해당하는 논제 상세 정보를 조회한다")
         void authenticationSuccess() throws Exception {
             // given
-            Topic topic = topicRepository.save(Topic.builder()
+            Subject subject = subjectRepository.save(Subject.builder()
                     .id(1L)
-                    .topic("주제")
-                    .description("주제에 대한 설명")
+                    .subject("논제")
+                    .description("논제에 대한 설명")
                     .build());
 
             // when
-            ResultActions result = topicApiClient.getTopic(topic.getId());
+            ResultActions result = subjectApiClient.callGetById(subject.getId());
 
             // then
             result.andExpectAll(
                     status().isOk(),
-                    jsonPath("$.topicId").value(topic.getId().toString()),
-                    jsonPath("$.topic").value(topic.getTopic()),
-                    jsonPath("$.description").value(topic.getDescription())
+                    jsonPath("$.subjectId").value(subject.getId().toString()),
+                    jsonPath("$.subject").value(subject.getSubject()),
+                    jsonPath("$.description").value(subject.getDescription())
             );
         }
 
         @Nested
-        @DisplayName("주제 단건 조회에 실패한다")
+        @DisplayName("논제 단건 조회에 실패한다")
         class Failure{
             @Test
-            @DisplayName("topicId에 해당하는 주제가 존재하지 않는 경우")
+            @DisplayName("subjectId에 해당하는 논제가 존재하지 않는 경우")
             void withNotFound() throws Exception {
                 // given
-                Long topicId = 1L; // 존재하지 않는 토픽 Id
+                Long subjectId = 1L; // 존재하지 않는 토픽 Id
 
                 // when
-                ResultActions result = topicApiClient.getTopic(topicId);
+                ResultActions result = subjectApiClient.callGetById(subjectId);
 
                 // then
                 result.andExpectAll(
