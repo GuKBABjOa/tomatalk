@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.topic;
+package team.overfullow.tolonbgeub.subject;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -9,19 +9,18 @@ import team.overfullow.tolonbgeub.core.auditing.BaseTimeEntity;
 
 
 @Entity
-@Table(name = "topics")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Topic extends BaseTimeEntity {
+public class Subject extends BaseTimeEntity {
     @Id
     private Long id;
-    private String topic;
+    private String subject;
     private String description;
 
     @Builder
-    protected Topic(Long id, String topic, String description){
+    protected Subject(Long id, String subject, String description) {
         this.id = id;
-        this.topic = topic;
+        this.subject = subject;
         this.description = description;
     }
 }
