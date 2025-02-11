@@ -24,6 +24,23 @@ spring:
       ddl-auto: create-drop # 실제 배포 환경에서는 다른 옵션을 사용해야 합니다.
     open-in-view: false
 
+springdoc:
+#  packages-to-scan: kr.ac.sejong.ds.restaurant  # Swagger 문서를 생성할 컨트롤러가 포함된 패키지를 지정
+#  paths-to-match: /**  # 문서화할 경로를 지정합니다. /**는 모든 경로를 의미
+
+  swagger-ui:
+    path: /api/docs  # 생성된 API 문서의 경로를 지정
+  api-docs:
+    path: /api/docs/json  # 생성된 API 문서의 경로를 지정
+    groups:
+      enabled: true  # 그룹별로 API 문서를 생성할지 여부 (기본값: true)
+  cache:
+    disabled: true  # Swagger 문서의 캐싱을 사용하지 않도록 설정 (기본값: false)
+
+  # 기본적으로 사용할 요청 및 응답의 미디어 타입을 설정
+  default-produces-media-type: application/json;charset=UTF-8
+  default-consumes-media-type: application/json;charset=UTF-8
+
 jwt:
   issuer: ${JWT_ISSUER}
   secret: ${JWT_SECRET}

@@ -25,7 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //todo log 수정
-        log.info("JwtAuthenticationFilter: in progress: request = {} {}", request.getMethod(), request.getRequestURI());
+        log.info("JwtAuthenticationFilter: in progress: request = {} {} {}", request.getMethod(), request.getRequestURI(), request.getQueryString());
         String authHeader = request.getHeader(authConfigProps.header);
 
         log.info("JwtAuthenticationFilter: authHeader = {}", authHeader);

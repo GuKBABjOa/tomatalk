@@ -28,7 +28,7 @@ public class JwtValidator {
             if(e instanceof TokenExpiredException){
                 throw new JwtValidationException("만료된 토큰입니다");
             }else {
-                throw new JwtValidationException();
+                throw new JwtValidationException(e.getMessage());
             }
         }
     }
