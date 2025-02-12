@@ -1,6 +1,6 @@
 <template>
     <column class="column-card">
-        <img :src="imageUrl" alt="Column thumbnail" style="width: 100%; height: 200px; object-fit: cover;" />
+        <img :src="thumbnailUrl" alt="Column thumbnail" style="width: 100%; height: 200px; object-fit: cover;" />
         <div style="padding: 1.5rem;">
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
                 <span :class="['category-badge', categoryClass]">{{ categoryLabel }}</span>
@@ -27,10 +27,6 @@ import { computed } from 'vue'
 import { defineProps } from 'vue'
 
 const props = defineProps({
-    imageUrl: {
-        type: String,
-        default: '/api/placeholder/400/200'
-    },
     // category prop의 값은 'politics', 'economy', 'ethics', 'science', 'education' 중 하나여야 합니다.
     category: {
         type: String,
@@ -74,6 +70,24 @@ const categoryLabel = computed(() => {
 const categoryClass = computed(() => {
     // props.category 값을 그대로 CSS 클래스명으로 사용합니다.
     return props.category
+})
+
+const thumbnailUrl = computed(() => {
+    switch (props.category) {
+        case 'politics':
+            return new URL('../assets/politics.webp', import.meta.url).href
+        case 'economy':
+            return new URL('../assets/economy.webp', import.meta.url).href
+        case 'ethics':
+            return new URL('../assets/ethics.webp', import.meta.url).href
+        case 'science':
+            return new URL('../assets/science.webp', import.meta.url).href
+        case 'education':
+            return new URL('../assets/education.webp', import.meta.url).href
+        default:
+            // 기본 이미지 (없을 경우)
+            return new URL('../assets/column-thumbnails/default.jpg', import.meta.url).href
+    }
 })
 </script>
 

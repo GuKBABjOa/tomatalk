@@ -1,6 +1,7 @@
 import Main from '@/views/Main.vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import ColumnPage from '@/views/ColumnPage.vue'
 import OngoingDebate from '@/views/OngoingDebate.vue'
+import { createRouter, createWebHistory } from 'vue-router'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -14,7 +15,12 @@ const router = createRouter({
       name: "debate",
       component: OngoingDebate
     },
-  ]
+    {
+      path: '/column',
+      name: 'column',
+      component: ColumnPage
+    }
+  ],
 })
 
 export default router
