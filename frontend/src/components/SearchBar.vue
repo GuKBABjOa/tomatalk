@@ -1,8 +1,8 @@
 <template>
   <div class="search-container">
     <div class="search-bar-container">
-      <input v-model="searchQuery" type="text" :placeholder="placeholder" class="search-bar" @input="updateSearch" />
-      <button class="search-btn">검색</button>
+      <input v-model="localQuery" type="text" :placeholder="placeholder" class="search-bar" />
+      <button class="search-btn" @click="handleSearch">검색</button>
     </div>
 
     <div class="filter-row">
@@ -49,33 +49,24 @@ const props = defineProps({
   categories: {
     type: Array,
     default: () => []
-  },
-  initialSelectedCategories: {
-    type: Array,
-    default: () => []
   }
 });
 
 const emit = defineEmits(["update:query", "update:sort", "update:category"]);
 
-const searchQuery = ref(props.query);
+const localQuery = ref(props.query);
 const sortOption = ref(props.sort);
 // 멀티 선택을 위한 배열로 관리
-const selectedCategories = ref([...props.initialSelectedCategories]);
+const selectedCategories = ref([]);
 
-// 검색어 변경 시 부모에 반영
-const updateSearch = () => {
-  emit("update:query", searchQuery.value);
+const handleSearch = () => {
+  emit("update:query", localQuery.value);
 };
 
 // 정렬 변경 시 부모에 반영
 const updateSort = () => {
   emit("update:sort", sortOption.value);
 };
-
-watch(() => props.initialSelectedCategories, (newVal) => {
-  selectedCategories.value = [...newVal];
-});
 
 // 카테고리 토글 (선택 또는 해제)
 const toggleCategory = (value) => {
@@ -84,14 +75,14 @@ const toggleCategory = (value) => {
     selectedCategories.value = selectedCategories.value.filter(cat => cat !== value);
   } else {
     // 선택되지 않았다면 추가
-    selectedCategories.value.push(value);
+    selectedCategories.value = [...selectedCategories.value, value];
   }
   // 부모로 선택된 카테고리 배열 전달
   emit("update:category", selectedCategories.value);
 };
 
 watch(() => props.query, (newVal) => {
-  searchQuery.value = newVal;
+  localQuery.value = newVal;
 });
 
 watch(() => props.sort, (newVal) => {
