@@ -48,12 +48,15 @@
 
       <!-- 로그인/로그아웃 영역 -->
       <div class="sidebar-footer">
+        <!-- 로그인 상태일 때 로그아웃 버튼 -->
         <div v-if="isLoggedIn" class="sidebar-auth-item" @click="handleLogout">
           <img src="@/assets/logout.svg" alt="로그아웃" class="nav-icon" />
           <span class="sidebar-text" :class="{ 'hidden-text': !isSidebarOpen }">
             로그아웃
           </span>
         </div>
+
+        <!-- 로그인 상태가 아닐 때 카카오 로그인 버튼 -->
         <div v-else class="login-container">
           <button class="kakao-login-btn" @click="handleKakaoLogin">
             <img :src="getImageUrl('kakao.svg')" alt="카카오 로그인" class="kakao-icon" />
@@ -73,11 +76,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import MatchingStatus from "@/components/MatchingStatus.vue";
 import MatchingSuccessModal from "@/components/MatchingSuccessModal.vue";
+
 
 type MenuItem = {
   name: string;
@@ -98,22 +102,21 @@ const participants = ref<number>(1);
 const cancelState = ref<'initial' | 'confirm' | 'completing' | 'completed'>('initial');
 const isModalOpen = ref<boolean>(false);
 const countdown = ref<number>(5);
-const isLoggedIn = ref<boolean>(false);
 
 let joinInterval: number | null = null;
 let countdownInterval: number | null = null;
 
 const menuItems = ref<MenuItem[]>([
-  { name: "진행 중인 토론", path: "/", icon: "discussion_list.svg" },
-  { name: "칼럼게시판", path: "/", icon: "column.svg" },
+  { name: "진행 중인 토론", path: "/debate", icon: "discussion_list.svg" },
+  { name: "칼럼게시판", path: "/column", icon: "column.svg" },
   { name: "마이페이지", path: "/", icon: "user.svg" },
 ]);
 
 const participantsData = ref<Participant[]>([
-  { name: "P1(나)", image: null },
-  { name: "P2", image: null },
-  { name: "P3", image: null },
-  { name: "P4", image: null }
+  { name: "참여자1(나)", image: null },
+  { name: "참여자2", image: null },
+  { name: "참여자3", image: null },
+  { name: "참여자4", image: null }
 ]);
 
 const getImageUrl = (filename: string): string => {
@@ -218,12 +221,22 @@ const closeModal = (): void => {
   }
 };
 
+const token = ref<string | null>(localStorage.getItem("token"));
+const isLoggedIn = computed(() => !!token.value);
+
+const loginSuccess = (newToken: string) => {
+  localStorage.setItem("token", newToken);
+  token.value = newToken;
+};
+
+// 1️⃣ 카카오 로그인 요청 → 로그인 페이지 이동
 const handleKakaoLogin = async (): Promise<void> => {
   try {
-    const response = await axios.get<{ requestUrl?: string }>(`http://localhost:8080/api/auth/login/kakao/url`);
-    if (response.data?.requestUrl) {
-      console.log("카카오 로그인 URL:", response.data.requestUrl);
-      window.location.href = response.data.requestUrl;
+    const response = await axios.get<{ loginUrl?: string }>("http://localhost:8080/api/auth/login/kakao/url");
+
+    if (response.data?.loginUrl) {
+      console.log("카카오 로그인 URL:", response.data.loginUrl);
+      window.location.href = response.data.loginUrl; // 카카오 로그인 페이지로 이동
     } else {
       console.error("카카오 로그인 URL을 가져오지 못했습니다.");
     }
@@ -232,9 +245,41 @@ const handleKakaoLogin = async (): Promise<void> => {
   }
 };
 
+// 2️⃣ 현재 URL에서 code 추출
+const getAuthCode = (): string | null => {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get("code");
+};
+
+// 3️⃣ 추출한 code를 백엔드에 보내 로그인 요청
+const sendKakaoLoginRequest = async (authCode: string): Promise<void> => {
+  try {
+    const response = await axios.post<{ accessToken: string }>(
+      "http://localhost:8080/api/auth/login/kakao?code=" + authCode
+    );
+
+    console.log("로그인 성공:", response.data);
+    loginSuccess(response.data.accessToken);
+    await router.push("/");
+  } catch (error) {
+    console.error("로그인 요청 중 오류 발생:", error);
+  }
+};
+
+
+// 4️⃣ 페이지가 로드될 때 code를 확인하고 로그인 요청 실행
+onMounted(async () => {
+  token.value = localStorage.getItem("token");
+  const authCode = getAuthCode();
+  if (authCode) {
+    await sendKakaoLoginRequest(authCode);
+  }
+});
+
 const handleLogout = (): void => {
-  console.log("로그아웃 시도");
-  isLoggedIn.value = false;
+  console.log("로그아웃");
+  localStorage.removeItem("token");
+  token.value = null; // 토큰 갱신해서 vue가 바로 감지하도록
 };
 </script>
 
