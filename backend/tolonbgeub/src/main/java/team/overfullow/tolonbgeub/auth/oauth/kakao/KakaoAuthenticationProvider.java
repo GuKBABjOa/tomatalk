@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.auth.security;
+package team.overfullow.tolonbgeub.auth.oauth.kakao;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,8 +9,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import team.overfullow.tolonbgeub.auth.UserId;
 import team.overfullow.tolonbgeub.auth.UserRole;
-import team.overfullow.tolonbgeub.auth.oauth.kakao.KakaoLoginService;
-import team.overfullow.tolonbgeub.auth.oauth.OauthUserInfo;
 import team.overfullow.tolonbgeub.user.dto.UserRequest;
 import team.overfullow.tolonbgeub.user.dto.UserResponse;
 import team.overfullow.tolonbgeub.user.service.UserService;

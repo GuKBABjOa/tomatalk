@@ -1,9 +1,10 @@
-package team.overfullow.tolonbgeub.auth.security;
+package team.overfullow.tolonbgeub.auth.oauth.kakao;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 import team.overfullow.tolonbgeub.auth.UserId;
+import team.overfullow.tolonbgeub.auth.security.CustomAuthentication;
 
 import java.util.Collection;
 

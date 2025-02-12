@@ -3,6 +3,7 @@ package team.overfullow.tolonbgeub.auth.jwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import team.overfullow.tolonbgeub.auth.util.IdGenerator;
 
@@ -16,6 +17,7 @@ import static team.overfullow.tolonbgeub.auth.jwt.JwtClaimName.*;
 import static team.overfullow.tolonbgeub.auth.jwt.JwtType.ACCESS;
 import static team.overfullow.tolonbgeub.auth.jwt.JwtType.REFRESH;
 
+@Slf4j
 @Component
 public class JwtProvider {
     private final String issuer;
@@ -26,7 +28,6 @@ public class JwtProvider {
     private final IdGenerator idGenerator;
 
     public JwtProvider(JwtConfigProps jwtConfigProps, IdGenerator idGenerator) {
-
         this.issuer = jwtConfigProps.issuer;
         this.expirySecondsMap = Map.of(
                 ACCESS, jwtConfigProps.expirySeconds,
@@ -47,8 +48,10 @@ public class JwtProvider {
     }
 
     private String generate(String userId, List<String> roles, JwtType type, long expirySeconds) {
+        String tokenId = idGenerator.generate().toString();
+        log.info("Generated id {}", tokenId);
         return JWT.create().withIssuer(issuer)
-                .withClaim(TOKEN_ID.claim(), idGenerator.generate())
+                .withClaim(TOKEN_ID.claim(), tokenId)
                 .withClaim(USER_ID.claim(), userId)
                 .withClaim(ROLES.claim(), roles)
                 .withClaim(TYPE.claim(), type.name())

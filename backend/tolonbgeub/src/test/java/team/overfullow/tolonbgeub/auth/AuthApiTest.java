@@ -9,6 +9,8 @@ import team.overfullow.tolonbgeub.ApiTestSupport;
 import team.overfullow.tolonbgeub.auth.jwt.JwtProvider;
 import team.overfullow.tolonbgeub.auth.jwt.JwtType;
 import team.overfullow.tolonbgeub.auth.jwt.SignedJwt;
+import team.overfullow.tolonbgeub.user.dto.UserRequest;
+import team.overfullow.tolonbgeub.user.service.UserService;
 
 import java.util.List;
 
@@ -25,6 +27,39 @@ public class AuthApiTest extends ApiTestSupport {
     @Autowired
     AuthApiClient authApiClient;
 
+    @Autowired
+    UserService userService;
+
+    @Nested
+    @DisplayName("로그아웃 API")
+    class Logout {
+        @Test
+        @DisplayName("요청이 성공하면 엑세스 토큰을 만료 처리한다")
+        void logout() throws Exception {
+            // given
+            Long userId = userService.createUser(UserRequest.builder()
+                    .email("test@test.com")
+                    .nickname("test")
+                    .build()).userId();
+            String accessToken = jwtProvider.generate(userId.toString(), List.of(UserRole.USER.role()), JwtType.ACCESS).value();
+
+            // when
+            ResultActions firstResult = authApiClient.autnenticate(accessToken);
+            ResultActions logoutResult = authApiClient.logout(accessToken);
+            ResultActions secondResult = authApiClient.autnenticate(accessToken);
+
+            // then
+            firstResult.andExpectAll(
+                    status().isOk(),
+                    jsonPath("$").value(userId.toString())
+            );
+            logoutResult.andExpect(status().isNoContent());
+            secondResult.andExpectAll(
+                    status().isUnauthorized(),
+                    jsonPath("$.message").exists()
+            );
+        }
+    }
 
     @Nested
     @DisplayName("인증 테스트")
