@@ -47,6 +47,28 @@
       </div>
 
       <!-- 선택된 옵션들 -->
+      <!-- 저장된 신청 정보 localStorage에서 불러오기 
+          토론 종류(현재는 하나밖에 없으니까 생략), 주제 카테고리 id, 주제 카테고리 이름  
+      -->
+       
+       <!-- import { defineStore } from 'pinia';
+
+      export const useMatchingStore = defineStore('matching', {
+        state: () => ({
+          method: null,
+          category: null,
+        }),
+        actions: {
+          async loadMatchingInfo() {
+            const data = await fetchMatchingInfo();
+            if (data) {
+              this.method = data.method;
+              this.category = data.category;
+            }
+          },
+        },
+      });
+      -->
       <div class="options-wrapper">
         <div class="option-group">
           <span class="option-label">토론 방식</span>
