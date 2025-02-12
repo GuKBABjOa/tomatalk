@@ -16,12 +16,16 @@ import Sidebar from "@/components/Sidebar.vue";
 
 <style scoped>
 #app-container {
-  display: flex; /* Sidebar와 Content를 가로로 배치 */
-  height: 100vh; /* 전체 화면 높이 */
+  display: flex;
+  /* Sidebar와 Content를 가로로 배치 */
+  height: 100vh;
+  /* 전체 화면 높이 */
 }
 
-#app-container > .flex-1 {
-  background-color: rgb(255, 255, 255); /* 메인 콘텐츠 배경색 */
-  overflow-y: auto; /* 스크롤 처리 */
+#app-container>.flex-1 {
+  background-color: rgb(255, 255, 255);
+  /* 메인 콘텐츠 배경색 */
+  overflow-y: auto;
+  /* 스크롤 처리 */
 }
 </style>

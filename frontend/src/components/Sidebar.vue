@@ -2,7 +2,7 @@
   <div>
     <!-- 사이드바 토글 버튼 -->
     <button class="sidebar-toggle" @click="toggleSidebar">☰</button>
-    
+
     <!-- 사이드바 컨테이너 -->
     <div class="sidebar-container" :class="{ 'sidebar-collapsed': !isSidebarOpen }">
       <!-- 사이드바 헤더: 로고 -->
@@ -19,23 +19,17 @@
             <li class="sidebar-item">
               <div class="matching-container">
                 <!-- 매칭 시작 버튼 -->
-                 <!-- 매칭 시작 모달로 바꾸기 -->
+                <!-- 매칭 시작 모달로 바꾸기 -->
                 <router-link v-if="!isMatching" to="/match" class="sidebar-link" @click="startMatching">
                   <img :src="getImageUrl('play.svg')" alt="icon" class="nav-icon" />
                   <span class="sidebar-text" :class="{ 'hidden-text': !isSidebarOpen }">
                     시작하기
                   </span>
                 </router-link>
-                
+
                 <!-- 매칭 진행 중 상태 -->
-                <MatchingStatus
-                  v-if="isMatching"
-                  :isSidebarOpen="isSidebarOpen"
-                  :matchComplete="matchComplete"
-                  :participants="participants"
-                  :cancelState="cancelState"
-                  @cancel="handleCancel"
-                />
+                <MatchingStatus v-if="isMatching" :isSidebarOpen="isSidebarOpen" :matchComplete="matchComplete"
+                  :participants="participants" :cancelState="cancelState" @cancel="handleCancel" />
               </div>
             </li>
 
@@ -72,13 +66,9 @@
     </div>
 
     <!-- 매칭 완료 모달 -->
-     <!-- 주제 선정 API 호출-->
-    <MatchingSuccessModal
-      v-if="isModalOpen"
-      :countdown="countdown"
-      :participantsData="participantsData"
-      @close="closeModal"
-    />
+    <!-- 주제 선정 API 호출-->
+    <MatchingSuccessModal v-if="isModalOpen" :countdown="countdown" :participantsData="participantsData"
+      @close="closeModal" />
   </div>
 </template>
 
@@ -271,7 +261,7 @@ const handleLogout = (): void => {
   width: 100%;
   border-radius: 0;
   margin: 0;
-  margin-top : 1rem;
+  margin-top: 1rem;
 }
 
 .sidebar-collapsed .sidebar-link:hover {
@@ -410,10 +400,12 @@ const handleLogout = (): void => {
     transform: scale(0.95);
     opacity: 0.5;
   }
+
   50% {
     transform: scale(1.05);
     opacity: 0.8;
   }
+
   100% {
     transform: scale(0.95);
     opacity: 0.5;
@@ -423,7 +415,4 @@ const handleLogout = (): void => {
 .sidebar-collapsed .sidebar-footer {
   padding: 0.5rem;
 }
-
 </style>
-
-타입스크립트 적용해줘
