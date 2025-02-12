@@ -29,10 +29,13 @@
 
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 //   import SearchBar from '@/components/SearchBar.vue'
 import ColumnCard from '@/components/ColumnCard.vue'
+
+const router = useRouter();
 
 // 각 카테고리에 해당하는 더미 데이터 예시
 const categories = ref([
@@ -92,7 +95,7 @@ const categories = ref([
 
 // '더보기' 버튼 클릭 시 실행할 함수 (필요에 따라 라우터 이동 등을 구현)
 function seeMore(category) {
-    alert(`${category.label} 더보기`)
+    router.push({ name: 'ColumnPageSearch', query: { category: category.id } });
 }
 // 카드 이동할때 오른쪽 왼쪽으로 움직이는 함수
 function scrollLeft(event) {
