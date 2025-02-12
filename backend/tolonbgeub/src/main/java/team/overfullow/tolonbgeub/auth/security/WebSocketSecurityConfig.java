@@ -1,6 +1,7 @@
 package team.overfullow.tolonbgeub.auth.security;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.config.annotation.web.socket.AbstractSecurityWebSocketMessageBrokerConfigurer;
@@ -17,6 +18,10 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
 //                .simpDestMatchers("/app/**").authenticated()  // 애플리케이션 대상 메시지 인증 필요
 //                .simpSubscribeDestMatchers("/topic/**").authenticated()  // 구독 인증 필요
 //                .simpDestMatchers("/ws-game/**").permitAll()  // WebSocket 연결 엔드포인트는 허용
+//                .simpTypeMatchers(
+//                        SimpMessageType.CONNECT,
+//                        SimpMessageType.DISCONNECT
+//                ).authenticated() // todo 보안
                 .anyMessage().permitAll();
     }
 

@@ -13,7 +13,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import team.overfullow.tolonbgeub.auth.AuthConfigProps;
 import team.overfullow.tolonbgeub.auth.UserRole;
+import team.overfullow.tolonbgeub.auth.jwt.JwtProvider;
 import team.overfullow.tolonbgeub.auth.oauth.kakao.KakaoAuthenticationProvider;
+import team.overfullow.tolonbgeub.user.service.UserService;
 
 import static org.springframework.http.HttpMethod.*;
 
@@ -27,6 +29,8 @@ public class SecurityConfig {
     private final KakaoAuthenticationProvider kakaoAuthenticationProvider;
     private final AuthenticationEntryPointImpl authenticationEntryPointImpl;
     private final AccessDeniedHandlerImpl accessDeniedHandlerImpl;
+    private final UserService userService;
+    private final JwtProvider jwtProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -48,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(GET, "/api/users/me").authenticated()
                         .requestMatchers(PUT, "/api/users/change").authenticated()
                         .requestMatchers(GET, "/api/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(eh -> eh
                         .authenticationEntryPoint(authenticationEntryPointImpl)
@@ -62,6 +67,6 @@ public class SecurityConfig {
     }
 
     private JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(authConfigProps, authenticationManager());
+        return new JwtAuthenticationFilter(authConfigProps, authenticationManager(), userService, jwtProvider);
     }
 }
