@@ -49,6 +49,10 @@ const props = defineProps({
   categories: {
     type: Array,
     default: () => []
+  },
+  initialSelectedCategories: {
+    type: Array,
+    default: () => []
   }
 });
 
@@ -57,7 +61,7 @@ const emit = defineEmits(["update:query", "update:sort", "update:category"]);
 const searchQuery = ref(props.query);
 const sortOption = ref(props.sort);
 // 멀티 선택을 위한 배열로 관리
-const selectedCategories = ref([]);
+const selectedCategories = ref([...props.initialSelectedCategories]);
 
 // 검색어 변경 시 부모에 반영
 const updateSearch = () => {
@@ -68,6 +72,10 @@ const updateSearch = () => {
 const updateSort = () => {
   emit("update:sort", sortOption.value);
 };
+
+watch(() => props.initialSelectedCategories, (newVal) => {
+  selectedCategories.value = [...newVal];
+});
 
 // 카테고리 토글 (선택 또는 해제)
 const toggleCategory = (value) => {
