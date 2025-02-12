@@ -82,186 +82,171 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import MatchingStatus from "@/components/MatchingStatus.vue";
 import MatchingSuccessModal from "@/components/MatchingSuccessModal.vue";
 
-export default {
-  components: {
-    MatchingStatus,
-    MatchingSuccessModal,
-  },
-  
-  setup() {
-    const router = useRouter();
-    const isSidebarOpen = ref(true);
-    const isMatching = ref(false);
-    const matchComplete = ref(false);
-    const participants = ref(1);
-    const cancelState = ref('initial');
-    const isModalOpen = ref(false);
-    const countdown = ref(5);
-    const isLoggedIn = ref(false);
+type MenuItem = {
+  name: string;
+  path: string;
+  icon: string;
+};
 
-    let joinInterval = null;
-    let countdownInterval = null;
+type Participant = {
+  name: string;
+  image: string | null;
+};
 
-    const menuItems = ref([
-      { name: "진행 중인 토론", path: "/", icon: "discussion_list.svg" },
-      { name: "칼럼게시판", path: "/", icon: "column.svg" },
-      { name: "마이페이지", path: "/", icon: "user.svg" },
-    ]);
+const router = useRouter();
+const isSidebarOpen = ref<boolean>(true);
+const isMatching = ref<boolean>(false);
+const matchComplete = ref<boolean>(false);
+const participants = ref<number>(1);
+const cancelState = ref<'initial' | 'confirm' | 'completing' | 'completed'>('initial');
+const isModalOpen = ref<boolean>(false);
+const countdown = ref<number>(5);
+const isLoggedIn = ref<boolean>(false);
 
-    const participantsData = ref([
-      { name: "P1(나)", image: null },
-      { name: "P2", image: null },
-      { name: "P3", image: null },
-      { name: "P4", image: null }
-    ]);
+let joinInterval: number | null = null;
+let countdownInterval: number | null = null;
 
-    const getImageUrl = (filename) => {
-      return new URL(`../assets/${filename}`, import.meta.url).href;
-    };
+const menuItems = ref<MenuItem[]>([
+  { name: "진행 중인 토론", path: "/", icon: "discussion_list.svg" },
+  { name: "칼럼게시판", path: "/", icon: "column.svg" },
+  { name: "마이페이지", path: "/", icon: "user.svg" },
+]);
 
-    const toggleSidebar = () => {
-      isSidebarOpen.value = !isSidebarOpen.value;
-    };
+const participantsData = ref<Participant[]>([
+  { name: "P1(나)", image: null },
+  { name: "P2", image: null },
+  { name: "P3", image: null },
+  { name: "P4", image: null }
+]);
 
-    const startMatching = () => {
-      isMatching.value = true;
-      matchComplete.value = false;
-      participants.value = 1;
+const getImageUrl = (filename: string): string => {
+  return new URL(`../assets/${filename}`, import.meta.url).href;
+};
 
-      // API 호출/소켓
-      joinInterval = setInterval(() => {
-        if (participants.value < 4) {
-          participants.value++;
-        } else {
-          clearInterval(joinInterval);
-          handleMatchComplete();
-        }
-      }, 3000);
-    };
+const toggleSidebar = (): void => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+};
 
-    const handleCancel = async () => {
-      if (cancelState.value === 'initial') {
-        cancelState.value = 'confirm';
-        setTimeout(() => {
-          if (cancelState.value === 'confirm') {
-            cancelState.value = 'initial';
-          }
-        }, 5000);
-        return;
-      }
+const startMatching = (): void => {
+  isMatching.value = true;
+  matchComplete.value = false;
+  participants.value = 1;
 
-      // 매칭 취소 API 호출
-      if (cancelState.value === 'confirm') {
-        cancelState.value = 'completing';
-
-        if (joinInterval) {
-          clearInterval(joinInterval);
-          joinInterval = null;
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 300));
-        cancelState.value = 'completed';
-
-        setTimeout(() => {
-          isMatching.value = false;
-          matchComplete.value = false;
-          participants.value = 0;
-          cancelState.value = 'initial';
-        }, 800);
-      }
-    };
-
-    const handleMatchComplete = async () => {
-      matchComplete.value = true;
-      cancelState.value = 'initial';
-      isModalOpen.value = true;
-      countdown.value = 5;
-
-      if (joinInterval) {
+  joinInterval = setInterval(() => {
+    if (participants.value < 4) {
+      participants.value++;
+    } else {
+      if (joinInterval !== null) {
         clearInterval(joinInterval);
         joinInterval = null;
       }
+      handleMatchComplete();
+    }
+  }, 3000);
+};
 
-      countdownInterval = setInterval(() => {
-        if (countdown.value > 1) {
-          countdown.value--;
-        } else {
-          clearInterval(countdownInterval);
-          isModalOpen.value = false;
-          router.push('/discussion-room');
-        }
-      }, 1000);
-
-      setTimeout(() => {
-        isMatching.value = false;
-        matchComplete.value = false;
-        participants.value = 0;
+const handleCancel = async (): Promise<void> => {
+  if (cancelState.value === 'initial') {
+    cancelState.value = 'confirm';
+    setTimeout(() => {
+      if (cancelState.value === 'confirm') {
         cancelState.value = 'initial';
-      }, 5000);
-    };
+      }
+    }, 5000);
+    return;
+  }
 
-    const closeModal = () => {
-      isModalOpen.value = false;
+  if (cancelState.value === 'confirm') {
+    cancelState.value = 'completing';
+
+    if (joinInterval !== null) {
+      clearInterval(joinInterval);
+      joinInterval = null;
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 300));
+    cancelState.value = 'completed';
+
+    setTimeout(() => {
       isMatching.value = false;
       matchComplete.value = false;
       participants.value = 0;
       cancelState.value = 'initial';
+    }, 800);
+  }
+};
 
-      if (countdownInterval) {
+const handleMatchComplete = async (): Promise<void> => {
+  matchComplete.value = true;
+  cancelState.value = 'initial';
+  isModalOpen.value = true;
+  countdown.value = 5;
+
+  if (joinInterval !== null) {
+    clearInterval(joinInterval);
+    joinInterval = null;
+  }
+
+  countdownInterval = setInterval(() => {
+    if (countdown.value > 1) {
+      countdown.value--;
+    } else {
+      if (countdownInterval !== null) {
         clearInterval(countdownInterval);
         countdownInterval = null;
       }
-    };
+      isModalOpen.value = false;
+      router.push('/discussion-room');
+    }
+  }, 1000);
 
-    const handleKakaoLogin = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8080/api/auth/login/kakao/url`);
-        if (response.data?.requestUrl) {
-          console.log("카카오 로그인 URL:", response.data.requestUrl);
-          window.location.href = response.data.requestUrl;
-        } else {
-          console.error("카카오 로그인 URL을 가져오지 못했습니다.");
-        }
-      } catch (error) {
-        console.error("카카오 로그인 요청 중 오류 발생:", error);
-      }
-    };
+  setTimeout(() => {
+    isMatching.value = false;
+    matchComplete.value = false;
+    participants.value = 0;
+    cancelState.value = 'initial';
+  }, 5000);
+};
 
-    const handleLogout = () => {
-      console.log("로그아웃 시도");
-      isLoggedIn.value = false;
-    };
+const closeModal = (): void => {
+  isModalOpen.value = false;
+  isMatching.value = false;
+  matchComplete.value = false;
+  participants.value = 0;
+  cancelState.value = 'initial';
 
-    return {
-      isSidebarOpen,
-      isMatching,
-      cancelState,
-      matchComplete,
-      participants,
-      menuItems,
-      toggleSidebar,
-      startMatching,
-      handleCancel,
-      getImageUrl,
-      isLoggedIn,
-      handleKakaoLogin,
-      handleLogout,
-      isModalOpen,
-      countdown,
-      closeModal,
-      participantsData,
-    };
-  },
+  if (countdownInterval !== null) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+};
+
+const handleKakaoLogin = async (): Promise<void> => {
+  try {
+    const response = await axios.get<{ requestUrl?: string }>(`http://localhost:8080/api/auth/login/kakao/url`);
+    if (response.data?.requestUrl) {
+      console.log("카카오 로그인 URL:", response.data.requestUrl);
+      window.location.href = response.data.requestUrl;
+    } else {
+      console.error("카카오 로그인 URL을 가져오지 못했습니다.");
+    }
+  } catch (error) {
+    console.error("카카오 로그인 요청 중 오류 발생:", error);
+  }
+};
+
+const handleLogout = (): void => {
+  console.log("로그아웃 시도");
+  isLoggedIn.value = false;
 };
 </script>
-
 
 <style scoped>
 .sidebar-container {
@@ -440,3 +425,5 @@ export default {
 }
 
 </style>
+
+타입스크립트 적용해줘
