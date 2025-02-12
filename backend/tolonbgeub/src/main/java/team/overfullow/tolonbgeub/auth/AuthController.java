@@ -2,6 +2,7 @@ package team.overfullow.tolonbgeub.auth;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -11,9 +12,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import team.overfullow.tolonbgeub.auth.dto.AuthTokens;
 import team.overfullow.tolonbgeub.auth.dto.KakaoLogin;
+import team.overfullow.tolonbgeub.auth.dto.Logout;
 import team.overfullow.tolonbgeub.auth.dto.response.AuthResponse;
 import team.overfullow.tolonbgeub.auth.dto.response.LoginUrlResponse;
 import team.overfullow.tolonbgeub.auth.oauth.OauthProvider;
+import team.overfullow.tolonbgeub.auth.resolver.AccessToken;
 
 @Slf4j
 @RestController
@@ -30,7 +33,7 @@ public class AuthController {
 
     // 프론트 테스트용
     @Deprecated
-    @GetMapping("/login/kakao")
+    @GetMapping("/login/kakao/test")
     public ResponseEntity<AuthResponse> loginWithKakaoMockClient(@Valid @NotBlank @RequestParam("code") String code) {
         return loginWithKakao(code);
     }
@@ -47,24 +50,22 @@ public class AuthController {
         return generateAuthResponse(authTokens);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@AuthenticationPrincipal UserId userId, @AccessToken @NotNull String accessToken) {
+        log.info("logout request userId = {}, accessToken = {}", userId.value(), accessToken);
+        authService.logout(Logout.builder()
+                .accessToken(accessToken)
+//                .refreshToken(refreshToken)
+                .build());
+
+        return ResponseEntity.noContent().build();
+    }
+
 //    @PostMapping("/refresh")
 //    public ResponseEntity<AuthResponse> refresh(@RequestBody AuthRequestDto request) {
 //        log.debug("refresh request = {}", request.refreshToken());
 //        AuthTokens authTokens = authService.refresh(request.refreshToken());
 //        return generateAuthResponse(authTokens);
-//    }
-
-//    @PostMapping("/logout")
-//    public ResponseEntity<Void> logout(@AccessToken @NotNull String accessToken,
-//                                       @RequestBody AuthRequestDto request) {
-//        log.info("logout request: accessToken = {}", accessToken);
-//        log.info("logout request: refreshToken = {}", request.refreshToken());
-//        authService.logout(Logout.builder()
-//                .accessToken(accessToken)
-//                .refreshToken(request.refreshToken())
-//                .build());
-//
-//        return ResponseEntity.noContent().build();
 //    }
 
     private static ResponseEntity<AuthResponse> generateAuthResponse(AuthTokens authTokens) {
@@ -75,7 +76,8 @@ public class AuthController {
 //                .header(HttpHeaders.SET_COOKIE, refreshCookie)
                 .body(AuthResponse.builder()
                         .accessToken(authTokens.forAccess().value())
-                        .refreshToken(authTokens.forRefresh().value())
+//                        .refreshToken(authTokens.forRefresh().value())
+                        .refreshToken("고도화 과정에서 추가하겠습니다")
                         .build());
     }
 

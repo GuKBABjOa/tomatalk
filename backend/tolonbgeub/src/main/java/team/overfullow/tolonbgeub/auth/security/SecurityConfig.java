@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import team.overfullow.tolonbgeub.auth.AuthConfigProps;
 import team.overfullow.tolonbgeub.auth.UserRole;
+import team.overfullow.tolonbgeub.auth.oauth.kakao.KakaoAuthenticationProvider;
 
 import static org.springframework.http.HttpMethod.*;
 
@@ -39,14 +40,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(GET, "/api/auth/login/**").permitAll()
                         .requestMatchers(POST, "/api/auth/login/**").permitAll()
+                        .requestMatchers(POST, "/api/auth/logout").authenticated()
                         .requestMatchers(GET, "/api/auth/authentication").authenticated() // 인증 테스트 api
                         .requestMatchers(GET, "/api/auth/authorization").hasAuthority(UserRole.ADMIN.role()) // 인가 테스트 api
                         .requestMatchers(GET, "/api/topics/**").permitAll()
                         .requestMatchers(GET, "/api/games/sample/**").permitAll()
                         .requestMatchers(GET, "/api/users/me").authenticated()
                         .requestMatchers(PUT, "/api/users/change").authenticated()
-                        .requestMatchers("/api/**").permitAll()
-                        .anyRequest().permitAll())
+                        .requestMatchers(GET, "/api/**").permitAll()
+                        .anyRequest().authenticated())
                 .exceptionHandling(eh -> eh
                         .authenticationEntryPoint(authenticationEntryPointImpl)
                         .accessDeniedHandler(accessDeniedHandlerImpl))
