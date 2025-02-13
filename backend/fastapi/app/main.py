@@ -18,9 +18,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # 허용할 HTTP 메서드
+    allow_methods=["*"],  # 허용할 HTTP 메서드
     allow_headers=["*"],  # 허용할 HTTPS 헤더
-    expose_headers=["*"],  # 노출할 HTTPS 헤더
 )
 
 # 라우트 추가
