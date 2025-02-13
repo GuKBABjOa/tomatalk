@@ -8,8 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
-from audio import audio_router
-# from ai import ai_router
+# from audio import audio_router
+from ai import ai_router
 
 app = FastAPI()
 
@@ -23,8 +23,7 @@ app.add_middleware(
 )
 
 # 라우트 추가
-app.include_router(audio_router.router, prefix="/audio", tags=["audio"])
-# app.include_router(ai_router.router, prefix="/ai", tags=["ai"])
+app.include_router(ai_router.router, prefix="/ai", tags=["ai"])
 
 @app.get("/")
 async def root():
