@@ -13,7 +13,8 @@ if not OPENAI_API_KEY:
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
 
-def generate_response(prompt: str, system_instruction: str, temperature: float = 0.7):
+async def generate_response(prompt: str, system_instruction: str, temperature: float = 0.7):
+
     """
     OpenAI GPT-4 모델에 프롬프트를 전달하여 응답을 생성하는 함수.
 
