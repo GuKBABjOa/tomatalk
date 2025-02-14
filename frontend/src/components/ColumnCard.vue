@@ -1,25 +1,25 @@
 <template>
-    <column class="column-card">
+    <div class="column-card">
         <img :src="thumbnailUrl" alt="Column thumbnail" style="width: 100%; height: 200px; object-fit: cover;" />
         <div style="padding: 1.5rem;">
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
-                <span :class="['category-badge', categoryClass]">{{ categoryLabel }}</span>
+                <span :class="['category-badge', normalizedCategory]">{{ categoryLabel }}</span>
                 <button class="like-button">
-                    ❤️ {{ likes }}
+                    ❤️ {{ bookmarkCount }}
                 </button>
             </div>
             <h3 style="font-size: 1.25rem; font-weight: 600; color: #0f172a; margin-bottom: 0.75rem;">
                 {{ title }}
             </h3>
             <p style="color: #64748b; margin-bottom: 1rem; line-height: 1.5;">
-                {{ description }}
+                {{ summaryDisplay }}
             </p>
             <div
                 style="display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 0.875rem;">
-                <span>{{ date }}</span>
+                <span>{{ formattedDate }}</span>
             </div>
         </div>
-    </column>
+    </div>
 </template>
 
 <script setup>
@@ -28,30 +28,34 @@ import { defineProps } from 'vue'
 
 const props = defineProps({
     // category prop의 값은 'politics', 'economy', 'ethics', 'science', 'education' 중 하나여야 합니다.
-    category: {
+    columnId: {
         type: String,
-        default: 'politics'
+        required: true
     },
     title: {
         type: String,
         required: true
     },
-    description: {
+    summary: {
         type: String,
         required: true
     },
-    likes: {
+    bookmarkCount: {
         type: Number,
         default: 0
     },
-    date: {
+    createdAt: {
         type: String,
         default: ''
+    },
+    category: {
+        type: String,
+        required: true
     }
 })
-
+const normalizedCategory = computed(() => props.category.toLowerCase());
 const categoryLabel = computed(() => {
-    switch (props.category) {
+    switch (normalizedCategory.value) {
         case 'politics':
             return '정치/국제'
         case 'economy':
@@ -71,9 +75,23 @@ const categoryClass = computed(() => {
     // props.category 값을 그대로 CSS 클래스명으로 사용합니다.
     return props.category
 })
+//칼럼 카드에 보일 요약 부분분
+const summaryDisplay = computed(() => {
+    return props.summary.length > 20 ? props.summary.substring(0, 20) + '...' : props.summary
+})
+
+//날짜 포멧팅
+const formattedDate = computed(() => {
+    if (!props.createdAt) return ''
+    const d = new Date(props.createdAt)
+    const year = d.getFullYear()
+    const month = (d.getMonth() + 1).toString().padStart(2, '0')
+    const day = d.getDate().toString().padStart(2, '0')
+    return `${year}.${month}.${day}`
+})
 
 const thumbnailUrl = computed(() => {
-    switch (props.category) {
+    switch (normalizedCategory.value) {
         case 'politics':
             return new URL('../assets/politics.webp', import.meta.url).href
         case 'economy':
