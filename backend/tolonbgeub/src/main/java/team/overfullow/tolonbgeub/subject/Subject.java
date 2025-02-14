@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.overfullow.tolonbgeub.core.auditing.BaseTimeEntity;
+import team.overfullow.tolonbgeub.debate.Category;
 
 
 @Entity
@@ -14,12 +15,14 @@ import team.overfullow.tolonbgeub.core.auditing.BaseTimeEntity;
 public class Subject extends BaseTimeEntity {
     @Id
     private Long id;
+    private Category category;
     private String subject;
     private String description;
 
     @Builder
-    protected Subject(Long id, String subject, String description) {
+    protected Subject(Long id, Category category, String subject, String description) {
         this.id = id;
+        this.category = category;
         this.subject = subject;
         this.description = description;
     }
