@@ -2,7 +2,7 @@
     <!-- 메인 컨텐츠 영역 -->
     <div class="columns-page">
         <!-- 각 카테고리별 섹션 -->
-        <div v-for="category in categories" :key="category.id" class="category-section">
+        <div v-for="category in categoriesData" :key="category.id" class="category-section">
             <!-- 카테고리 헤더: 제목과 '더보기' 버튼 -->
             <div class="category-header">
                 <h2 class="category-title">{{ category.label }}</h2>
@@ -12,16 +12,19 @@
             <!-- 해당 카테고리의 ColumnCard 그리드 -->
             <div class="scroll-wrapper">
                 <!-- 왼쪽 화살표 버튼 -->
-                <button class="arrow left-arrow" v-if="category.columns.length >= 4"
+                <button class="arrow left-arrow"
+                    v-if="columnsByCategory[category.id] && columnsByCategory[category.id].length >= 4"
                     @click="scrollLeft($event)">‹</button>
 
                 <!-- 해당 카테고리의 ColumnCard 그리드 -->
                 <div class="columns-grid">
-                    <ColumnCard v-for="column in category.columns.slice(0, 5)" :key="column.id" v-bind="column" />
+                    <ColumnCard v-for="column in columnsByCategory[category.id] || []" :key="column.columnId"
+                        v-bind="column" />
                 </div>
 
                 <!-- 오른쪽 화살표 버튼 -->
-                <button class="arrow right-arrow" v-if="category.columns.length >= 4"
+                <button class="arrow right-arrow"
+                    v-if="columnsByCategory[category.id] && columnsByCategory[category.id].length >= 4"
                     @click="scrollRight($event)">›</button>
             </div>
         </div>
@@ -30,83 +33,81 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-//   import SearchBar from '@/components/SearchBar.vue'
-import ColumnCard from '@/components/ColumnCard.vue'
+import axios from 'axios';
+import ColumnCard from '@/components/ColumnCard.vue';
 
 const router = useRouter();
+//카테고리 정보
+const categoriesData = [
+    { id: 'POLITICS', label: '정치/국제' },
+    { id: 'ECONOMY', label: '경제/노동' },
+    { id: 'ETHICS', label: '윤리/법' },
+    { id: 'SCIENCE', label: '과학/기술' },
+    { id: 'EDUCATION', label: '교육/사회' }
+];
+
+// 각 카테고리별 칼럼 데이터를 저장할 객체
+const columnsByCategory = ref<Record<string, any[]>>({});
+
+
+
+// API 요청에 사용할 기본 파라미터
+const cursor = 9007199254740991;
+const size = 5;
+const sortBy = "LATEST";
 
 // 각 카테고리에 해당하는 더미 데이터 예시
-const categories = ref([
-    {
-        id: 'politics',
-        label: '정치/국제',
-        columns: [
-            { id: 1, title: '정치 이슈 A', description: '정치 이슈 A에 대한 내용입니다.', likes: 15, date: '2024-03-01' },
-            { id: 2, title: '정치 이슈 B', description: '정치 이슈 B에 대한 내용입니다.', likes: 22, date: '2024-03-02' },
-            { id: 1, title: '정치 이슈 A', description: '정치 이슈 A에 대한 내용입니다.', likes: 15, date: '2024-03-01' },
-            { id: 2, title: '정치 이슈 B', description: '정치 이슈 B에 대한 내용입니다.', likes: 22, date: '2024-03-02' },
-            // 추가 카드...
-        ]
-    },
-    {
-        id: 'economy',
-        label: '경제/노동',
-        columns: [
-            { id: 3, category: "economy", title: '경제 이슈 A', description: '경제 이슈 A에 대한 내용입니다.', likes: 30, date: '2024-03-03' },
-            { id: 4, category: "economy", title: '경제 이슈 B', description: '경제 이슈 B에 대한 내용입니다.', imageUrl: '/api/placeholder/400/200', likes: 18, date: '2024-03-04' },
-            { id: 3, category: "economy", title: '경제 이슈 A', description: '경제 이슈 A에 대한 내용입니다.', likes: 30, date: '2024-03-03' },
-            { id: 4, category: "economy", title: '경제 이슈 B', description: '경제 이슈 B에 대한 내용입니다.', imageUrl: '/api/placeholder/400/200', likes: 18, date: '2024-03-04' },
-            { id: 3, category: "economy", title: '경제 이슈 A', description: '경제 이슈 A에 대한 내용입니다.', likes: 30, date: '2024-03-03' },
-            { id: 4, category: "economy", title: '경제 이슈 B', description: '경제 이슈 B에 대한 내용입니다.', imageUrl: '/api/placeholder/400/200', likes: 18, date: '2024-03-04' },
-
-            // 추가 카드...
-        ]
-    },
-    {
-        id: 'ethics',
-        label: '윤리/법',
-        columns: [
-            { id: 5, category: "ethics", title: '윤리 이슈 A', description: '윤리 이슈 A에 대한 내용입니다.', imageUrl: '/api/placeholder/400/200', likes: 12, date: '2024-03-05' },
-            { id: 6, category: "ethics", title: '윤리 이슈 B', description: '윤리 이슈 B에 대한 내용입니다.', imageUrl: '/api/placeholder/400/200', likes: 25, date: '2024-03-06' }
-            // 추가 카드...
-        ]
-    },
-    {
-        id: 'science',
-        label: '과학/기술',
-        columns: [
-            { id: 7, category: "science", title: '과학 이슈 A', description: '과학 이슈 A에 대한 내용입니다.', imageUrl: '/api/placeholder/400/200', likes: 40, date: '2024-03-07' },
-            { id: 8, category: "science", title: '과학 이슈 B', description: '과학 이슈 B에 대한 내용입니다.', imageUrl: '/api/placeholder/400/200', likes: 35, date: '2024-03-08' }
-            // 추가 카드...
-        ]
-    },
-    {
-        id: 'education',
-        label: '교육/사회',
-        columns: [
-            { id: 9, category: "education", title: '교육 이슈 A', description: '교육 이슈 A에 대한 내용입니다.', imageUrl: '/api/placeholder/400/200', likes: 10, date: '2024-03-09' },
-            { id: 10, category: "education", title: '교육 이슈 B', description: '교육 이슈 B에 대한 내용입니다.', imageUrl: '/api/placeholder/400/200', likes: 20, date: '2024-03-10' }
-            // 추가 카드...
-        ]
+// 각 카테고리별 데이터를 API로부터 받아오는 함수
+async function fetchColumnsForCategory(category: string) {
+    try {
+        const response = await axios.get("http://localhost:8080/api/columns", {
+            params: {
+                cursor,
+                size,
+                sortBy,
+                categories: category, // 단일 카테고리 값 전송
+                // 필요한 경우 query 파라미터 추가 가능
+            },
+        });
+        // API 응답의 content를 해당 카테고리의 데이터로 할당
+        columnsByCategory.value[category] = response.data.content;
+    } catch (error) {
+        console.error(`Error fetching columns for category ${category}:`, error);
+        // 에러 처리: 빈 배열 할당하거나 별도 에러 상태를 관리할 수 있음
+        columnsByCategory.value[category] = [];
     }
-])
+}
+// 모든 카테고리에 대해 API 요청을 병렬로 실행
+async function fetchAllColumns() {
+    await Promise.all(categoriesData.map(cat => fetchColumnsForCategory(cat.id)));
+}
 
-// '더보기' 버튼 클릭 시 실행할 함수 (필요에 따라 라우터 이동 등을 구현)
-function seeMore(category) {
+// '더보기' 버튼 클릭 시 실행할 함수 (해당 카테고리 페이지로 이동)
+function seeMore(category: { id: string; label: string }) {
     router.push({ name: 'ColumnPageSearch', query: { category: category.id } });
 }
-// 카드 이동할때 오른쪽 왼쪽으로 움직이는 함수
-function scrollLeft(event) {
-    const container = event.currentTarget.parentElement.querySelector('.columns-grid')
-    container.scrollBy({ left: -320, behavior: 'smooth' })
+// 좌우 화살표 클릭 시 해당 섹션의 그리드 컨테이너를 스크롤
+function scrollLeft(event: Event) {
+    const target = event.currentTarget as HTMLElement;
+    const container = target.parentElement?.querySelector('.columns-grid') as HTMLElement;
+    if (container) {
+        container.scrollBy({ left: -320, behavior: 'smooth' });
+    }
 }
 
-function scrollRight(event) {
-    const container = event.currentTarget.parentElement.querySelector('.columns-grid')
-    container.scrollBy({ left: 320, behavior: 'smooth' })
+function scrollRight(event: Event) {
+    const target = event.currentTarget as HTMLElement;
+    const container = target.parentElement?.querySelector('.columns-grid') as HTMLElement;
+    if (container) {
+        container.scrollBy({ left: 320, behavior: 'smooth' });
+    }
 }
+
+onMounted(() => {
+    fetchAllColumns();
+});
 </script>
 
 <style scoped>

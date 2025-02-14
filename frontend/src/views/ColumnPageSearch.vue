@@ -1,106 +1,162 @@
 <template>
     <div class="app">
-
         <main class="main-content">
             <h1 class="title">토론 아카이브</h1>
             <p class="subtitle">지난 토론들의 기록을 칼럼으로 확인하세요.</p>
-            <!-- SearchBar 내부에서 정렬 기능 포함 -->
-            <SearchBar v-model="searchQuery" :sortOption="sortOption" @update:sortOption="sortOption = $event"
-                placeholder="토론 주제, 키워드로 검색..." :sortOptions="[
+            <!-- SearchBar: 검색어, 정렬, 카테고리 선택 -->
+            <SearchBar v-model:query="searchQuery" :sortOption="sortOption" @update:sort="sortOption = $event"
+                :initialSelectedCategories="initialSelectedCategories"
+                @update:category="initialSelectedCategories = $event" placeholder="토론 주제, 키워드로 검색..." :sortOptions="[
                     { value: 'latest', label: '최신순' },
-                    { value: 'popular', label: '인기순' },
+                    { value: 'popular', label: '인기순' }
                 ]" :categories="[
                     { value: 'politics', label: '정치/국제' },
                     { value: 'economy', label: '경제/노동' },
                     { value: 'ethics', label: '윤리/법' },
                     { value: 'science', label: '과학/기술' },
                     { value: 'education', label: '교육/사회' }
-                ]" :initialSelectedCategories="[selectedCategory]" />
-            <!-- 필터링된 칼럼 카드 목록 -->
-            <div v-if="filteredColumns.length > 0" class="columns-grid">
-                <ColumnCard v-for="(column, index) in filteredColumns" :key="`${selectedCategory}-${index}`"
-                    v-bind="column" />
+                ]" />
+
+            <!-- 칼럼 카드 목록 -->
+            <div class="columns-grid">
+                <ColumnCard v-for="(column, index) in columns" :key="column.columnId || index" v-bind="column" />
             </div>
-            <div v-else>
-                <p>선택된 카테고리에 해당하는 칼럼이 없습니다.</p>
-            </div>
+
+            <!-- 무한 스크롤 감지를 위한 sentinel 요소 -->
+            <div ref="sentinel"></div>
+
+            <!-- 로딩 상태 표시 -->
+            <p v-if="isFetchingMore">추가 칼럼을 불러오는 중...</p>
+            <p v-if="!isLast && !isLoading && columns.length === 0">조건에 해당하는 칼럼이 없습니다.</p>
         </main>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import SearchBar from "@/components/SearchBar.vue";
-import ColumnCard from "@/components/ColumnCard.vue";
-// URL 쿼리에서 선택된 카테고리 읽어오기
+import axios from 'axios';
+import SearchBar from '@/components/SearchBar.vue';
+import ColumnCard from '@/components/ColumnCard.vue';
+
+// URL 쿼리나 초기 선택값으로부터 카테고리 설정 (예: ?category=politics)
 const route = useRoute();
 const selectedCategory = ref<string>('');
+
+// 만약 URL에서 초기 선택 카테고리가 있다면, 이를 배열 형태로 저장 (백엔드는 복수의 카테고리를 콤마로 구분해서 받음)
+const initialSelectedCategories = ref<string[]>([]);
 onMounted(() => {
     if (route.query.category) {
-        selectedCategory.value = route.query.category as string;
+        // 예: 'politics'를 받으면 배열로 저장 (백엔드는 대문자 값 기대 → 변환 시 필요)
+        const cat = (route.query.category as string).toLowerCase();
+        selectedCategory.value = cat;
+        initialSelectedCategories.value = [cat];
     }
 });
 
+// 검색어와 정렬 옵션 상태
+const searchQuery = ref('');
+const sortOption = ref('latest');
+// sortOption 매핑: 'latest' → 'LATEST', 'popular' → 'POPULARITY'
+const sortMapping: Record<string, string> = {
+    latest: "LATEST",
+    popular: "POPULARITY"
+};
 
-const searchQuery = ref("");
-const sortOption = ref("latest");
+// 칼럼 데이터 및 페이지네이션 관련 상태
+const columns = ref<any[]>([]);
+const isLoading = ref(true);
+const isFetchingMore = ref(false);
+const isLast = ref(false); // 마지막 페이지 여부 판단
+let cursor = 9007199254740991; // 초기 커서 (백엔드 스펙에 따른 고정 값)
 
-// 더미 데이터: 여러 카테고리별 칼럼 데이터
-const categories = ref([
-    {
-        id: 'politics',
-        label: '정치/국제',
-        columns: [
-            { id: 1, title: '정치 이슈 A', description: '정치 이슈 A에 대한 내용입니다.', likes: 15, date: '2024-03-01' },
-            { id: 2, title: '정치 이슈 B', description: '정치 이슈 B에 대한 내용입니다.', likes: 22, date: '2024-03-02' },
-            // 추가 카드...
-        ]
-    },
-    {
-        id: 'economy',
-        label: '경제/노동',
-        columns: [
-            { id: 3, title: '경제 이슈 A', category: "economy", description: '경제 이슈 A에 대한 내용입니다.', likes: 30, date: '2024-03-03' },
-            { id: 4, title: '경제 이슈 B', category: "economy", description: '경제 이슈 B에 대한 내용입니다.', likes: 18, date: '2024-03-04' },
-            // 추가 카드...
-        ]
-    },
-    {
-        id: 'ethics',
-        label: '윤리/법',
-        columns: [
-            { id: 5, title: '윤리 이슈 A', description: '윤리 이슈 A에 대한 내용입니다.', likes: 12, date: '2024-03-05' },
-            { id: 6, title: '윤리 이슈 B', description: '윤리 이슈 B에 대한 내용입니다.', likes: 25, date: '2024-03-06' }
-        ]
-    },
-    {
-        id: 'science',
-        label: '과학/기술',
-        columns: [
-            { id: 7, title: '과학 이슈 A', description: '과학 이슈 A에 대한 내용입니다.', likes: 40, date: '2024-03-07' },
-            { id: 8, title: '과학 이슈 B', description: '과학 이슈 B에 대한 내용입니다.', likes: 35, date: '2024-03-08' }
-        ]
-    },
-    {
-        id: 'education',
-        label: '교육/사회',
-        columns: [
-            { id: 9, title: '교육 이슈 A', description: '교육 이슈 A에 대한 내용입니다.', likes: 10, date: '2024-03-09' },
-            { id: 10, title: '교육 이슈 B', description: '교육 이슈 B에 대한 내용입니다.', likes: 20, date: '2024-03-10' }
-        ]
+// API 호출 함수 (append가 true면 추가 데이터, 아니면 새로 불러옴)
+async function fetchColumns(append: boolean = false) {
+    try {
+        if (append) {
+            isFetchingMore.value = true;
+        } else {
+            isLoading.value = true;
+            // 초기 요청이면 cursor 초기화
+            cursor = 9007199254740991;
+            isLast.value = false;
+        }
+        // 선택된 카테고리는 initialSelectedCategories 또는 selectedCategory (배열 또는 단일 값)로 처리
+        // 여기서는 부모의 SearchBar에서 여러 개 선택할 수도 있으므로, initialSelectedCategories를 우선 사용
+        let categoriesParam: string | undefined;
+        if (initialSelectedCategories.value.length > 0) {
+            categoriesParam = initialSelectedCategories.value
+                .map(cat => cat.toUpperCase())
+                .join(',');
+        } else if (selectedCategory.value) {
+            categoriesParam = selectedCategory.value.toUpperCase();
+        }
+
+        const response = await axios.get("http://localhost:8080/api/columns", {
+            params: {
+                cursor,
+                size: 8,
+                sortBy: sortMapping[sortOption.value] || undefined,
+                categories: categoriesParam,
+                query: searchQuery.value || undefined,
+            },
+        });
+
+        // 예시 응답: content, first, last, 등 (여기서는 content와 last 만 사용)
+        const fetchedColumns = response.data.content;
+        if (append) {
+            columns.value = columns.value.concat(fetchedColumns);
+        } else {
+            columns.value = fetchedColumns;
+        }
+        // 커서 업데이트: API에서 마지막 데이터의 columnId를 이용해 커서를 갱신하는 등 백엔드 스펙에 맞게 처리
+        if (fetchedColumns && fetchedColumns.length > 0) {
+            // 예시: 마지막 항목의 columnId를 숫자로 변환하여 cursor로 사용
+            cursor = Number(fetchedColumns[fetchedColumns.length - 1].columnId);
+        }
+        // 마지막 페이지 여부: 백엔드가 last 플래그를 제공한다면 사용 (여기서는 response.data.last)
+        isLast.value = response.data.last || false;
+    } catch (error) {
+        console.error("Error fetching columns:", error);
+        // 에러 발생 시 빈 배열로 처리
+        if (!append) columns.value = [];
+    } finally {
+        isLoading.value = false;
+        isFetchingMore.value = false;
     }
-]);
+}
 
-// 선택된 카테고리에 따른 칼럼 목록 필터링
-const filteredColumns = computed(() => {
-    if (!selectedCategory.value) {
-        // 선택된 카테고리가 없으면 빈 배열 혹은 전체를 반환할 수 있음 (여기서는 빈 배열로)
-        return [];
+// 무한 스크롤을 위한 IntersectionObserver 설정
+const sentinel = ref<HTMLElement | null>(null);
+let observer: IntersectionObserver | null = null;
+function createObserver() {
+    if (sentinel.value) {
+        observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting && !isLoading.value && !isFetchingMore.value && !isLast.value) {
+                    // 스크롤 시 추가 데이터 요청
+                    fetchColumns(true);
+                }
+            });
+        }, { threshold: 1.0 });
+        observer.observe(sentinel.value);
     }
-    // 선택된 카테고리와 일치하는 카테고리 객체 찾기
-    const cat = categories.value.find(category => category.id === selectedCategory.value);
-    return cat ? cat.columns : [];
+}
+
+onMounted(() => {
+    fetchColumns();
+    createObserver();
+});
+
+onBeforeUnmount(() => {
+    if (observer && sentinel.value) {
+        observer.unobserve(sentinel.value);
+    }
+});
+
+// 검색어나 정렬 옵션, 또는 선택된 카테고리 변경 시 새로 데이터를 불러옴
+watch([searchQuery, sortOption, selectedCategory, initialSelectedCategories], () => {
+    fetchColumns();
 });
 </script>
 
@@ -167,6 +223,6 @@ const filteredColumns = computed(() => {
 }
 
 .columns-grid>* {
-    flex: 0 0 calc((100% - 3rem) / 4);
+    flex: 0 0 calc((100% - 4.5rem) / 4);
 }
 </style>
