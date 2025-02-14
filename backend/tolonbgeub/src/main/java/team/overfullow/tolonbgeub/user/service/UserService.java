@@ -2,6 +2,7 @@ package team.overfullow.tolonbgeub.user.service;
 
 import team.overfullow.tolonbgeub.user.dto.UserRequest;
 import team.overfullow.tolonbgeub.user.dto.UserResponse;
+import team.overfullow.tolonbgeub.user.dto.UserUpdateRequest;
 
 import java.util.Optional;
 
@@ -11,6 +12,7 @@ public interface UserService {
 
     // 유저 프로필 조회
     UserResponse getUserProfile(Long userId);
+
 
     // 내 프로필 조회
     UserResponse getMyProfile(Long userId);
@@ -22,4 +24,8 @@ public interface UserService {
     UserResponse updateUserNickname(Long userId, String newNickname);
 
     Optional<UserResponse> findByEmail(String email);
+
+    UserResponse updateUserProfile(Long userId, UserUpdateRequest userUpdateRequest);
+
+    byte[] getProfileImage(long userId);
 }

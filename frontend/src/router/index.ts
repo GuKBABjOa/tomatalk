@@ -1,6 +1,7 @@
 import Main from '@/views/Main.vue'
 import ColumnPage from '@/views/ColumnPage.vue'
 import OngoingDebate from '@/views/OngoingDebate.vue'
+import FileUploadTest from '@/views/FileUploadTest.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import debateView from '@/views/debateView.vue'
 import ColumnPageSearch from '@/views/ColumnPageSearch.vue'

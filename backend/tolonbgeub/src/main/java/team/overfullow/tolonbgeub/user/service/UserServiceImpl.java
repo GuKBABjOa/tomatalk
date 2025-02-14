@@ -3,6 +3,7 @@ package team.overfullow.tolonbgeub.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import team.overfullow.tolonbgeub.user.Repository.UserRepository;
@@ -12,7 +13,11 @@ import team.overfullow.tolonbgeub.user.dto.UserResponse;
 import team.overfullow.tolonbgeub.user.User;
 
 import team.overfullow.tolonbgeub.auth.util.IdGenerator;
+import team.overfullow.tolonbgeub.user.dto.UserUpdateRequest;
 
+import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -21,8 +26,12 @@ import java.util.function.Function;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private static final String IMAGE_URL = "%s/api/users/%s/image";
     private final UserRepository userRepository;
     private final IdGenerator idGenerator;
+
+    @Value("${app.image.base-url}")
+    private String imageBaseUrl;
 
     @Override
     public UserResponse createUser(UserRequest request) {
@@ -52,6 +61,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다"));
     }
 
+    @Deprecated
     @Override
     public UserResponse getMyProfile(Long userId) {
         return userRepository.findById(userId)
@@ -59,12 +69,43 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다"));
     }
 
+    @Override
+    public UserResponse updateUserProfile(Long userId, UserUpdateRequest userUpdateRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다"));
+
+        // 닉네임 수정 (StringUtils의 isBlank()메서드 사용)
+        if (StringUtils.isNotBlank(userUpdateRequest.nickname())) {
+            if (checkNickname(userUpdateRequest.nickname())) {
+                throw new UserException(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다.");
+            }
+            user.changeNickname(userUpdateRequest.nickname());
+        }
+
+        // 프로필 이미지 수정 (StringUtils의 isBlank()메서드 사용)
+        if (StringUtils.isNotBlank(userUpdateRequest.profileImage())) {
+            user.updateProfileImage(decodeBase64(userUpdateRequest.profileImage()));
+        }
+
+        userRepository.save(user);
+
+        return mapUserResponse(user);
+    }
+
+
+    public byte[] getProfileImage(long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."));
+
+        return user.getProfileImage(); //
+    }
 
     @Override
     public boolean checkNickname(String nickname) {
         return userRepository.existsByNickname(nickname);
     }
 
+    @Deprecated
     @Override
     public UserResponse updateUserNickname(Long userId, String newNickname) {
         // 닉네임 중복 검사
@@ -85,16 +126,26 @@ public class UserServiceImpl implements UserService {
                 .map(toUserResponse());
     }
 
-    private static Function<User, UserResponse> toUserResponse() {
+    private Function<User, UserResponse> toUserResponse() {
         return u -> mapUserResponse(u);
     }
 
-    private static UserResponse mapUserResponse(User u) {
+    private UserResponse mapUserResponse(User user) {
         return UserResponse.builder()
-                .userId(u.getId())
-                .nickname(u.getNickname())
-                .createdAt(u.getCreatedAt())
-                .lastModifiedAt(u.getLastModifiedAt())
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .profileImageUrl((user.getProfileImage() != null) ? String.format(IMAGE_URL, imageBaseUrl, user.getId()) : null)
+                .createdAt(user.getCreatedAt())
+                .lastModifiedAt(user.getLastModifiedAt())
                 .build();
+    }
+
+    private static String encodeBase64(byte[] data) {
+        return (data != null) ? Base64.getEncoder().encodeToString(data) : null;
+    }
+
+
+    private byte[] decodeBase64(String base64) {
+        return Base64.getDecoder().decode(base64);
     }
 }
