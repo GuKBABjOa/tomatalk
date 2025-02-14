@@ -3,7 +3,7 @@ package team.overfullow.tolonbgeub.debate.dto;
 import lombok.Builder;
 import team.overfullow.tolonbgeub.debate.DebateStatus;
 
-public record DebateResponse (
+public record DebateInfoResponse(
         String debateId,
         String category,
         String subject,                 // 논제
@@ -14,6 +14,6 @@ public record DebateResponse (
         Integer spectatorsCount         // 관전자 수
 ){
     @Builder
-    public DebateResponse{
+    public DebateInfoResponse {
     }
 }
