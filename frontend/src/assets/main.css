@@ -1,8 +1,8 @@
+/* Ensure Tailwind CSS is installed and configured correctly */
 @import './base.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 
 /* #app {
   max-width: 1280px;

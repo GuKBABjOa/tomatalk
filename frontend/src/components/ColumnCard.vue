@@ -24,7 +24,6 @@
 
 <script setup>
 import { computed } from 'vue'
-import { defineProps } from 'vue'
 
 const props = defineProps({
     // category prop의 값은 'politics', 'economy', 'ethics', 'science', 'education' 중 하나여야 합니다.

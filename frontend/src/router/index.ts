@@ -2,6 +2,7 @@ import Main from '@/views/Main.vue'
 import ColumnPage from '@/views/ColumnPage.vue'
 import OngoingDebate from '@/views/OngoingDebate.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import debateView from '@/views/debateView.vue'
 import ColumnPageSearch from '@/views/ColumnPageSearch.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -25,7 +26,13 @@ const router = createRouter({
       path: '/column-search',
       name: 'ColumnPageSearch',
       component: ColumnPageSearch
-    }
+    },
+    {
+      path: '/debateroom/:debateId',
+      name: 'debateRoom',
+      component: debateView,
+      props: true, // debateId를 props로 전달
+    },
   ],
 })
 

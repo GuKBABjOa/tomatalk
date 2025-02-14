@@ -103,8 +103,8 @@ const cancelState = ref<'initial' | 'confirm' | 'completing' | 'completed'>('ini
 const isModalOpen = ref<boolean>(false);
 const countdown = ref<number>(5);
 
-let joinInterval: number | null = null;
-let countdownInterval: number | null = null;
+let joinInterval: ReturnType<typeof setInterval> | null = null;
+let countdownInterval: ReturnType<typeof setInterval> | null = null;
 
 const menuItems = ref<MenuItem[]>([
   { name: "진행 중인 토론", path: "/debate", icon: "discussion_list.svg" },

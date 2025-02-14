@@ -22,15 +22,9 @@
             <div class="countdown">
               <svg class="timer-circle" viewBox="0 0 50 50">
                 <circle class="timer-circle-bg" r="20" cx="25" cy="25" />
-                <circle 
-                  class="timer-circle-progress" 
-                  r="20" 
-                  cx="25" 
-                  cy="25"
-                  :style="{
-                    strokeDashoffset: `${(1 - countdown / 5) * 125.6}px`
-                  }"
-                />
+                <circle class="timer-circle-progress" r="20" cx="25" cy="25" :style="{
+                  strokeDashoffset: `${(1 - countdown / 5) * 125.6}px`
+                }" />
               </svg>
               <span class="timer-number">{{ countdown }}</span>
             </div>
@@ -43,7 +37,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from "vue";
 import ProfileImage from "@/components/ProfileImage.vue";
 
 type Participant = {
@@ -57,7 +50,7 @@ interface Props {
 }
 
 defineProps<Props>();
-  defineEmits<{ (event: "close"): void }>();
+defineEmits<{ (event: "close"): void }>();
 </script>
 
 <style scoped>
@@ -69,6 +62,7 @@ defineProps<Props>();
   place-items: center;
   z-index: 50;
 }
+
 .modal-content {
   width: 400px;
   padding: 2rem 1.5rem;
@@ -78,6 +72,7 @@ defineProps<Props>();
   flex-direction: column;
   gap: 1.5rem;
 }
+
 .modal-title {
   color: white;
   font-size: 20px;
@@ -85,6 +80,7 @@ defineProps<Props>();
   text-align: center;
   margin: 0;
 }
+
 .profile-container {
   display: flex;
   align-items: center;
@@ -92,71 +88,84 @@ defineProps<Props>();
   gap: 0.5rem;
   padding: 1rem 0;
 }
+
 .profile-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
+
 .profile-name {
   margin-top: 4px;
   color: white;
   font-size: 12px;
   text-align: center;
 }
+
 .connector {
   width: 22px;
   height: 2px;
   background-color: #242B42;
 }
+
 .discussion-info {
   background-color: #242B42;
   padding: 1rem;
   border-radius: 10px;
 }
+
 .info-label {
   color: #d4d4d4;
   font-size: 14px;
   display: block;
   margin-bottom: 0.5rem;
 }
+
 .info-content {
   color: white;
   font-size: 16px;
   font-weight: bold;
   margin: 0;
 }
+
 .timer-section {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
 }
+
 .timer-text {
   color: #d4d4d4;
   font-size: 14px;
   margin: 0;
 }
+
 .timer-container {
   position: relative;
   width: 50px;
   height: 50px;
 }
+
 .countdown {
   position: relative;
   display: grid;
   place-items: center;
 }
+
 .timer-circle {
   transform: rotate(-90deg);
   width: 50px;
   height: 50px;
 }
+
 .timer-circle-bg {
   fill: none;
   stroke: #242B42;
   stroke-width: 3;
 }
+
 .timer-circle-progress {
   fill: none;
   stroke: #3B62E2;
@@ -165,21 +174,25 @@ defineProps<Props>();
   stroke-dasharray: 125.6;
   transition: stroke-dashoffset 1s linear;
 }
+
 .timer-number {
   position: absolute;
   color: white;
   font-size: 20px;
   font-weight: bold;
 }
+
 .auto-enter-text {
   color: white;
   font-size: 14px;
   margin: 0;
 }
+
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.3s ease;
 }
+
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
