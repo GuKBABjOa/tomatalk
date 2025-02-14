@@ -1,15 +1,12 @@
-from fastapi import FastAPI, Request, Response, requests
-from fastapi.exception_handlers import (
-    http_exception_handler,
-    request_validation_exception_handler,
-)
-from fastapi.exceptions import RequestValidationError
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, RedirectResponse
-from starlette.exceptions import HTTPException as StarletteHTTPException
-from starlette.middleware.sessions import SessionMiddleware
-# from audio import audio_router
+from audio import audio_router
 from ai import ai_router
+from transcripts import transcripts_router
+from dotenv import load_dotenv
+import os
+
+
 
 app = FastAPI()
 
@@ -22,8 +19,18 @@ app.add_middleware(
     allow_headers=["*"],  # 허용할 HTTPS 헤더
 )
 
-# 라우트 추가
-app.include_router(ai_router.router, prefix="/ai", tags=["ai"])
+app.include_router(ai_router.router, prefix="/api/ai", tags=["ai"])
+app.include_router(audio_router.router, prefix="/api/audio", tags=["audio"])
+app.include_router(transcripts_router.router, prefix="/api/transcripts", tags=["transcripts"])
+
+# 환경 변수 로드
+load_dotenv()
+
+USER_NAME = os.getenv("USER_NAME")
+PASSWORD = os.getenv("PASSWORD")
+HOST_NAME = os.getenv("HOST_NAME", "localhost")
+PORT = int(os.getenv("PORT", 3306))
+DB_NAME = os.getenv("DB_NAME")
 
 @app.get("/")
 async def root():
