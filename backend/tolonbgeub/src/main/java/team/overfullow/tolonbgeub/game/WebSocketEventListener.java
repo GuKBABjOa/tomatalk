@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import team.overfullow.tolonbgeub.matching.MatchingService;
+import team.overfullow.tolonbgeub.matching.event.MatchingSuccessEvent;
 import team.overfullow.tolonbgeub.matching.event.SubscriberUpdateEvent;
 
 @Slf4j
@@ -42,12 +44,25 @@ public class WebSocketEventListener{
         log.info("User Disconnected: {}", sessionId);
     }
 
+    @Async
     @EventListener
-    public void handleSubscriberUpdateEvent(SubscriberUpdateEvent event) {
+    public void handleSubscriberUpdate(SubscriberUpdateEvent event) throws InterruptedException {
         log.info("send SubscriberUpdateEvent = {}", event);
         messagingTemplate.convertAndSend(
                 event.getDestination(),
                 event.getPayload()
         );
+    }
+
+    @Async
+    @EventListener
+    public void handleMatchingSuccess(MatchingSuccessEvent event) throws InterruptedException {
+//        log.info("send MatchingSuccessEvent = {}", event);
+        messagingTemplate.convertAndSendToUser(
+                event.getUserId(),
+                event.getDestination(),
+                event.getPayload()
+        );
+        log.info("Message sent to user {}: {}", event.getUserId(), event.getPayload());
     }
 }
