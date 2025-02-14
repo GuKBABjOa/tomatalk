@@ -24,6 +24,11 @@ spring:
       ddl-auto: create-drop # 실제 배포 환경에서는 다른 옵션을 사용해야 합니다.
     open-in-view: false
 
+app:
+  image:
+    base-url: ${APP_IMAGE_BASE_URL}
+
+
 springdoc:
 #  packages-to-scan: kr.ac.sejong.ds.restaurant  # Swagger 문서를 생성할 컨트롤러가 포함된 패키지를 지정
 #  paths-to-match: /**  # 문서화할 경로를 지정합니다. /**는 모든 경로를 의미

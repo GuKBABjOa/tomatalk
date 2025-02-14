@@ -11,11 +11,17 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import team.overfullow.tolonbgeub.auth.AuthConfigProps;
 import team.overfullow.tolonbgeub.auth.UserRole;
 import team.overfullow.tolonbgeub.auth.jwt.JwtProvider;
 import team.overfullow.tolonbgeub.auth.oauth.kakao.KakaoAuthenticationProvider;
 import team.overfullow.tolonbgeub.user.service.UserService;
+
+import java.util.List;
+
 
 import static org.springframework.http.HttpMethod.*;
 
@@ -42,14 +48,16 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(GET, "/api/auth/login/**").permitAll()
                         .requestMatchers(POST, "/api/auth/login/**").permitAll()
                         .requestMatchers(POST, "/api/auth/logout").authenticated()
-                        .requestMatchers(GET, "/api/auth/authentication").authenticated() // 인증 테스트 api
-                        .requestMatchers(GET, "/api/auth/authorization").hasAuthority(UserRole.ADMIN.role()) // 인가 테스트 api
+                        .requestMatchers(GET, "/api/auth/authentication").authenticated()
+                        .requestMatchers(GET, "/api/auth/authorization").hasAuthority(UserRole.ADMIN.role())
                         .requestMatchers(GET, "/api/topics/**").permitAll()
                         .requestMatchers(GET, "/api/games/sample/**").permitAll()
-                        .requestMatchers(GET, "/api/users/me").authenticated()
+                        .requestMatchers(GET, "/api/users/**").permitAll()
+                        .requestMatchers(PUT, "/api/users/me").permitAll()
                         .requestMatchers(PUT, "/api/users/change").authenticated()
                         .requestMatchers(GET, "/api/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
@@ -60,6 +68,23 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
+    // ✅ CORS 설정 추가
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Vue 요청 허용
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
+        configuration.setAllowCredentials(true); // 쿠키 허용 (필요한 경우)
+
+        source.registerCorsConfiguration("/**", configuration);
+        return (CorsConfigurationSource) source; // 명시적으로 CorsConfigurationSource로 반환
+    }
+
+
 
     @Bean
     public AuthenticationManager authenticationManager() {
