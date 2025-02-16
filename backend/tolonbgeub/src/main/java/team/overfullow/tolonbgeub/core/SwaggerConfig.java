@@ -41,7 +41,16 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("Petstore API")
                         .version("v1")
-                        .description("This is a sample server Petstore server. You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/). For this sample, you can use the api key `special-key` to test the authorization filters.")
+                        .description(
+                            """
+                            # [웹소켓 명세서로 이동](https://sisoya0424-1736226588737.atlassian.net/wiki/spaces/SSAFYA802/pages/11567105)
+                            
+                            우측하단 Authorize에 "test"를 입력하시면 자동으로 테스트 유저로 로그인됩니다.
+                                
+                            This is a sample server Petstore server. You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/). For this sample, you can use the api key `special-key` to test the authorization filters.
+
+                            """
+                        )
                         .termsOfService("http://swagger.io/terms/")
                         .license(new License().name("Apache 2.0").url("http://springdoc.org")));
     }

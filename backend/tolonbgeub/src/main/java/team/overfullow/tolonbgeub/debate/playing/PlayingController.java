@@ -34,7 +34,7 @@ public class PlayingController {
         }
 
         //todo userid 참여자 검증
-        playingService.handleJoin(debateId, message.payload());
+        playingService.handleJoin(debateId, message.payload().userId());
     }
 
 //    @MessageMapping("/debate.interrupt/{debateId}")
