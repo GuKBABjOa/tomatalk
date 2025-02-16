@@ -24,16 +24,14 @@ import static java.util.Objects.isNull;
 @RequiredArgsConstructor
 public class MatchingSubscriptionInterceptor implements ChannelInterceptor {
     private static final String regex = "^/sub/matching\\.(\\w+)$";
-//    private static final String regex = "^(/user/\\\\w+)?/sub/matching\\\\.(\\\\w+)$";
     private static final Pattern pattern = Pattern.compile(regex);
     private static final String HEARTBEAT_DESTINATION = "/pub/heartbeat";
 
-    private final MatchingService matchingService;
-//    private final ResilientSessionManager sessionManager;
+//    private final MatchingManager matchingManager;
 
 
     @Override
-    public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
+    public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
         log.info("sub message: = {}", message);
 
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
@@ -92,13 +90,13 @@ public class MatchingSubscriptionInterceptor implements ChannelInterceptor {
 //            Authentication auth = (Authentication) accessor.getUser();
 //            log.info("sub auth={}", auth);
 //            String username = auth != null ? auth.getName() : sessionId; // todo 특정 사용자에게 메시지 전달을 위해서 username 지정
-            matchingService.addSubscriber(category, sessionId, userId);
+//            matchingManager.addSubscriber(category, sessionId, userId);
 
             log.info("New subscriber to matching topic={}:userId={}:Session ID={})",
                     category, userId, sessionId);
         } else if (StompCommand.UNSUBSCRIBE.equals(accessor.getCommand())) {
             log.info("handle unsub sessionId: = {}", sessionId);
-            matchingService.removeSubscriber(category, sessionId, userId);
+//            matchingManager.removeSubscriber(category, sessionId, userId);
             log.info("Unsubscribed from matching topic {}: {}", category, sessionId);
         }
     }

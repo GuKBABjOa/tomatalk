@@ -30,8 +30,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/sub", "/user") // 메시지를 브로드캐스트할 프리픽스
-                .setTaskScheduler(taskScheduler());// 스케줄러 설정
+        registry.enableSimpleBroker("/sub", "/user"); // 메시지를 브로드캐스트할 프리픽스
         registry.setApplicationDestinationPrefixes("/pub"); // 클라이언트에서 보낼 메시지 프리픽스
         registry.setUserDestinationPrefix("/user");
         registry.setCacheLimit(1024 * 1024);
@@ -40,12 +39,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(matchingSubscriptionInterceptor);
-    }
-
-    @Bean
-    public TaskScheduler taskScheduler() {
-        // 기본 스케줄러를 설정
-        return new ConcurrentTaskScheduler();
     }
 
     @Bean

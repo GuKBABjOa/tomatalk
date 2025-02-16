@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.debate.matching.session;
+package team.overfullow.tolonbgeub.debate;
 //
 //import lombok.RequiredArgsConstructor;
 //import lombok.extern.slf4j.Slf4j;
@@ -19,6 +19,7 @@ package team.overfullow.tolonbgeub.debate.matching.session;
 //@Slf4j
 //@Service
 //@RequiredArgsConstructor
+// todo 세션 유지 로직 고도하
 public class ResilientSessionManager {
 //    private final Map<String, UserSessionState> userSessions = new ConcurrentHashMap<>();
 //    private final Map<String, Set<String>> categoryUsers = new ConcurrentHashMap<>();

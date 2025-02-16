@@ -16,7 +16,7 @@ import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import team.overfullow.tolonbgeub.debate.Category;
-import team.overfullow.tolonbgeub.debate.matching.message.SubscriberUpdateMessage;
+import team.overfullow.tolonbgeub.debate.matching.message.MatchingQueueUpdateMessage;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -61,7 +61,7 @@ public class WebSocketStompTest {
 
     @Test
     void testWebSocketConnectionAndMessaging() throws Exception {
-        BlockingQueue<SubscriberUpdateMessage> messages = new LinkedBlockingDeque<>();
+        BlockingQueue<MatchingQueueUpdateMessage> messages = new LinkedBlockingDeque<>();
 
         StompHeaders stompHeaders = new StompHeaders();
         stompHeaders.set("X-User-Id", "userId");
@@ -83,8 +83,8 @@ public class WebSocketStompTest {
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
                 try {
-                    SubscriberUpdateMessage message =
-                            objectMapper.readValue((byte[]) payload, SubscriberUpdateMessage.class); // JSON 파싱
+                    MatchingQueueUpdateMessage message =
+                            objectMapper.readValue((byte[]) payload, MatchingQueueUpdateMessage.class); // JSON 파싱
                     log.info("📩 메시지 변환 완료: {}", message);
                     latch.countDown();
                     messages.add(message);
@@ -97,7 +97,7 @@ public class WebSocketStompTest {
         });
 
 
-        SubscriberUpdateMessage take = messages.poll(1, TimeUnit.SECONDS);
+        MatchingQueueUpdateMessage take = messages.poll(1, TimeUnit.SECONDS);
         SoftAssertions.assertSoftly(softly -> {
             assertNotNull(take, "메시지를 받지 못했습니다.");
             assertEquals(Category.POLITICS, take.getCategory());
@@ -109,7 +109,7 @@ public class WebSocketStompTest {
     @Test
     void testConcurrentWebSocketConnections() throws Exception {
         int clientCount = 16; // 동시에 연결할 클라이언트 수
-        BlockingQueue<SubscriberUpdateMessage> messages = new LinkedBlockingDeque<>();
+        BlockingQueue<MatchingQueueUpdateMessage> messages = new LinkedBlockingDeque<>();
         CountDownLatch latch = new CountDownLatch(clientCount/4*4);
         CountDownLatch latch2 = new CountDownLatch(clientCount/4*4);
         int timeout = 1+clientCount/10; // 타임아웃 시간을 3초에서 10초로 증가
@@ -143,8 +143,8 @@ public class WebSocketStompTest {
                         @Override
                         public void handleFrame(StompHeaders headers, Object payload) {
                             try {
-                                SubscriberUpdateMessage message =
-                                        objectMapper.readValue((byte[]) payload, SubscriberUpdateMessage.class); // JSON 파싱
+                                MatchingQueueUpdateMessage message =
+                                        objectMapper.readValue((byte[]) payload, MatchingQueueUpdateMessage.class); // JSON 파싱
                                 log.info("📩 개인 클라이언트 {}: 메시지 변환 완료: {}", clientId, message);
 //                                messages.add(message);
                                 latch2.countDown(); // 메시지를 받으면 카운트다운
@@ -184,8 +184,8 @@ public class WebSocketStompTest {
                         @Override
                         public void handleFrame(StompHeaders headers, Object payload) {
                             try {
-                                SubscriberUpdateMessage message =
-                                        objectMapper.readValue((byte[]) payload, SubscriberUpdateMessage.class); // JSON 파싱
+                                MatchingQueueUpdateMessage message =
+                                        objectMapper.readValue((byte[]) payload, MatchingQueueUpdateMessage.class); // JSON 파싱
 //                                log.info("📩 클라이언트 {}: 메시지 변환 완료: {}", clientId, message);
 //                                messages.add(message);
                                 latch.countDown(); // 메시지를 받으면 카운트다운
