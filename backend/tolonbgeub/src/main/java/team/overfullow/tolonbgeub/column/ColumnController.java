@@ -15,7 +15,6 @@ import team.overfullow.tolonbgeub.core.dto.CursorRequest;
 import team.overfullow.tolonbgeub.core.dto.CursorResponse;
 import team.overfullow.tolonbgeub.core.dto.SortBy;
 import team.overfullow.tolonbgeub.debate.Category;
-import team.overfullow.tolonbgeub.debate.DebateStatus;
 
 import java.time.LocalDateTime;
 import java.util.Random;

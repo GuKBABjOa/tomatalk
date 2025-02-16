@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.debate.dto;
+package team.overfullow.tolonbgeub.debate.debate.dto;
 
 import lombok.Builder;
 

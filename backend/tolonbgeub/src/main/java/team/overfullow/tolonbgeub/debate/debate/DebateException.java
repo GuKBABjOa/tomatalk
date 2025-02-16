@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.debate;
+package team.overfullow.tolonbgeub.debate.debate;
 
 import org.springframework.http.HttpStatus;
 import team.overfullow.tolonbgeub.core.exception.CustomException;

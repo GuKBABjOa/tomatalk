@@ -1,14 +1,14 @@
-package team.overfullow.tolonbgeub.debate.dto;
+package team.overfullow.tolonbgeub.debate.debate.dto;
 
 import lombok.Builder;
-import team.overfullow.tolonbgeub.debate.DebateStatus;
 
 public record DebateUserResponse(
         String userId,
         String nickname,
-        String profileImage,
+        String profileImageUrl,
         String position,
-        Integer order
+        Integer positionOrder,
+        Integer speechOrder
 ) {
     @Builder
     public DebateUserResponse {

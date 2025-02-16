@@ -1,7 +1,7 @@
-package team.overfullow.tolonbgeub.debate.dto;
+package team.overfullow.tolonbgeub.debate.debate.dto;
 
 import lombok.Builder;
-import team.overfullow.tolonbgeub.debate.DebateStatus;
+import team.overfullow.tolonbgeub.debate.debate.DebateStatus;
 
 public record DebateInfoResponse(
         String debateId,

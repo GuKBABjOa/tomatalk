@@ -5,8 +5,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import org.springframework.boot.context.properties.bind.DefaultValue;
-import team.overfullow.tolonbgeub.debate.DebateStatus;
 
 
 public record PageRequest(
