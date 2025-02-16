@@ -19,11 +19,6 @@ public class SubjectApiTest extends ApiTestSupport {
     @Autowired
     SubjectRepository subjectRepository;
 
-    @BeforeEach
-    public void clean() throws Exception {
-        subjectRepository.deleteAll();
-    }
-
     @Nested
     @DisplayName("논제 단건 조회 테스트")
     class AuthenticationTest {

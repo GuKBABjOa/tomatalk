@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.debate;
+package team.overfullow.tolonbgeub.debate.debate;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.overfullow.tolonbgeub.core.auditing.BaseTimeEntity;
+import team.overfullow.tolonbgeub.debate.Category;
 import team.overfullow.tolonbgeub.subject.Subject;
 
 import java.util.ArrayList;
@@ -17,6 +18,9 @@ import java.util.List;
 public class Debate extends BaseTimeEntity {
     @Id
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private DebateStatus status;
 
     @Enumerated(EnumType.STRING)
     private Category category;
@@ -34,6 +38,10 @@ public class Debate extends BaseTimeEntity {
         this.category = category;
         this.subject = subject;
         this.debateUsers = debateUsers;
-        debateUsers.stream().forEach(du->du.setParent(this));
+        debateUsers.forEach(du->du.setParent(this));
+    }
+
+    public void start() {
+        status = DebateStatus.IN_PROGRESS;
     }
 }

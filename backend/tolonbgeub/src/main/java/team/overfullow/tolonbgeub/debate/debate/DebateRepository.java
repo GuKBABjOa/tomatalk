@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.debate;
+package team.overfullow.tolonbgeub.debate.debate;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

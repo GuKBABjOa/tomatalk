@@ -1,7 +1,6 @@
-package team.overfullow.tolonbgeub.debate;
+package team.overfullow.tolonbgeub.debate.debate;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -27,15 +26,18 @@ public class DebateUser {
     private String position;
 
     @Min(1)
-    @Max(2)
+    private Integer positionOrder;
+
+    @Min(1)
     private Integer speechOrder;
 
     @Builder
-    private DebateUser(Long id, User user, Debate debate, String position, Integer speechOrder) {
+    private DebateUser(Long id, User user, Debate debate, String position, Integer positionOrder, Integer speechOrder) {
         this.id = id;
         this.user = user;
         this.debate = debate;
         this.position = position;
+        this.positionOrder = positionOrder;
         this.speechOrder = speechOrder;
     }
 

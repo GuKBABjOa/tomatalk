@@ -1,13 +1,15 @@
-package team.overfullow.tolonbgeub.debate;
+package team.overfullow.tolonbgeub.debate.debate;
 
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.overfullow.tolonbgeub.auth.util.IdGenerator;
-import team.overfullow.tolonbgeub.debate.dto.DebateRoomResponse;
-import team.overfullow.tolonbgeub.debate.dto.DebateUserResponse;
+import team.overfullow.tolonbgeub.debate.Category;
+import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomResponse;
+import team.overfullow.tolonbgeub.debate.debate.dto.DebateUserResponse;
 import team.overfullow.tolonbgeub.subject.SubjectService;
 import team.overfullow.tolonbgeub.user.Repository.UserRepository;
 import team.overfullow.tolonbgeub.user.User;
@@ -39,8 +41,9 @@ public class DebateService {
             debateUsers.add(DebateUser.builder()
                     .id(idGenerator.generate())
                     .user(users.get(i))
-                    .speechOrder(i % 2 + 1) // 1,2,1,2
                     .position(positions[i])
+                    .positionOrder(i % 2 + 1) // 1,2,1,2 기본 룰 값
+                    .speechOrder(i + 1) // 1,2,3,4 기분 룰 값
                     .build());
         }
 
@@ -55,42 +58,57 @@ public class DebateService {
     }
 
     @Transactional(readOnly = true)
-    public DebateRoomResponse getRoomById(Long id, Long requestUserId) {
+    public DebateRoomResponse getRoomById(Long id, @Nullable Long requestUserId) {
         Debate debate = debateRepository.findById(id)
                 .orElseThrow(() -> new DebateException(HttpStatus.NOT_FOUND));
-        return mapToDebateRoomResponse(requestUserId, debate);
+        return toDebateRoomResponse(requestUserId, debate);
     }
 
     @Deprecated
     @Transactional(readOnly = true)
     public List<DebateRoomResponse> getAllForTest(){
-        return debateRepository.findAll().stream().map(d -> mapToDebateRoomResponse(null, d)).toList();
+        return debateRepository.findAll().stream().map(d -> toDebateRoomResponse(null, d)).toList();
     }
 
-    private DebateRoomResponse mapToDebateRoomResponse(Long requestUserId, Debate debate) {
+    @Transactional(readOnly = true)
+    public List<DebateUserResponse> getUsersByDebateId(Long debateId) {
+        return getById(debateId).getDebateUsers().stream()
+                .map(this::toDebateUserResponse)
+                .toList();
+    }
+
+    private Debate getById(Long id){
+        return debateRepository.findById(id).orElseThrow(() -> new DebateException(HttpStatus.NOT_FOUND));
+    }
+
+    private DebateRoomResponse toDebateRoomResponse(Long requestUserId, Debate debate) {
         return DebateRoomResponse.builder()
                 .debateId(debate.getId().toString())
                 .category(debate.getCategory().name())
                 .subject(debate.getSubject().getSubject())
                 .participant(debate.getDebateUsers().stream()
-                        .map(DebateUser::getUser)
-                        .anyMatch(u -> u.getId().equals(requestUserId)))
+                        .map(this::toDebateUserResponse)
+                        .anyMatch(u -> u.userId().equals(requestUserId)))
                 .users(debate.getDebateUsers().stream()
-                        .map(this::mpaToDebateUserResponse)
+                        .map(this::toDebateUserResponse)
                         .toList())
                 .build();
     }
 
-    private DebateUserResponse mpaToDebateUserResponse(DebateUser du) {
+    private DebateUserResponse toDebateUserResponse(DebateUser du) {
         User user = du.getUser();
         return DebateUserResponse.builder()
                 .userId(user.getId().toString())
                 .nickname(user.getNickname())
-                .profileImage("제공 예정")
+                .profileImageUrl("제공 예정")
                 .position(du.getPosition())
-                .order(du.getSpeechOrder())
+                .positionOrder(du.getPositionOrder())
+                .speechOrder(du.getSpeechOrder())
                 .build();
     }
 
 
+    public void start(Long debateId) {
+        getById(debateId).start();
+    }
 }

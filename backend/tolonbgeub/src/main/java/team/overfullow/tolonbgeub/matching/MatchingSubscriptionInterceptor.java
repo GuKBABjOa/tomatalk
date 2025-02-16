@@ -50,6 +50,12 @@ public class MatchingSubscriptionInterceptor implements ChannelInterceptor {
             return;
         }
 
+        log.info("try to match destination pattern");
+        Matcher matcher = pattern.matcher(destination);
+        if (!matcher.matches()) {
+            return;
+        }
+
         log.info("try to get userId from header");
 //        String userId = (String) accessor.getMessageHeaders().get("X-User-Id");
 //        String userId = (String) accessor.getHeader("X-User-Id");
@@ -63,11 +69,6 @@ public class MatchingSubscriptionInterceptor implements ChannelInterceptor {
         log.info("successfully get userId from header");
 //        accessor.setUser(new UserPrincipal(userId));
 
-        log.info("try to match destination pattern");
-        Matcher matcher = pattern.matcher(destination);
-        if (!matcher.matches()) {
-            return;
-        }
 
         log.info("match subscription for {}", destination);
         String categoryString = matcher.group(1);
@@ -108,4 +109,6 @@ public class MatchingSubscriptionInterceptor implements ChannelInterceptor {
 //            matchingService.updateHeartbeat(userId);
         }
     }
+
+
 }

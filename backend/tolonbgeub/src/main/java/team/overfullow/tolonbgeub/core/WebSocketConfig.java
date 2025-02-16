@@ -1,12 +1,14 @@
-package team.overfullow.tolonbgeub.game;
+package team.overfullow.tolonbgeub.core;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -44,5 +46,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public TaskScheduler taskScheduler() {
         // 기본 스케줄러를 설정
         return new ConcurrentTaskScheduler();
+    }
+
+    @Bean
+    public TaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(1000);
+        executor.setThreadNamePrefix("WebsocketTaskExecutor-");
+        executor.initialize();
+        return executor;
     }
 }

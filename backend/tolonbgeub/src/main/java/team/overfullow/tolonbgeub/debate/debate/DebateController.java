@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.debate;
+package team.overfullow.tolonbgeub.debate.debate;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
@@ -15,8 +15,9 @@ import team.overfullow.tolonbgeub.auth.UserId;
 import team.overfullow.tolonbgeub.core.dto.CursorRequest;
 import team.overfullow.tolonbgeub.core.dto.CursorResponse;
 import team.overfullow.tolonbgeub.core.dto.SortBy;
-import team.overfullow.tolonbgeub.debate.dto.DebateInfoResponse;
-import team.overfullow.tolonbgeub.debate.dto.DebateRoomResponse;
+import team.overfullow.tolonbgeub.debate.Category;
+import team.overfullow.tolonbgeub.debate.debate.dto.DebateInfoResponse;
+import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
