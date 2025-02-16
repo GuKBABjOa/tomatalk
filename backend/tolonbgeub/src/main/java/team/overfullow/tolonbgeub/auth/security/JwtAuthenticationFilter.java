@@ -37,12 +37,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //todo log 수정
-        log.info("JwtAuthenticationFilter: in progress: request = {} {} {}", request.getMethod(), request.getRequestURI(), request.getQueryString());
+        log.debug("JwtAuthenticationFilter: in progress: request = {} {} {}", request.getMethod(), request.getRequestURI(), request.getQueryString());
         String authHeader = request.getHeader(authConfigProps.header);
 
-        log.info("JwtAuthenticationFilter: authHeader = {}", authHeader);
+        log.debug("JwtAuthenticationFilter: authHeader = {}", authHeader);
         if (authHeader == null || !authHeader.startsWith(authConfigProps.scheme)) {
-            log.info("authProps.scheme = {}", authConfigProps.scheme);
+            log.debug("authProps.scheme = {}", authConfigProps.scheme);
             request.setAttribute("msg", "인증 헤더가 올바르지 않습니다 header = "+authHeader);
             filterChain.doFilter(request, response);
             return;
@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         var accessToken = substringAfter(authHeader, authConfigProps.scheme).trim();
         if(accessToken.equals("test")) {
-            log.info("테스트 유저 인증");
+            log.debug("테스트 유저 인증");
             Optional<UserResponse> byEmail =
                     userService.findByEmail("test@test.com");
             if(byEmail.isPresent()) {
@@ -73,7 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        log.info("인증 성공 !! AuthUser = {}",authentication.getPrincipal());
+        log.debug("인증 성공 !! AuthUser = {}",authentication.getPrincipal());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);
     }

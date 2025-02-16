@@ -5,11 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import team.overfullow.tolonbgeub.core.async.PreciseInstantScheduler;
+import team.overfullow.tolonbgeub.debate.playing.event.StateUpdateEvent;
 import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessage;
 import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessageType;
-import team.overfullow.tolonbgeub.debate.playing.message.request.JoinRequest;
 import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingStateResponse;
-import team.overfullow.tolonbgeub.debate.playing.event.StateUpdateEvent;
 import team.overfullow.tolonbgeub.debate.playing.state.PlayingStateManager;
 import team.overfullow.tolonbgeub.debate.playing.state.PlayingStatus;
 
@@ -21,10 +20,10 @@ public class PlayingService {
     private final ApplicationEventPublisher eventPublisher;
     private final PreciseInstantScheduler scheduler;
 
-    public void handleJoin(Long debateId, JoinRequest request) {
+    public void handleJoin(Long debateId, Long userId) {
         log.info("{}: Playing handleJoin", debateId);
         // 토론 참여자들에게 참여자 접속 메시지 전송
-        eventPublisher.publishEvent(generateStateUpdateEvent(debateId, stateManager.join(debateId, request.userId())));
+        eventPublisher.publishEvent(generateStateUpdateEvent(debateId, stateManager.join(debateId, userId)));
 
         // 토론 시작: 아래 동기화 구문은 토론 당 단 한 번만 실행되어야 한다
         // todo 동시성 문제 처리

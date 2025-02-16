@@ -63,6 +63,7 @@ public class SecurityConfig {
                         .requestMatchers(PUT, "/api/users/me").permitAll()
                         .requestMatchers(PUT, "/api/users/change").authenticated()
                         .requestMatchers(GET, "/api/**").permitAll()
+                        .requestMatchers(GET, "/api/tests/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/h2-console").permitAll()
                         .anyRequest().authenticated())
