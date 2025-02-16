@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.concurrent.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
@@ -31,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class WebSocketStompTest {
 
+    //todo 테스트 수정
     private static final String WEBSOCKET_ENDPOINT = "ws://localhost:%d/ws";
 
     @LocalServerPort
@@ -101,7 +101,7 @@ public class WebSocketStompTest {
         SoftAssertions.assertSoftly(softly -> {
             assertNotNull(take, "메시지를 받지 못했습니다.");
             assertEquals(Category.POLITICS, take.getCategory());
-            assertEquals(1, take.getSubscriberCount());
+            assertEquals(1, take.getWaitingUserCount());
         });
         assertTrue(latch.await(3, TimeUnit.SECONDS), "정해진 메시지 개수만큼 수신하지 못했습니다.");
     }

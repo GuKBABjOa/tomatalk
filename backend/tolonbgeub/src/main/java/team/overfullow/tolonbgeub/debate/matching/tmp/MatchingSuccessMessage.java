@@ -1,12 +1,11 @@
 package team.overfullow.tolonbgeub.debate.matching.tmp;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import team.overfullow.tolonbgeub.debate.Category;
+import lombok.Builder;
 
-import java.util.List;
-
-@AllArgsConstructor
+@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class MatchingSuccessMessage {
-    private Category category;
-    private List<Long> userIds;
+    private String connectionToken;
 }

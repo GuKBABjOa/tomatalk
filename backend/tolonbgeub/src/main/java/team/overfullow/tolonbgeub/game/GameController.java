@@ -37,7 +37,7 @@ public class GameController {
 
     @GetMapping("/api/games/sample/{gameId}")
     public ResponseEntity<String> getTampToken(@PathVariable String gameId){
-        return ResponseEntity.ok(openviduHandler.createConnection(gameId));
+        return ResponseEntity.ok(openviduHandler.createConnectionToken(gameId));
     }
 
     // 게임 참여
@@ -47,7 +47,7 @@ public class GameController {
         log.info("game join request = {}", request);
 
         GameState state = gameService.joinGame(gameId, request.getUserId());
-        String connectionToken = openviduHandler.createConnection(gameId);
+        String connectionToken = openviduHandler.createConnectionToken(gameId);
 //        String connectionToken = "sampleToken";
         messagingTemplate.convertAndSend(DESTINATION_PREFIX + gameId,
                 new GameMessage(MessageType.GREETING, Greeting.builder()

@@ -22,11 +22,11 @@ public class OpenViduHandler {
         this.openVidu = new OpenVidu(openViduConfigProps.url, openViduConfigProps.secret);
     }
 
-    public synchronized String createConnection(String gameId) {
-        Session session = openVidu.getActiveSession(gameId);
+    public synchronized String createConnectionToken(String sessionId) {
+        Session session = openVidu.getActiveSession(sessionId);
         // todo 세션에 참여하는 대상이 맞는 지 검증
         if (session == null) {
-            session = initializeSession(gameId);
+            session = initializeSession(sessionId);
         }
 
         try {

@@ -10,5 +10,5 @@ import java.util.List;
 @AllArgsConstructor
 public class MatchingSuccessResult {
     private Category category;
-    private List<Long> matchedUsers;
+    private List<Long> matchedUserIds;
 }

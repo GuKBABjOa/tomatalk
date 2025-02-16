@@ -70,7 +70,7 @@ public class MatchingQueue {
         }
     }
 
-    public int getRegisteredCount() {
+    public int getWaitingUserCount() {
         matchLock.lock();
         try {
             return map.size();
