@@ -23,7 +23,6 @@ spring:
     hibernate:
       ddl-auto: create # 실제 배포 환경에서는 다른 옵션을 사용해야 합니다.
     open-in-view: false
-
 app:
   image:
     base-url: ${APP_IMAGE_BASE_URL}
@@ -64,3 +63,8 @@ oauth:
 
 OPENVIDU_URL: ${OPENVIDU_URL}
 OPENVIDU_SECRET: ${OPENVIDU_SECRET}
+logging:
+  level:
+    team:
+      overfullow:
+        tolonbgeub: debug

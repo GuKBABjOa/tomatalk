@@ -34,8 +34,10 @@ public class OpenViduHandler {
             log.debug("connection = {}", connection.getStatus());
             return connection.getToken();
         } catch (OpenViduJavaClientException e) {
+            log.error(e.getMessage());
             throw new OpenviduException(HttpStatus.INTERNAL_SERVER_ERROR, "OpenViduJavaClientException occurred: " + e.getMessage());
         } catch (OpenViduHttpException e) {
+            log.error(e.getMessage());
             throw new OpenviduException(HttpStatus.INTERNAL_SERVER_ERROR, "OpenViduHttpException occurred: " + e.getMessage());
         }
     }
@@ -57,8 +59,10 @@ public class OpenViduHandler {
             log.debug("session = {}", session);
             return session;
         } catch (OpenViduJavaClientException e) {
+            log.error(e.getMessage());
             throw new OpenviduException(HttpStatus.INTERNAL_SERVER_ERROR, "OpenViduJavaClientException occurred: " + e.getMessage());
         } catch (OpenViduHttpException e) {
+            log.error(e.getMessage());
             throw new OpenviduException(HttpStatus.INTERNAL_SERVER_ERROR, "OpenViduHttpException occurred: " + e.getMessage());
         }
     }

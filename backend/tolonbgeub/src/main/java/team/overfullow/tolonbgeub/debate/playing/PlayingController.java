@@ -9,9 +9,9 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import team.overfullow.tolonbgeub.auth.UserId;
-import team.overfullow.tolonbgeub.debate.playing.message.DebateMessage;
-import team.overfullow.tolonbgeub.debate.playing.message.DebateMessageType;
-import team.overfullow.tolonbgeub.debate.playing.message.payload.request.JoinRequest;
+import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessage;
+import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessageType;
+import team.overfullow.tolonbgeub.debate.playing.message.request.JoinRequest;
 
 import static java.util.Objects.isNull;
 
@@ -25,11 +25,11 @@ public class PlayingController {
     @MessageMapping("/debate.join/{debateId}")
     public void joinDebate(@DestinationVariable Long debateId,
                            @AuthenticationPrincipal UserId userId,
-                           @Payload DebateMessage<JoinRequest> message
+                           @Payload PlayingMessage<JoinRequest> message
     ) {
         log.info("Received join request for {}, message = {}", debateId, message);
 
-        if (isNull(message) || (message.messageType() != DebateMessageType.JOIN)) {
+        if (isNull(message) || (message.messageType() != PlayingMessageType.JOIN)) {
             throw new PlayingException(HttpStatus.BAD_REQUEST, "유효하지 않은 메시지 타입");
         }
 

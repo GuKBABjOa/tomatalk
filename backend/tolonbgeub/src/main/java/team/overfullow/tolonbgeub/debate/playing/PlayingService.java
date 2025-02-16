@@ -2,15 +2,16 @@ package team.overfullow.tolonbgeub.debate.playing;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import team.overfullow.tolonbgeub.core.async.PreciseInstantScheduler;
-import team.overfullow.tolonbgeub.debate.playing.message.DebateMessage;
-import team.overfullow.tolonbgeub.debate.playing.message.DebateMessageType;
-import team.overfullow.tolonbgeub.debate.playing.message.payload.request.JoinRequest;
-import team.overfullow.tolonbgeub.debate.playing.message.payload.response.PlayingStateResponse;
-import team.overfullow.tolonbgeub.debate.playing.message.payload.response.StateUpdateEvent;
+import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessage;
+import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessageType;
+import team.overfullow.tolonbgeub.debate.playing.message.request.JoinRequest;
+import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingStateResponse;
+import team.overfullow.tolonbgeub.debate.playing.event.StateUpdateEvent;
+import team.overfullow.tolonbgeub.debate.playing.state.PlayingStateManager;
+import team.overfullow.tolonbgeub.debate.playing.state.PlayingStatus;
 
 @Slf4j
 @Service
@@ -70,8 +71,8 @@ public class PlayingService {
     private static StateUpdateEvent generateStateUpdateEvent(Long debateId, PlayingStateResponse playingStateResponse) {
         return StateUpdateEvent.builder()
                 .debateId(debateId)
-                .payload(DebateMessage.<PlayingStateResponse>builder()
-                        .messageType(DebateMessageType.STATE_UPDATE)
+                .payload(PlayingMessage.<PlayingStateResponse>builder()
+                        .messageType(PlayingMessageType.STATE_UPDATE)
                         .payload(playingStateResponse)
                         .build())
                 .build();

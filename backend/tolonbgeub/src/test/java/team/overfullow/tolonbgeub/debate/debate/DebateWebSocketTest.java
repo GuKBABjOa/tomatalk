@@ -18,10 +18,10 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import team.overfullow.tolonbgeub.ApiTestSupport;
 import team.overfullow.tolonbgeub.debate.Category;
-import team.overfullow.tolonbgeub.debate.playing.message.DebateMessage;
-import team.overfullow.tolonbgeub.debate.playing.message.DebateMessageType;
-import team.overfullow.tolonbgeub.debate.playing.message.payload.request.JoinRequest;
-import team.overfullow.tolonbgeub.debate.playing.message.payload.response.PlayingStateResponse;
+import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessage;
+import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessageType;
+import team.overfullow.tolonbgeub.debate.playing.message.request.JoinRequest;
+import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingStateResponse;
 import team.overfullow.tolonbgeub.user.dto.UserRequest;
 import team.overfullow.tolonbgeub.user.dto.UserResponse;
 import team.overfullow.tolonbgeub.user.service.UserService;
@@ -85,7 +85,7 @@ public class DebateWebSocketTest extends ApiTestSupport {
     void shouldJoinDebateAndReceiveMessages() throws Exception {
         // given
         CountDownLatch latch = new CountDownLatch(4);
-        BlockingQueue<DebateMessage<PlayingStateResponse>> messages = new LinkedBlockingQueue<>();
+        BlockingQueue<PlayingMessage<PlayingStateResponse>> messages = new LinkedBlockingQueue<>();
 
         // 1️⃣ 4명의 사용자 생성
         List<Long> userIds = new ArrayList<>();
@@ -123,12 +123,12 @@ public class DebateWebSocketTest extends ApiTestSupport {
             session.subscribe("/sub/debate/" + debateId, new StompFrameHandler() {
                 @Override
                 public Type getPayloadType(StompHeaders headers) {
-                    return DebateMessage.class;
+                    return PlayingMessage.class;
                 }
 
                 @Override
                 public void handleFrame(StompHeaders headers, Object payload) {
-                    DebateMessage<PlayingStateResponse> stateUpdateMessage = (DebateMessage<PlayingStateResponse>) payload;
+                    PlayingMessage<PlayingStateResponse> stateUpdateMessage = (PlayingMessage<PlayingStateResponse>) payload;
                     messages.add(stateUpdateMessage);
                     System.out.println("stateUpdateMessage = " + stateUpdateMessage);
                     latch.countDown();
@@ -136,8 +136,8 @@ public class DebateWebSocketTest extends ApiTestSupport {
             });
 
             // 4️⃣ 토론 참여 메시지 전송
-            DebateMessage<JoinRequest> joinMessage = DebateMessage.<JoinRequest>builder()
-                    .messageType(DebateMessageType.JOIN)
+            PlayingMessage<JoinRequest> joinMessage = PlayingMessage.<JoinRequest>builder()
+                    .messageType(PlayingMessageType.JOIN)
                     .payload(new JoinRequest(userId))
                     .build();
             session.send("/pub/debate.join/" + debateId, joinMessage);
