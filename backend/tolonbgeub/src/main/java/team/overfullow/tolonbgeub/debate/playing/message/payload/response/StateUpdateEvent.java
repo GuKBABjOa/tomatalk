@@ -2,7 +2,7 @@ package team.overfullow.tolonbgeub.debate.playing.message.payload.response;
 
 import lombok.Builder;
 import team.overfullow.tolonbgeub.debate.playing.message.DebateMessage;
-import team.overfullow.tolonbgeub.debate.playing.message.Destination;
+import team.overfullow.tolonbgeub.debate.Destination;
 
 public record StateUpdateEvent(
         Long debateId,

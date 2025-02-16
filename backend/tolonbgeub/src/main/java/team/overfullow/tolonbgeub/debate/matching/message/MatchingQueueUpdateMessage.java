@@ -5,13 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import team.overfullow.tolonbgeub.debate.Category;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubscriberUpdateMessage {
+public class MatchingQueueUpdateMessage {
     private Category category;
     private int subscriberCount;
-    private List<String> subscribers;
 }

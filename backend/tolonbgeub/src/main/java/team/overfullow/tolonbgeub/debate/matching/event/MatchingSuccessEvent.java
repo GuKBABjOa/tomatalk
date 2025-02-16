@@ -1,10 +1,18 @@
 package team.overfullow.tolonbgeub.debate.matching.event;
 
-import lombok.Data;
+import lombok.Builder;
+import team.overfullow.tolonbgeub.debate.Destination;
+import team.overfullow.tolonbgeub.debate.matching.tmp.MatchingSuccessMessage;
 
-@Data
-public class MatchingSuccessEvent {
-    private final String userId;
-    private final String destination;
-    private final Object payload;
+public record MatchingSuccessEvent (
+     Long userId,
+     MatchingSuccessMessage payload){
+
+    @Builder
+    public MatchingSuccessEvent {
+    }
+
+    public String destination() {
+        return String.format(Destination.MATCHING_USER.getFormat(), userId);
+    }
 }
