@@ -8,9 +8,9 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-import team.overfullow.tolonbgeub.matching.MatchingService;
-import team.overfullow.tolonbgeub.matching.event.MatchingSuccessEvent;
-import team.overfullow.tolonbgeub.matching.event.SubscriberUpdateEvent;
+import team.overfullow.tolonbgeub.debate.matching.MatchingService;
+import team.overfullow.tolonbgeub.debate.matching.event.MatchingSuccessEvent;
+import team.overfullow.tolonbgeub.debate.matching.event.SubscriberUpdateEvent;
 
 @Slf4j
 @Component

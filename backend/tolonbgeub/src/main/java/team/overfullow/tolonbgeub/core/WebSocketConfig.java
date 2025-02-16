@@ -12,7 +12,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import team.overfullow.tolonbgeub.matching.MatchingSubscriptionInterceptor;
+import team.overfullow.tolonbgeub.debate.matching.MatchingSubscriptionInterceptor;
 
 @Configuration
 @EnableWebSocketMessageBroker

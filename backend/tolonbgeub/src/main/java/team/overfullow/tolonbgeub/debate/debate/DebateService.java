@@ -10,7 +10,7 @@ import team.overfullow.tolonbgeub.auth.util.IdGenerator;
 import team.overfullow.tolonbgeub.debate.Category;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomResponse;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateUserResponse;
-import team.overfullow.tolonbgeub.subject.SubjectService;
+import team.overfullow.tolonbgeub.debate.subject.SubjectService;
 import team.overfullow.tolonbgeub.user.Repository.UserRepository;
 import team.overfullow.tolonbgeub.user.User;
 

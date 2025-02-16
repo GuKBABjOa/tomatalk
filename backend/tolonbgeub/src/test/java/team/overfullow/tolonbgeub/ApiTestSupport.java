@@ -7,7 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import team.overfullow.tolonbgeub.auth.blacklist.TokenRepository;
 import team.overfullow.tolonbgeub.debate.debate.DebateRepository;
-import team.overfullow.tolonbgeub.subject.SubjectRepository;
+import team.overfullow.tolonbgeub.debate.subject.SubjectRepository;
 import team.overfullow.tolonbgeub.user.Repository.UserRepository;
 
 @Slf4j

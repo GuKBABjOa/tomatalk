@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.overfullow.tolonbgeub.core.auditing.BaseTimeEntity;
 import team.overfullow.tolonbgeub.debate.Category;
-import team.overfullow.tolonbgeub.subject.Subject;
+import team.overfullow.tolonbgeub.debate.subject.Subject;
 
 import java.util.ArrayList;
 import java.util.List;
