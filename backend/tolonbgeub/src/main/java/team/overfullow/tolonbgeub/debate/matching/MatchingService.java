@@ -7,10 +7,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import team.overfullow.tolonbgeub.debate.Category;
 import team.overfullow.tolonbgeub.debate.debate.DebateService;
+import team.overfullow.tolonbgeub.debate.matching.event.MatchingCancelEvent;
 import team.overfullow.tolonbgeub.debate.matching.event.MatchingQueueUpdateEvent;
 import team.overfullow.tolonbgeub.debate.matching.event.MatchingSuccessEvent;
 import team.overfullow.tolonbgeub.debate.matching.message.MatchingMessage;
 import team.overfullow.tolonbgeub.debate.matching.message.MatchingMessageType;
+import team.overfullow.tolonbgeub.debate.matching.message.response.MatchingCancelResponse;
 import team.overfullow.tolonbgeub.debate.matching.message.response.QueueUpdateResponse;
 import team.overfullow.tolonbgeub.debate.matching.message.response.MatchingSuccessResponse;
 import team.overfullow.tolonbgeub.debate.matching.queue.MatchingSuccessResult;
@@ -19,7 +21,6 @@ import team.overfullow.tolonbgeub.debate.matching.queue.MatchingQueueManager;
 import team.overfullow.tolonbgeub.webrtc.OpenViduHandler;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -61,24 +62,27 @@ public class MatchingService {
         sendMatchingSuccessEvent(debateId, result.getMatchedUserIds());
     }
 
-//    /**
-//     * 매칭 대기열 등록 취소 요청
-//     * @param category
-//     * @param userId
-//     */
-//    public void cancel(Category category, Long userId) {
-//        MatchingQueue matchingQueue = matchingQueueManager.getByCategory(category);
-//        if (matchingQueue == null) {
-//            throw new MatchingException(HttpStatus.NOT_FOUND, "해당 카테고리의 매칭 큐가 존재하지 않습니다.");
-//        }
-//
-//        try {
-//            matchingQueue.remove(userId);
-//            broadcastNewRegister(matchingQueue);
-//        } catch (Exception e) {
-//            throw new IllegalStateException("매칭 취소 중 오류가 발생했습니다.", e);
-//        }
-//    }
+    public void handleCancel(Category category, Long userId) {
+        MatchingQueue matchingQueue = matchingQueueManager.getByCategory(category);
+        if(!matchingQueue.remove(userId)){
+            return;
+        }
+
+        broadcastMatchingQueueUpdate(matchingQueue);
+        var message = MatchingCancelResponse.builder()
+                .userId(userId.toString())
+                .category(category)
+                .build();
+        log.debug("sending matching success event: {}", message);
+
+        publisher.publishEvent(MatchingCancelEvent.builder()
+                .userId(userId)
+                .payload(MatchingMessage.<MatchingCancelResponse>builder()
+                        .messageType(MatchingMessageType.CANCEL_SUCCESS)
+                        .payload(message)
+                        .build())
+                .build());
+    }
 
     private void broadcastMatchingQueueUpdate(MatchingQueue matchingQueue) {
 

@@ -4,14 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import team.overfullow.tolonbgeub.debate.Category;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
 
 public class MatchingQueue {
     private static final int MATCHING_SIZE = 4;
@@ -39,13 +38,10 @@ public class MatchingQueue {
         }
     }
 
-    public void remove(Long userId) {
+    public boolean remove(Long userId) {
         matchLock.lock();
         try {
-            WaitingUser removedUser = map.remove(userId);
-            if (removedUser == null) {
-                throw new IllegalStateException("대기열에 존재하지 않는 사용자입니다.");
-            }
+            return !isNull(map.remove(userId));
         } finally {
             matchLock.unlock();
         }
@@ -54,17 +50,18 @@ public class MatchingQueue {
     public Optional<MatchingSuccessResult> match() {
         matchLock.lock();
         try {
-            if (map.size() >= MATCHING_SIZE) {
-                List<Long> matchedUsers = map.values().stream()
-                        .sorted(Comparator.comparingInt(WaitingUser::getSequence))
-                        .limit(MATCHING_SIZE)
-                        .map(WaitingUser::getUserId)
-                        .collect(Collectors.toList());
-
-                matchedUsers.forEach(map::remove);
-                return Optional.of(new MatchingSuccessResult(category, matchedUsers));
+            if (map.size() < MATCHING_SIZE) {
+                return Optional.empty();
             }
-            return Optional.empty();
+
+            List<Long> matchedUsers = map.values().stream()
+                    .sorted(Comparator.comparingInt(WaitingUser::getSequence))
+                    .limit(MATCHING_SIZE)
+                    .map(WaitingUser::getUserId)
+                    .collect(Collectors.toList());
+
+            matchedUsers.forEach(map::remove);
+            return Optional.of(new MatchingSuccessResult(category, matchedUsers));
         } finally {
             matchLock.unlock();
         }
@@ -82,7 +79,7 @@ public class MatchingQueue {
     public List<Long> getWaitingUserIds() {
         matchLock.lock();
         try {
-            return map.values().stream().map(wu->wu.userId).toList();
+            return map.values().stream().map(wu -> wu.userId).toList();
         } finally {
             matchLock.unlock();
         }
