@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class DebateService {
-    private static final String[] positions = new String[]{"찬성", "찬성", "반대", "반대"};
+    private static final String[] positions = new String[]{"찬성", "반대", "찬성", "반대"};
 
     private final IdGenerator idGenerator;
     private final DebateRepository debateRepository;

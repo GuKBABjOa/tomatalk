@@ -15,8 +15,9 @@ import java.util.concurrent.locks.ReentrantLock;
 @Getter
 @ThreadSafe
 public class PlayingState {
-    private static final int waitingTimeSeconds = 10;
-    private static final int speakTimeSeconds = 15; // todo 테스트를 위해 짧게 설정
+    private static final int waitingTimeSeconds = 5;
+    private static final int speechingTimeSeconds = 10; // todo 테스트를 위해 짧게 설정
+    private static final int preparingTimeSeconds = 15; // todo 테스트를 위해 짧게 설정
 
 
     private final ReentrantLock stateLock = new ReentrantLock();
@@ -78,22 +79,6 @@ public class PlayingState {
         return !interrupted; // todo 보호 시간 고려
     }
 
-    public boolean start(int expectedUserCount) {
-        stateLock.lock();
-        try {
-            if (!canStart(expectedUserCount)) {
-                return false;
-            }
-            this.status = PlayingStatus.STARTED;
-            this.nextSpeakerId = findFirstSpeaker().getUserId();
-            this.currentSpeakEndTime = Instant.now().plusSeconds(waitingTimeSeconds);
-            sequence.getAndIncrement();
-            return true;
-        } finally {
-            stateLock.unlock();
-        }
-    }
-
     public boolean participate(Long userId) {
         log.debug("participate: userId = {}", userId);
         stateLock.lock();
@@ -112,6 +97,22 @@ public class PlayingState {
         }
     }
 
+    public boolean start(int expectedUserCount) {
+        stateLock.lock();
+        try {
+            if (!canStart(expectedUserCount)) {
+                return false;
+            }
+            this.status = PlayingStatus.STARTED;
+            this.nextSpeakerId = findFirstSpeaker().getUserId();
+            this.currentSpeakEndTime = Instant.now().plusSeconds(waitingTimeSeconds);
+            sequence.getAndIncrement();
+            return true;
+        } finally {
+            stateLock.unlock();
+        }
+    }
+
     private boolean canStart(int expectedCount) {
         long count = participants.stream().filter(PlayingUser::isParticipant).count();
         log.debug("participantCount = {}", count);
@@ -123,23 +124,30 @@ public class PlayingState {
     }
 
     // todo 업데이트 순서에 맞는 지 검증
+    public boolean skip(Long userId) {
+        stateLock.lock();
+        try {
+            if (!canSkip(userId)) {
+                return false;
+            }
+            update();
+            return true;
+        } finally {
+            stateLock.unlock();
+        }
+    }
+
+    private boolean canSkip(Long userId) {
+        return currentSpeakerId.equals(userId) && status == PlayingStatus.SPEECHING;
+    }
+
     public void update() {
         stateLock.lock();
         try {
             sequence.getAndIncrement();
-            if (++turnCounter > maxTurnCount) {
-                setDefaultState(PlayingStatus.FINISHED);
-                log.info("Debate {}: finished", debateId);
-                return;
-            }
             log.debug("Debate {}: turn {} update state", debateId, turnCounter);
             try {
-                Long currentSpeakerId = this.nextSpeakerId;
-                Long nextSpeakerId = findNextSpeakerId(currentSpeakerId);
-                setDefaultState(PlayingStatus.IN_PROGRESS);
-                this.currentSpeakerId = currentSpeakerId;
-                this.nextSpeakerId = nextSpeakerId;
-                this.currentSpeakEndTime = Instant.now().plusSeconds(speakTimeSeconds);
+                updateByStatus(status);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("업데이트 예외 발생: {}", e.getMessage());
@@ -148,6 +156,52 @@ public class PlayingState {
             stateLock.unlock();
         }
     }
+
+    private void updateByStatus(PlayingStatus newStatus) {
+        // WAITING -> STARTED -> PREPARING -> IN_PROGRESS -> WAITING -> IN_PROGRESS -> ... -> FINISHED
+        switch (status){
+            case STARTED ->{
+                Long currentSpeakerId = this.currentSpeakerId;
+                Long nextSpeakerId = this.nextSpeakerId;
+                setDefaultState(PlayingStatus.PREPARING);
+                setState(currentSpeakerId, nextSpeakerId, preparingTimeSeconds);
+            }
+            case PREPARING -> {
+                Long currentSpeakerId = this.currentSpeakerId;
+                Long nextSpeakerId = this.nextSpeakerId;
+                setDefaultState(PlayingStatus.WAITING);
+                setState(currentSpeakerId, nextSpeakerId, waitingTimeSeconds);
+            }
+            case WAITING ->{
+                Long currentSpeakerId = this.currentSpeakerId;
+                Long nextSpeakerId = this.nextSpeakerId;
+                setDefaultState(PlayingStatus.SPEECHING);
+                setState(currentSpeakerId, nextSpeakerId, speechingTimeSeconds);
+            }
+            case SPEECHING -> {
+                if(turnCounter++ < maxTurnCount) {
+                    log.debug("Debate {}: turn {} update state", debateId, turnCounter);
+                    Long currentSpeakerId = this.nextSpeakerId;
+                    Long nextSpeakerId = findNextSpeakerId(currentSpeakerId);
+                    setDefaultState(PlayingStatus.WAITING);
+                    setState(currentSpeakerId, nextSpeakerId, waitingTimeSeconds);
+                }else{
+                    log.debug("Debate {}: finished", debateId);
+                    setDefaultState(PlayingStatus.FINISHED);
+                }
+            }
+            case FINISHED ->{
+                // Do Nothing
+            }
+        }
+    }
+
+    private void setState(Long currentSpeakerId, Long nextSpeakerId, int seconds) {
+        this.currentSpeakerId = currentSpeakerId;
+        this.nextSpeakerId = nextSpeakerId;
+        this.currentSpeakEndTime = Instant.now().plusSeconds(seconds);
+    }
+
 
     private Long findNextSpeakerId(Long currentSpeakerId) {
         Optional<PlayingUser> currentSpeakerOptional = participants.stream()
@@ -182,5 +236,14 @@ public class PlayingState {
         this.interrupted = false;
         this.interruptSpeakerId = null;
         this.interruptEndTime = null;
+    }
+
+    public boolean checkSequence(int sequence) {
+        stateLock.lock();
+        try {
+            return this.sequence.get() == sequence;
+        }finally {
+            stateLock.unlock();
+        }
     }
 }

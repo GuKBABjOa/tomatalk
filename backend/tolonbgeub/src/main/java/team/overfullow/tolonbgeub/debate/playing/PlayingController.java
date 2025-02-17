@@ -11,7 +11,7 @@ import org.springframework.stereotype.Controller;
 import team.overfullow.tolonbgeub.auth.UserId;
 import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessage;
 import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessageType;
-import team.overfullow.tolonbgeub.debate.playing.message.request.JoinRequest;
+import team.overfullow.tolonbgeub.debate.playing.message.request.*;
 
 import static java.util.Objects.isNull;
 
@@ -27,7 +27,7 @@ public class PlayingController {
                            @AuthenticationPrincipal UserId userId,
                            @Payload PlayingMessage<JoinRequest> message
     ) {
-        log.info("Received join request for {}, message = {}", debateId, message);
+        log.debug("Received join request for {}, message = {}", debateId, message);
 
         if (isNull(message) || (message.messageType() != PlayingMessageType.JOIN)) {
             throw new PlayingException(HttpStatus.BAD_REQUEST, "유효하지 않은 메시지 타입");
@@ -35,6 +35,21 @@ public class PlayingController {
 
         //todo userid 참여자 검증
         playingService.handleJoin(debateId, message.payload().userId());
+    }
+
+    @MessageMapping("/debate.skip/{debateId}")
+    public void skipSpeech(@DestinationVariable Long debateId,
+                           @AuthenticationPrincipal UserId userId,
+                           @Payload PlayingMessage<SkipRequest> message
+    ) {
+        log.debug("Received skip request for {}, message = {}", debateId, message);
+
+        if (isNull(message) || (message.messageType() != PlayingMessageType.SKIP)) {
+            throw new PlayingException(HttpStatus.BAD_REQUEST, "유효하지 않은 메시지 타입");
+        }
+
+        //todo userid 참여자 검증
+        playingService.handleSkip(debateId, message.payload().userId());
     }
 
     // todo 메시지 수신 확인 요청(상태 업데이트 sequence 확인) API 구현

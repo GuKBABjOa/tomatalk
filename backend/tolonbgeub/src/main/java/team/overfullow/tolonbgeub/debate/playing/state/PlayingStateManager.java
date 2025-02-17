@@ -23,8 +23,6 @@ public class PlayingStateManager {
     private final DebateService debateService;
 
     public Optional<PlayingStateResponse> join(Long debateId, Long userId) {
-
-        // todo authenticate user
         PlayingState state = states.computeIfAbsent(debateId, k -> init(debateId));
         boolean participated = state.participate(userId);
         if (participated) {
@@ -55,6 +53,16 @@ public class PlayingStateManager {
         boolean started = state.start(4);
         if (started) {
             debateService.start(debateId);
+            return Optional.of(toStateUpdate(state));
+        }
+        return Optional.empty();
+    }
+
+    public Optional<PlayingStateResponse> skip(Long debateId, Long userId) {
+        PlayingState state = getPlayingState(debateId);
+        boolean skipped = state.skip(userId);
+        if (skipped) {
+            log.debug("skip speech of {}", userId);
             return Optional.of(toStateUpdate(state));
         }
         return Optional.empty();
@@ -92,5 +100,9 @@ public class PlayingStateManager {
 
     private static String toStringOrNull(Object o) {
         return o == null ? null : o.toString();
+    }
+
+    public boolean isLatestSequence(Long debateId, PlayingStateResponse currentState) {
+        return getPlayingState(debateId).checkSequence(currentState.sequence());
     }
 }
