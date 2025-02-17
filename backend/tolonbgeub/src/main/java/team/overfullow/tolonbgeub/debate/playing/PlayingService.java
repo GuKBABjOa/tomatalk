@@ -58,6 +58,7 @@ public class PlayingService {
         scheduler.scheduleAtInstant(currentState.currentSpeakEndTime(), () -> {
             // 스케줄된 작업이 유효한지 확인: 최신 상태가 아닌 경우 메시지 발송하지 않는다.
             if(!stateManager.isLatestSequence(debateId, currentState)){
+                log.debug("작업이 캔슬되었습니다. currentState.sequence = {} ", currentState.sequence());
                 return;
             }
             PlayingStateResponse nextState = stateManager.update(debateId);

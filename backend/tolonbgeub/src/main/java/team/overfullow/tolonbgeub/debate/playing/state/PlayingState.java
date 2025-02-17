@@ -47,7 +47,7 @@ public class PlayingState {
                 .debateId(debateId)
                 .participants(participants)
                 .build();
-        playingState.setDefaultState(PlayingStatus.WAITING);
+        playingState.setDefaultState(PlayingStatus.READY);
         return playingState;
     }
 
@@ -101,6 +101,7 @@ public class PlayingState {
         stateLock.lock();
         try {
             if (!canStart(expectedUserCount)) {
+                log.debug("start: can not start with expectedUserCount = {}", expectedUserCount);
                 return false;
             }
             this.status = PlayingStatus.STARTED;
@@ -120,7 +121,7 @@ public class PlayingState {
     }
 
     private boolean isStarted() {
-        return status != PlayingStatus.WAITING;
+        return status != PlayingStatus.READY;
     }
 
     // todo 업데이트 순서에 맞는 지 검증
@@ -147,7 +148,7 @@ public class PlayingState {
             sequence.getAndIncrement();
             log.debug("Debate {}: turn {} update state", debateId, turnCounter);
             try {
-                updateByStatus(status);
+                setNextState();
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("업데이트 예외 발생: {}", e.getMessage());
@@ -157,9 +158,15 @@ public class PlayingState {
         }
     }
 
-    private void updateByStatus(PlayingStatus newStatus) {
-        // WAITING -> STARTED -> PREPARING -> IN_PROGRESS -> WAITING -> IN_PROGRESS -> ... -> FINISHED
+    private void setNextState() {
+        // READY -> STARTED -> PREPARING -> IN_PROGRESS -> WAITING -> IN_PROGRESS -> ... -> FINISHED
         switch (status){
+//            case READY ->{
+//                Long currentSpeakerId = this.currentSpeakerId;
+//                Long nextSpeakerId = this.nextSpeakerId;
+//                setDefaultState(PlayingStatus.SPEECHING);
+//                setState(currentSpeakerId, nextSpeakerId, speechingTimeSeconds);
+//            }
             case STARTED ->{
                 Long currentSpeakerId = this.currentSpeakerId;
                 Long nextSpeakerId = this.nextSpeakerId;
