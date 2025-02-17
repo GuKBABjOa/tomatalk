@@ -18,6 +18,7 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import team.overfullow.tolonbgeub.ApiTestSupport;
 import team.overfullow.tolonbgeub.debate.Category;
+import team.overfullow.tolonbgeub.debate.debate.service.DebateService;
 import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessage;
 import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessageType;
 import team.overfullow.tolonbgeub.debate.playing.message.request.JoinRequest;

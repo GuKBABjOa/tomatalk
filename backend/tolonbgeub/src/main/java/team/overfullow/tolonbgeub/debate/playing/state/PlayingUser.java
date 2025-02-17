@@ -49,7 +49,7 @@ public class PlayingUser {
             {
                 "userId":"3337391452454912001",
                 "nickname":"user0",
-                "profileImageUrl":"제공 예정",
+                "profileImage":"제공 예정",
                 "position":"찬성",
                 "order":1,
                 "participant":true
@@ -57,7 +57,7 @@ public class PlayingUser {
             {
                 "userId":"3442944568721408002",
                 "nickname":"user1",
-                "profileImageUrl":"제공 예정",
+                "profileImage":"제공 예정",
                 "position":"찬성",
                 "order":2,
                 "participant":false
@@ -65,7 +65,7 @@ public class PlayingUser {
             {
                 "userId":"3451001927368704003",
                 "nickname":"user2"
-                ,"profileImageUrl":"제공 예정",
+                ,"profileImage":"제공 예정",
                 "position":"반대",
                 "order":3,
                 "participant":false
@@ -73,7 +73,7 @@ public class PlayingUser {
             {
                 "userId":"3458561069809664004",
                 "nickname":"user3",
-                "profileImageUrl":"제공 예정",
+                "profileImage":"제공 예정",
                 "position":"반대",
                 "order":4,
                 "participant":false

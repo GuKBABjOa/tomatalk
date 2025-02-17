@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import team.overfullow.tolonbgeub.core.async.PreciseInstantScheduler;
 import team.overfullow.tolonbgeub.debate.Category;
-import team.overfullow.tolonbgeub.debate.debate.Debate;
-import team.overfullow.tolonbgeub.debate.debate.DebateRepository;
-import team.overfullow.tolonbgeub.debate.debate.DebateService;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomResponse;
+import team.overfullow.tolonbgeub.debate.debate.service.DebateService;
 import team.overfullow.tolonbgeub.debate.matching.MatchingException;
 import team.overfullow.tolonbgeub.debate.matching.MatchingService;
 import team.overfullow.tolonbgeub.debate.playing.PlayingService;
@@ -23,8 +21,6 @@ import team.overfullow.tolonbgeub.user.dto.UserResponse;
 import team.overfullow.tolonbgeub.user.service.UserService;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
 import java.util.UUID;
 
 @Slf4j
@@ -37,7 +33,6 @@ public class TestController {
     private final MatchingService matchingService;
     private final PlayingService playingService;
     private final DebateService debateService;
-    private final DebateRepository debateRepository;
     private final PreciseInstantScheduler scheduler;
     /**
      * 추가적으로 3명의 유저가 1초 간격으로 {category} 매칭 대기열에 등록하는 시나리오를 수행한다.

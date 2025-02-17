@@ -1,7 +1,9 @@
 package team.overfullow.tolonbgeub.debate.debate.dto;
 
 import lombok.Builder;
-import team.overfullow.tolonbgeub.debate.debate.DebateStatus;
+import team.overfullow.tolonbgeub.debate.debate.domain.DebateStatus;
+
+import java.time.LocalDateTime;
 
 public record DebateInfoResponse(
         String debateId,
@@ -11,7 +13,9 @@ public record DebateInfoResponse(
         Integer startedAtHour,          // 시작 시간,
         Integer startedAtMinute,        // 시작 시간,
         Integer estimatedTimeMinute,    // 예상 소요 시간(분)
-        Integer spectatorsCount         // 관전자 수
+        Integer spectatorsCount,         // 관전자 수
+        LocalDateTime createdAt,
+        LocalDateTime lastModifiedAt
 ){
     @Builder
     public DebateInfoResponse {

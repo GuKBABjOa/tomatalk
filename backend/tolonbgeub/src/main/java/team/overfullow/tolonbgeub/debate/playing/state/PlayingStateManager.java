@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import team.overfullow.tolonbgeub.debate.debate.DebateService;
+import team.overfullow.tolonbgeub.debate.debate.service.DebateService;
 import team.overfullow.tolonbgeub.debate.playing.PlayingException;
 import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingStateResponse;
 import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingUserResponse;
