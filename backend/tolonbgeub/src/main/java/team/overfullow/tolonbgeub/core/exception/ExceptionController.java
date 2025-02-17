@@ -33,7 +33,7 @@ public class ExceptionController {
             MissingRequestCookieException.class
     })
     public ResponseEntity<ErrorResponse> handleBadRequest(Exception e) {
-        log.info("bad request handle : {}",e.getMessage());
+        log.debug("bad request handle : {}",e.getMessage());
         if (e instanceof BindException be) {
             FieldError error = requireNonNull(be.getFieldError(), "FiledError can not be null");
             return ResponseEntity.status(BAD_REQUEST)

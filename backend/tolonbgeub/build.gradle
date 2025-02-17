@@ -7,6 +7,11 @@ plugins {
 group = 'team.overfullow'
 version = '0.0.1-SNAPSHOT'
 
+// 프로젝트에서 사용하는 전역 변수를 설정
+ext {
+    set('queryDslVersion', "5.0.0")
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
@@ -31,7 +36,6 @@ dependencies {
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-
     // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -40,6 +44,12 @@ dependencies {
     // Websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.security:spring-security-messaging'
+
+    // QueryDSL
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
     // DB
     runtimeOnly 'com.h2database:h2'
@@ -66,3 +76,22 @@ dependencies {
         useJUnitPlatform()
     }
 }
+
+// ##### QueryDSL 추가 시작
+def querydslDir = "$buildDir/generated/querydsl"
+
+// java source set 에 querydsl QClass 위치 추가
+sourceSets {
+    main.java.srcDirs += [ querydslDir ]
+}
+
+// querydsl QClass 파일 생성 위치를 지정
+tasks.withType(JavaCompile).configureEach {
+    options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
+}
+
+// gradle clean 시에 QClass 디렉토리 삭제
+clean.doLast {
+    file(querydslDir).deleteDir()
+}
+// ##### QueryDSL 추가 종료

@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.debate.debate;
+package team.overfullow.tolonbgeub.debate.debate.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -33,8 +33,9 @@ public class Debate extends BaseTimeEntity {
     private List<DebateUser> debateUsers = new ArrayList<>();
 
     @Builder
-    private Debate(Long id, Category category, Subject subject, List<DebateUser> debateUsers) {
+    private Debate(Long id, DebateStatus status, Category category, Subject subject, List<DebateUser> debateUsers) {
         this.id = id;
+        this.status = status;
         this.category = category;
         this.subject = subject;
         this.debateUsers = debateUsers;

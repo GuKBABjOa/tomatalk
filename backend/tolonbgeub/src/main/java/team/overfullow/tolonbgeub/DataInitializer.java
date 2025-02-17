@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 import team.overfullow.tolonbgeub.debate.Category;
-import team.overfullow.tolonbgeub.debate.debate.DebateService;
+import team.overfullow.tolonbgeub.debate.debate.service.DebateService;
 import team.overfullow.tolonbgeub.user.dto.UserRequest;
 import team.overfullow.tolonbgeub.user.dto.UserResponse;
 import team.overfullow.tolonbgeub.user.service.UserService;
@@ -30,7 +30,7 @@ public class DataInitializer {
     @Transactional
     public void initializeData() {
         List<Long> userIds = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 1000; i++) {
             String username = "user" + i;
             UserResponse user = userService.createUser(UserRequest.builder()
                     .email(String.format("%s@test.email", username))

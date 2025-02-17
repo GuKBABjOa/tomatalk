@@ -8,7 +8,7 @@ import lombok.Builder;
 
 public record CursorRequest(
         @Nullable @Min(0) Long cursor,
-        @NotNull @Min(1) @Max(20) Integer size) {
+        @NotNull @Min(1) @Max(100) Integer size) {
 
     @Builder
     public CursorRequest {

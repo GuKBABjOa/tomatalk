@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.debate.debate;
+package team.overfullow.tolonbgeub.debate.debate.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
