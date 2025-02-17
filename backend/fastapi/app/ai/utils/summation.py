@@ -28,7 +28,7 @@ async def create_instruction() -> str:
         str: 생성된 ai 행동 지침 문자열.
     """
     return f"""
-    너는 다음 발언을 요약해줘. 
+    너느 다음 발언을 요약해줘. 
     """
 
 async def generate_summary(text: str):

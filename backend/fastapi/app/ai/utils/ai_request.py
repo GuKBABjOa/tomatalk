@@ -12,6 +12,7 @@ if not OPENAI_API_KEY:
 # ✅ 최신 버전의 OpenAI SDK 초기화
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
+
 async def generate_response(prompt: str, system_instruction: str, temperature: float = 0.7):
 
     """
@@ -43,9 +44,10 @@ async def generate_response(prompt: str, system_instruction: str, temperature: f
         )
 
         # 응답 처리
+        # ✅ 응답을 JSON 형식으로 변환
         if response.choices and response.choices[0].message:
             print(response.choices[0].message.content)
-            return response.choices[0].message.content
+            return {"response": response.choices[0].message.content}
         else:
             raise ValueError("유효한 응답을 찾을 수 없습니다.")
 

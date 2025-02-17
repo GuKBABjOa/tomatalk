@@ -1,8 +1,6 @@
-from fastapi import APIRouter, File, HTTPException, APIRouter, Depends, BackgroundTasks
+from fastapi import APIRouter, File, HTTPException
 from typing import Union
 from ai.utils.prompt import generate_chat_response
-from ai.utils.ai_participant import receive_debate_request, DebateRequest
-from database import AsyncSession, get_async_db
 import re
 
 
@@ -25,15 +23,3 @@ async def judgement(text: str) -> Union[str, dict]:
     except Exception as e:
         # 에러 발생 시 HTTPException 반환
         raise HTTPException(status_code=500, detail=f"에러 발생: {str(e)}")
-    
-@router.post("/participant")
-async def receive_request(
-    request_data: DebateRequest,
-    background_tasks: BackgroundTasks,
-    db: AsyncSession = Depends(get_async_db) # FastAPI에서 DB 세션 주입    
-):
-    """
-    프론트에서 보낸 주제, 역할, debateId 데이터를 받아 처리
-    """
-    response = await receive_debate_request(request_data, background_tasks, db)
-    return response

@@ -6,6 +6,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.overfullow.tolonbgeub.core.auditing.BaseTimeEntity;
+import team.overfullow.tolonbgeub.report.ReportEntity;
+import team.overfullow.tolonbgeub.report.ReportUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -37,4 +42,5 @@ public class User extends BaseTimeEntity {
     public void updateProfileImage(byte[] profileImage) {
         this.profileImage = profileImage;
     }
+
 }

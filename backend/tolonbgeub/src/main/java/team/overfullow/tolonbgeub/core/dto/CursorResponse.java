@@ -5,7 +5,7 @@ import lombok.Builder;
 import java.util.List;
 
 public record CursorResponse<T>(List<T> content,
-                                Integer size,
+                                int size,
                                 boolean first,
                                 boolean last
                                 ) {
