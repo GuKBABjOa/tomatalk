@@ -16,11 +16,11 @@ public class PlayingEventListener {
     @Async
     @EventListener
     public void handleStateUpdate(StateUpdateEvent event) {
-        log.info("handle state update event: {}", event);
+        log.debug("handle state update event: {}", event);
         messagingTemplate.convertAndSend(
                 event.destination(),
                 event.payload()
         );
-        log.info("sent state update event = {}", event);
+        log.debug("sent state update event = {}", event);
     }
 }
