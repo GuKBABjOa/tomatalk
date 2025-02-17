@@ -36,29 +36,34 @@ public class PlayingService {
         });
     }
 
-    // todo 현재 토론 상태 확인하고, 스케줄된 작업이 유효한지 확인(스킵하기로 인해 작업 순서가 달라질 수 있음)
-    //  -> sequence를 기록해둔 뒤 가장 최신인지 확인하면 될 듯
+    public void handleSkip(Long debateId, Long userId) {
+        stateManager.skip(debateId, userId).ifPresent(stateResponse -> {
+            handleStateUpdate(debateId, stateResponse);
+        });
+    }
 
     /**
      * 재귀적으로 이벤트 스케줄링
      */
     private void handleStateUpdate(Long debateId, PlayingStateResponse currentState) {
-        log.info("{}: Playing Broadcast StateUpdate Message, debateId", debateId);
+        log.debug("{}: Playing Broadcast StateUpdate Message, debateId", debateId);
         eventPublisher.publishEvent(generateStateUpdateEvent(debateId, currentState));
 
         if (currentState.status() == PlayingStatus.FINISHED) {
             return;
         }
 
-        log.info("{}: Playing 다음 상태 갱신 스케줄링", debateId);
+        log.debug("{}: Playing 다음 상태 갱신 스케줄링", debateId);
         // 현재 발언자의 발언 시간이 끝날 때, 상태 업데이트 메시징 이벤트 발행
         scheduler.scheduleAtInstant(currentState.currentSpeakEndTime(), () -> {
-            // todo try-catch로 진행 순서에 맞지 않는 업데이트 요청 무시 (끼어들기, 스킵 반영)
-            // todo PlayingState와 DTO 비교해서 sequence 값이 최신이 아니면 요청 무시
+            // 스케줄된 작업이 유효한지 확인: 최신 상태가 아닌 경우 메시지 발송하지 않는다.
+            if(!stateManager.isLatestSequence(debateId, currentState)){
+                return;
+            }
             PlayingStateResponse nextState = stateManager.update(debateId);
 
             handleStateUpdate(debateId, nextState);
-            log.info("스케줄링된 상태 갱신 수행됨");
+            log.debug("스케줄링된 상태 갱신 수행됨");
         });
     }
 
