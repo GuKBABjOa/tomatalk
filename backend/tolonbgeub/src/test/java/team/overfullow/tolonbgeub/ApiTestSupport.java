@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import team.overfullow.tolonbgeub.auth.blacklist.TokenRepository;
 import team.overfullow.tolonbgeub.debate.debate.repository.DebateRepository;
 import team.overfullow.tolonbgeub.debate.subject.SubjectRepository;
+import team.overfullow.tolonbgeub.report.ReportRepository;
 import team.overfullow.tolonbgeub.user.Repository.UserRepository;
 
 @Slf4j
@@ -22,6 +23,9 @@ public class ApiTestSupport {
     UserRepository userRepository;
 
     @Autowired
+    ReportRepository reportRepository;
+
+    @Autowired
     DebateRepository debateRepository;
 
     @Autowired
@@ -32,6 +36,7 @@ public class ApiTestSupport {
         tokenRepository.deleteAll();
         debateRepository.deleteAll();
         subjectRepository.deleteAll();
+        reportRepository.deleteAll();
         userRepository.deleteAll();
     }
 }

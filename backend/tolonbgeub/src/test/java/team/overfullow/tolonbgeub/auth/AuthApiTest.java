@@ -37,11 +37,11 @@ public class AuthApiTest extends ApiTestSupport {
         @DisplayName("요청이 성공하면 엑세스 토큰을 만료 처리한다")
         void logout() throws Exception {
             // given
-            Long userId = userService.createUser(UserRequest.builder()
+            String userId = userService.createUser(UserRequest.builder()
                     .email("test@test.com")
                     .nickname("test")
                     .build()).userId();
-            String accessToken = jwtProvider.generate(userId.toString(), List.of(UserRole.USER.role()), JwtType.ACCESS).value();
+            String accessToken = jwtProvider.generate(userId, List.of(UserRole.USER.role()), JwtType.ACCESS).value();
 
             // when
             ResultActions firstResult = authApiClient.autnenticate(accessToken);
@@ -51,7 +51,7 @@ public class AuthApiTest extends ApiTestSupport {
             // then
             firstResult.andExpectAll(
                     status().isOk(),
-                    jsonPath("$").value(userId.toString())
+                    jsonPath("$").value(userId)
             );
             logoutResult.andExpect(status().isNoContent());
             secondResult.andExpectAll(

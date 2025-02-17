@@ -96,7 +96,7 @@ public class DebateWebSocketTest extends ApiTestSupport {
                     .email(username + "@test.email")
                     .nickname(username)
                     .build());
-            userIds.add(user.userId());
+            userIds.add(Long.valueOf(user.userId()));
         }
 
         // 2️⃣ Debate 생성

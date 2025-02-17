@@ -26,7 +26,7 @@ async_engine = create_async_engine(
 # 비동기 세션 팩토리 생성
 AsyncSessionLocal = sessionmaker(
     bind=async_engine,
-    class_=AsyncSession, 
+    class_=AsyncSession,
     expire_on_commit=False
 )
 

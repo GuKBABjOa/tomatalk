@@ -1,11 +1,8 @@
 from fastapi import FastAPI
-from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from audio import audio_router
 from audio import audio_router
 from ai import ai_router
 from transcripts import transcripts_router
-from column import column_router
 from dotenv import load_dotenv
 import os
 
@@ -25,7 +22,6 @@ app.add_middleware(
 app.include_router(ai_router.router, prefix="/api/ai", tags=["ai"])
 app.include_router(audio_router.router, prefix="/api/audio", tags=["audio"])
 app.include_router(transcripts_router.router, prefix="/api/transcripts", tags=["transcripts"])
-app.include_router(column_router.router, prefix="/api/column", tags=["column"])
 
 # 환경 변수 로드
 load_dotenv()

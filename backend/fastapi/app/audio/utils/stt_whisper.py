@@ -1,5 +1,6 @@
-from fastapi import WebSocket
+from fastapi import WebSocket, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from database import get_async_db
 from transcripts.repository.repository import save_statement
 from ai.utils.summation import generate_summary
 from transcripts.repository.repository import save_summation
@@ -58,7 +59,7 @@ async def audio_transcription(websocket: WebSocket, db: AsyncSession):
         print("🔴 WebSocket 연결이 끊어졌습니다. 변환된 발언 저장을 시도합니다...")
         await save_statement(db, debate_id, position, user_id, nickname, round, statement)  # ✅ 개별 statement 저장
         response = await generate_summary(statement)  # ✅ 개별 summary 저장
-        await save_summation(db, debate_id, position, user_id, nickname, round, response)  # ✅ 개별 summary 저장
+        await save_summation(db, debate_id, position, user_id, nickname, round, response['response'])  # ✅ 개별 summary 저장
         await close_websocket_safely(websocket)
 
 
