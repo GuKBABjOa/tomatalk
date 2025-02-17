@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 @Getter
@@ -17,17 +18,18 @@ public class PlayingState {
     private static final int waitingTimeSeconds = 10;
     private static final int speakTimeSeconds = 15; // todo 테스트를 위해 짧게 설정
 
-    private AtomicInteger sequence = new AtomicInteger(0);
+
+    private final ReentrantLock stateLock = new ReentrantLock();
+    private final int maxTurnCount = 8;
+    private final Long debateId;
+
     /*
+    sequence: 상태 변경 순서를 보장
     6: 내 발언 10분에 끝
     7: 끼어들기 6분 15초에 끝 (6번 상태 기록)
     8: 내 발언 10분에 끝 7에서 기록한 6번 상태 메시지 다시 발행
      */
-
-    private final Object lock = new Object();
-    private final Object participantsLock = new Object();
-    private final int maxTurnCount = 8;
-    private final Long debateId;
+    private final AtomicInteger sequence = new AtomicInteger(0);
 
     private int turnCounter = 0;
     private PlayingStatus status; // 현재 토론 상태
@@ -76,28 +78,44 @@ public class PlayingState {
         return !interrupted; // todo 보호 시간 고려
     }
 
-    public void start() {
-        this.status = PlayingStatus.STARTED;
-        this.nextSpeakerId = findFirstSpeaker().getUserId();
-        this.currentSpeakEndTime = Instant.now().plusSeconds(waitingTimeSeconds);
+    public boolean start(int expectedUserCount) {
+        stateLock.lock();
+        try {
+            if (!canStart(expectedUserCount)) {
+                return false;
+            }
+            this.status = PlayingStatus.STARTED;
+            this.nextSpeakerId = findFirstSpeaker().getUserId();
+            this.currentSpeakEndTime = Instant.now().plusSeconds(waitingTimeSeconds);
+            sequence.getAndIncrement();
+            return true;
+        } finally {
+            stateLock.unlock();
+        }
     }
 
-    public void participate(Long userId) {
-        log.info("participate: userId = {}", userId);
-        synchronized (participantsLock) {
-            participants.stream()
+    public boolean participate(Long userId) {
+        log.debug("participate: userId = {}", userId);
+        stateLock.lock();
+        try {
+            Optional<PlayingUser> optional = participants.stream()
                     .filter(player -> player.getUserId().equals(userId))
-                    .findFirst()
-                    .ifPresent(u -> u.setParticipant(true));
+                    .findFirst();
+            if (optional.isPresent()) {
+                sequence.getAndIncrement();
+                optional.get().setParticipant(true);
+                return true;
+            }
+            return false;
+        } finally {
+            stateLock.unlock();
         }
     }
 
-    public boolean canStart(int expectedCount) {
-        synchronized (participantsLock) {
-            long count = participants.stream().filter(PlayingUser::isParticipant).count();
-            System.out.println("count = " + count);
-            return !isStarted() && count == expectedCount;
-        }
+    private boolean canStart(int expectedCount) {
+        long count = participants.stream().filter(PlayingUser::isParticipant).count();
+        log.debug("participantCount = {}", count);
+        return !isStarted() && count == expectedCount;
     }
 
     private boolean isStarted() {
@@ -106,22 +124,28 @@ public class PlayingState {
 
     // todo 업데이트 순서에 맞는 지 검증
     public void update() {
-        if (++turnCounter > maxTurnCount) {
-            setDefaultState(PlayingStatus.FINISHED);
-            log.info("Debate {}: finished", debateId);
-            return;
-        }
-        log.info("Debate {}: turn {} update state", debateId, turnCounter);
-        try{
-            Long currentSpeakerId = this.nextSpeakerId;
-            Long nextSpeakerId = findNextSpeakerId(currentSpeakerId);
-            setDefaultState(PlayingStatus.IN_PROGRESS);
-            this.currentSpeakerId = currentSpeakerId;
-            this.nextSpeakerId = nextSpeakerId;
-            this.currentSpeakEndTime = Instant.now().plusSeconds(speakTimeSeconds);
-        }catch (Exception e) {
-            e.printStackTrace();
-            log.error("업데이트 예외 발생: {}", e.getMessage());
+        stateLock.lock();
+        try {
+            sequence.getAndIncrement();
+            if (++turnCounter > maxTurnCount) {
+                setDefaultState(PlayingStatus.FINISHED);
+                log.info("Debate {}: finished", debateId);
+                return;
+            }
+            log.debug("Debate {}: turn {} update state", debateId, turnCounter);
+            try {
+                Long currentSpeakerId = this.nextSpeakerId;
+                Long nextSpeakerId = findNextSpeakerId(currentSpeakerId);
+                setDefaultState(PlayingStatus.IN_PROGRESS);
+                this.currentSpeakerId = currentSpeakerId;
+                this.nextSpeakerId = nextSpeakerId;
+                this.currentSpeakEndTime = Instant.now().plusSeconds(speakTimeSeconds);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("업데이트 예외 발생: {}", e.getMessage());
+            }
+        } finally {
+            stateLock.unlock();
         }
     }
 
@@ -147,7 +171,7 @@ public class PlayingState {
         return participants.stream()
                 .filter(player -> player.getSpeechOrder() == 1)
                 .findFirst()
-                .orElseThrow(()->new IllegalStateException("토론의 첫 발언자를 찾을 수 없습니다"));
+                .orElseThrow(() -> new IllegalStateException("토론의 첫 발언자를 찾을 수 없습니다"));
     }
 
     private void setDefaultState(PlayingStatus status) {

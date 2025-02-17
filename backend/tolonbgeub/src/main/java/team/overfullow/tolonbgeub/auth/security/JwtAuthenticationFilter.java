@@ -54,13 +54,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Optional<UserResponse> byEmail =
                     userService.findByEmail("test@test.com");
             if(byEmail.isPresent()) {
-                accessToken = jwtProvider.generate(byEmail.get().userId().toString(), List.of(UserRole.USER.role()), JwtType.ACCESS).value();
+                accessToken = jwtProvider.generate(byEmail.get().userId(), List.of(UserRole.USER.role()), JwtType.ACCESS).value();
             }else {
-                Long userId = userService.createUser(UserRequest.builder()
+                String userId = userService.createUser(UserRequest.builder()
                         .email("test@test.com")
                         .nickname("test")
                         .build()).userId();
-                accessToken = jwtProvider.generate(userId.toString(), List.of(UserRole.USER.role()), JwtType.ACCESS).value();
+                accessToken = jwtProvider.generate(userId, List.of(UserRole.USER.role()), JwtType.ACCESS).value();
             }
 
         }

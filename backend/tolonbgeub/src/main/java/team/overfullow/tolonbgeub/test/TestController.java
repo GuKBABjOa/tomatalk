@@ -52,7 +52,7 @@ public class TestController {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            matchingService.handleJoin(category, user.userId());
+            matchingService.handleJoin(category, Long.valueOf(user.userId()));
         }
         return ResponseEntity.ok("매칭 시나리오가 수행되었습니다.");
     }

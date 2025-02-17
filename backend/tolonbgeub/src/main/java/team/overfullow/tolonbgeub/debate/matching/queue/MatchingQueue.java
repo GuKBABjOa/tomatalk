@@ -79,6 +79,15 @@ public class MatchingQueue {
         }
     }
 
+    public List<Long> getWaitingUserIds() {
+        matchLock.lock();
+        try {
+            return map.values().stream().map(wu->wu.userId).toList();
+        } finally {
+            matchLock.unlock();
+        }
+    }
+
     @Getter
     @AllArgsConstructor
     public static class WaitingUser {
