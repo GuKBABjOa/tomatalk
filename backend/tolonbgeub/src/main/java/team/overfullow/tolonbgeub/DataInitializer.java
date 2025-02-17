@@ -36,7 +36,7 @@ public class DataInitializer {
                     .email(String.format("%s@test.email", username))
                     .nickname(username)
                     .build());
-            userIds.add(user.userId());
+            userIds.add(Long.valueOf(user.userId()));
         }
         Random random = new Random();
         for (int i = 0; i < userIds.size() / 4; i++) {

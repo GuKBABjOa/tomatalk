@@ -132,7 +132,7 @@ public class UserServiceImpl implements UserService {
 
     private UserResponse mapUserResponse(User user) {
         return UserResponse.builder()
-                .userId(user.getId())
+                .userId(user.getId().toString())
                 .nickname(user.getNickname())
                 .profileImageUrl((user.getProfileImage() != null) ? String.format(IMAGE_URL, imageBaseUrl, user.getId()) : null)
                 .createdAt(user.getCreatedAt())

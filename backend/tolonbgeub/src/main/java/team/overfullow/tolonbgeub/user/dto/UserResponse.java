@@ -4,7 +4,7 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-public record UserResponse(Long userId,
+public record UserResponse(String userId,
                             String nickname,
                             String profileImageUrl,
                             LocalDateTime createdAt,

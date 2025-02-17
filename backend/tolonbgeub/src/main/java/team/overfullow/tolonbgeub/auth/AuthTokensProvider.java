@@ -32,6 +32,7 @@ public class AuthTokensProvider {
                 .toList();
 
         return AuthTokens.builder()
+                .userId(userId)
                 .forAccess(generate(userId, roles, JwtType.ACCESS))
                 .forRefresh(generate(userId, roles, JwtType.REFRESH))
                 .build();

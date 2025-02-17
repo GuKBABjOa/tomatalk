@@ -40,11 +40,13 @@ public class MatchingService {
         MatchingQueue matchingQueue = matchingQueueManager.getByCategory(category); //
         try {
             matchingQueue.register(userId);
-            broadcastNewRegister(matchingQueue);
+            broadcastMatchingQueueUpdate(matchingQueue);
 
             log.debug("try match");
-            Optional<MatchingSuccessResult> result = matchingQueue.match();
-            result.ifPresent(this::handleMatchingSuccess);
+            matchingQueue.match().ifPresent(result -> {
+                handleMatchingSuccess(result);
+                broadcastMatchingQueueUpdate(matchingQueue);
+            });
         } catch (IllegalStateException e) {
             throw new MatchingException(HttpStatus.BAD_REQUEST, e.getMessage()); //todo 웹소켓 예외 응답 공통 처리
         } catch (Exception e) {
@@ -78,19 +80,25 @@ public class MatchingService {
 //        }
 //    }
 
-    private void broadcastNewRegister(MatchingQueue matchingQueue) {
+    private void broadcastMatchingQueueUpdate(MatchingQueue matchingQueue) {
+
         var message = QueueUpdateResponse.builder()
+                .category(matchingQueue.getCategory())
                 .waitingUserCount(matchingQueue.getWaitingUserCount())
                 .build();
-
         log.debug("broadcasting matching queue update: {}", message);
-        publisher.publishEvent(MatchingQueueUpdateEvent.builder()
-                .category(matchingQueue.getCategory())
-                .payload(MatchingMessage.<QueueUpdateResponse>builder()
-                        .messageType(MatchingMessageType.MATCHING_UPDATE)
-                        .payload(message)
-                        .build())
-                .build());
+
+        matchingQueue.getWaitingUserIds().forEach(id ->
+        {
+
+            publisher.publishEvent(MatchingQueueUpdateEvent.builder()
+                    .userId(id)
+                    .payload(MatchingMessage.<QueueUpdateResponse>builder()
+                            .messageType(MatchingMessageType.MATCHING_UPDATE)
+                            .payload(message)
+                            .build())
+                    .build());
+        });
     }
 
     private void sendMatchingSuccessEvent(Long debateId, List<Long> matchedUserIds) {

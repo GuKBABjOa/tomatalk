@@ -75,6 +75,7 @@ public class AuthController {
                 .contentType(MediaType.APPLICATION_JSON)
 //                .header(HttpHeaders.SET_COOKIE, refreshCookie)
                 .body(AuthResponse.builder()
+                        .userId(authTokens.userId().value())
                         .accessToken(authTokens.forAccess().value())
 //                        .refreshToken(authTokens.forRefresh().value())
                         .refreshToken("고도화 과정에서 추가하겠습니다")

@@ -3,7 +3,7 @@ package team.overfullow.tolonbgeub.debate;
 public enum Destination {
     DEBATE("/sub/debate/%s"),
     MATCHING("/sub/matching/%s"),
-    MATCHING_USER("/user/matching/%s");
+    MATCHING_USER("/user/%s/matching");
 
     private String format;
 

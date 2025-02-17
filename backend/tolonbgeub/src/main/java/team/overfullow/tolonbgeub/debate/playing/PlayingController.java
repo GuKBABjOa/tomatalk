@@ -37,6 +37,8 @@ public class PlayingController {
         playingService.handleJoin(debateId, message.payload().userId());
     }
 
+    // todo 메시지 수신 확인 요청(상태 업데이트 sequence 확인) API 구현
+
 //    @MessageMapping("/debate.interrupt/{debateId}")
 //    public void interrupt(@DestinationVariable String debateId,
 //                          @Payload DebateMessage<Interrupt> message,

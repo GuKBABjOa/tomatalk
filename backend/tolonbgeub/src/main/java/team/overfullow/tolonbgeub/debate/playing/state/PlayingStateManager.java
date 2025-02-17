@@ -11,6 +11,7 @@ import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingStateRe
 import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingUserResponse;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -21,16 +22,19 @@ public class PlayingStateManager {
     private final Map<Long, PlayingState> states = new ConcurrentHashMap<>();
     private final DebateService debateService;
 
-    public synchronized PlayingStateResponse join(Long debateId, Long userId) {
+    public Optional<PlayingStateResponse> join(Long debateId, Long userId) {
 
         // todo authenticate user
         PlayingState state = states.computeIfAbsent(debateId, k -> init(debateId));
-        state.participate(userId);
-        log.info("join user {}", userId);
-        return toStateUpdate(state);
+        boolean participated = state.participate(userId);
+        if (participated) {
+            log.debug("join user {}", userId);
+            return Optional.of(toStateUpdate(state));
+        }
+        return Optional.empty();
     }
 
-    private PlayingState init(Long debateId) {
+    private synchronized PlayingState init(Long debateId) {
         var playingUsers = debateService.getRoomById(debateId, null)
                 .users().stream().map(u ->
                         PlayingUser.builder()
@@ -46,16 +50,14 @@ public class PlayingStateManager {
         return PlayingState.init(debateId, playingUsers);
     }
 
-    public synchronized PlayingStateResponse start(Long debateId) {
+    public Optional<PlayingStateResponse> start(Long debateId) {
         PlayingState state = getPlayingState(debateId);
-        state.start();
-        debateService.start(debateId);
-        return toStateUpdate(state);
-    }
-
-    public synchronized boolean areAllParticipantsJoined(Long debateId, int expectedCount) {
-        return states.containsKey(debateId) &&
-                states.get(debateId).canStart(expectedCount);
+        boolean started = state.start(4);
+        if (started) {
+            debateService.start(debateId);
+            return Optional.of(toStateUpdate(state));
+        }
+        return Optional.empty();
     }
 
     public PlayingStateResponse update(Long debateId) {
@@ -73,6 +75,7 @@ public class PlayingStateManager {
 
     private static PlayingStateResponse toStateUpdate(PlayingState state) {
         return PlayingStateResponse.builder()
+                .sequence(state.getSequence().get())
                 .status(state.getStatus())
                 .currentSpeakerId(toStringOrNull(state.getCurrentSpeakerId()))
                 .currentSpeakEndTime(state.getCurrentSpeakEndTime())

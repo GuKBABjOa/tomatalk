@@ -12,6 +12,8 @@ import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingStateRe
 import team.overfullow.tolonbgeub.debate.playing.state.PlayingStateManager;
 import team.overfullow.tolonbgeub.debate.playing.state.PlayingStatus;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,22 +25,15 @@ public class PlayingService {
     public void handleJoin(Long debateId, Long userId) {
         log.info("{}: Playing handleJoin", debateId);
         // 토론 참여자들에게 참여자 접속 메시지 전송
-        eventPublisher.publishEvent(generateStateUpdateEvent(debateId, stateManager.join(debateId, userId)));
+        stateManager.join(debateId, userId).ifPresent(stateResponse -> {
+            eventPublisher.publishEvent(generateStateUpdateEvent(debateId, stateResponse));
+        });
 
         // 토론 시작: 아래 동기화 구문은 토론 당 단 한 번만 실행되어야 한다
-        // todo 동시성 문제 처리
-        synchronized (stateManager) {
-            if (canStart(debateId)) {
-                log.info("{}: Playing All participants joined! start", debateId);
-                handleStateUpdate(debateId, stateManager.start(debateId));
-            }
-        }
-    }
-
-    private boolean canStart(Long debateId) {
-        // 토론 규칙에 따라 참여자 수 제한 달라짐 (기본규칙=4)
-        return stateManager.areAllParticipantsJoined(debateId, 4);
-//        return true; // 테스트를 위해 무조건 통과
+        stateManager.start(debateId).ifPresent(stateResponse -> {
+            log.debug("{}: Playing All participants joined! start", debateId);
+            handleStateUpdate(debateId, stateResponse);
+        });
     }
 
     // todo 현재 토론 상태 확인하고, 스케줄된 작업이 유효한지 확인(스킵하기로 인해 작업 순서가 달라질 수 있음)

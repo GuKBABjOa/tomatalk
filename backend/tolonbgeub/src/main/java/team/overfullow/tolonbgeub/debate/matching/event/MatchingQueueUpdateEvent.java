@@ -7,7 +7,7 @@ import team.overfullow.tolonbgeub.debate.matching.message.MatchingMessage;
 import team.overfullow.tolonbgeub.debate.matching.message.response.QueueUpdateResponse;
 
 public record MatchingQueueUpdateEvent(
-        Category category,
+        Long userId,
         MatchingMessage<QueueUpdateResponse> payload) {
 
     @Builder
@@ -15,6 +15,6 @@ public record MatchingQueueUpdateEvent(
     }
 
     public String destination() {
-        return String.format(Destination.MATCHING.getFormat(), category.name());
+        return String.format(Destination.MATCHING_USER.getFormat(), userId);
     }
 }

@@ -32,7 +32,7 @@ public class KakaoAuthenticationProvider implements AuthenticationProvider {
 
         String email = kakaoLoginService.login(credentials.code()).email();
         Optional<UserResponse> userOptional = userService.findByEmail(email);
-        Long userId;
+        String userId;
         if (userOptional.isPresent()) {
             userId = userOptional.get().userId();
             log.info("카카오 로그인 성공 email = {}, userId = {}", email, userId);
@@ -46,7 +46,7 @@ public class KakaoAuthenticationProvider implements AuthenticationProvider {
 
         // 기본적으로 모두 User 권한
         var authorities = List.of(new SimpleGrantedAuthority(UserRole.USER.role()));
-        return KakaoAuthenticationToken.authenticated(new UserId(userId.toString()), authorities);
+        return KakaoAuthenticationToken.authenticated(new UserId(userId), authorities);
     }
 
     @Override
