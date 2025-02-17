@@ -15,6 +15,7 @@ import team.overfullow.tolonbgeub.user.Repository.UserRepository;
 import team.overfullow.tolonbgeub.user.User;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -110,5 +111,15 @@ public class DebateService {
 
     public void start(Long debateId) {
         getById(debateId).start();
+    }
+
+    @Deprecated
+    public long getTestDebateId(Long userId){
+        return debateRepository.findAll().stream()
+                .filter(d -> d.getDebateUsers().stream()
+                        .anyMatch(u -> u.getUser().getId().equals(userId)))
+                .sorted(Comparator.comparing(Debate::getCreatedAt).reversed())
+                .map(d -> d.getId())
+                .findFirst().get();
     }
 }
