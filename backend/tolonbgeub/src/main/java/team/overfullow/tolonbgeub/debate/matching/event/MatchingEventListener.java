@@ -15,7 +15,6 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 public class MatchingEventListener {
     private final SimpMessagingTemplate messagingTemplate;
 
-    @Async
     @EventListener
     public void handleMatchingQueueUpdate(MatchingQueueUpdateEvent event) {
         log.debug("handle matching queue update event: {}", event);
@@ -29,6 +28,16 @@ public class MatchingEventListener {
     @EventListener
     public void handleMatchingSuccess(MatchingSuccessEvent event) {
         log.debug("handle matching success event: {}", event);
+        messagingTemplate.convertAndSend(
+                event.destination(),
+                event.payload()
+        );
+    }
+
+    @Async
+    @EventListener
+    public void handleMatchingCancel(MatchingCancelEvent event) {
+        log.debug("handle matching cancel event: {}", event);
         messagingTemplate.convertAndSend(
                 event.destination(),
                 event.payload()
