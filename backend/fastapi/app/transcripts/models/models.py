@@ -4,8 +4,7 @@ from database import Base
 # 참여자 발언 데이터 모델
 class Statement(Base):
     __tablename__ = "statement"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)  # 고유 ID
+    id = Column(BigInteger, primary_key=True, autoincrement=True)  # 고유 ID
     debate_id = Column(String(255), nullable=False)  # 토론 ROOM ID
     position = Column(Text, nullable=False)  # 토론 주제
     user_id = Column(BigInteger, nullable=False)  # 사용자 ID (큰 숫자 지원)
@@ -18,7 +17,7 @@ class Statement(Base):
 
 class Summation(Base):
     __tablename__ = "summation"
-    id = Column(Integer, primary_key=True, autoincrement=True)  # 고유 ID
+    id = Column(BigInteger, primary_key=True, autoincrement=True)  # 고유 ID
     debate_id = Column(String(255), nullable=False)  # 토론 ROOM ID
     position = Column(Text, nullable=False)  # 토론 주제
     user_id = Column(BigInteger, nullable=False)  # 사용자 ID (큰 숫자 지원)
@@ -28,3 +27,4 @@ class Summation(Base):
     is_deleted = Column(Boolean, nullable=False, default=False)  # 소프트 삭제 처리
     created_at = Column(TIMESTAMP, server_default=func.current_timestamp())  # 생성 시각
     updated_at = Column(TIMESTAMP, server_default=func.current_timestamp(), onupdate=func.current_timestamp())  # 수정 시각
+
