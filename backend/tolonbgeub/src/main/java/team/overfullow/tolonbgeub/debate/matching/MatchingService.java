@@ -1,5 +1,6 @@
 package team.overfullow.tolonbgeub.debate.matching;
 
+import io.openvidu.java.client.Connection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -18,6 +19,9 @@ import team.overfullow.tolonbgeub.debate.matching.message.response.QueueUpdateRe
 import team.overfullow.tolonbgeub.debate.matching.queue.MatchingQueue;
 import team.overfullow.tolonbgeub.debate.matching.queue.MatchingQueueManager;
 import team.overfullow.tolonbgeub.debate.matching.queue.MatchingSuccessResult;
+import team.overfullow.tolonbgeub.debate.playing.state.PlayingState;
+import team.overfullow.tolonbgeub.debate.playing.state.PlayingStateManager;
+import team.overfullow.tolonbgeub.debate.playing.state.PlayingUser;
 import team.overfullow.tolonbgeub.webrtc.OpenViduHandler;
 
 import java.util.List;
@@ -30,6 +34,7 @@ public class MatchingService {
     private final ApplicationEventPublisher publisher;
     private final OpenViduHandler openviduHandler;
     private final DebateService debateService;
+    private final PlayingStateManager playingStateManager;
 
     /**
      * 매칭 대기열 등록 및 매칭 시도 후 결과 메시지 전송
@@ -59,12 +64,21 @@ public class MatchingService {
     private void handleMatchingSuccess(MatchingSuccessResult result) {
         log.debug("handleMatchingSuccess result: {}", result);
         Long debateId = debateService.create(result.getCategory(), result.getMatchedUserIds());
-        sendMatchingSuccessEvent(debateId, result.getMatchedUserIds());
+        log.debug("handleMatchingSuccess debateId: {}", debateId);
+        PlayingState state = playingStateManager.init(debateId);
+        log.debug("handleMatchingSuccess state: {}", state);
+        List<PlayingUser> playingUsers = state.getParticipants().stream().toList();
+        for (int i = 0; i < playingUsers.size(); i++) {
+            Connection connection = openviduHandler.createConnection(debateId.toString());
+            playingUsers.get(i).setConnection(connection);
+        }
+        log.debug("handleMatchingSuccess playingUsers: {}", playingUsers);
+        sendMatchingSuccessEvent(debateId, playingUsers);
     }
 
     public void handleCancel(Category category, Long userId) {
         MatchingQueue matchingQueue = matchingQueueManager.getByCategory(category);
-        if(!matchingQueue.remove(userId)){
+        if (!matchingQueue.remove(userId)) {
             return;
         }
 
@@ -85,7 +99,6 @@ public class MatchingService {
     }
 
     private void broadcastMatchingQueueUpdate(MatchingQueue matchingQueue) {
-
         var message = QueueUpdateResponse.builder()
                 .category(matchingQueue.getCategory())
                 .waitingUserCount(matchingQueue.getWaitingUserCount())
@@ -94,7 +107,6 @@ public class MatchingService {
 
         matchingQueue.getWaitingUserIds().forEach(id ->
         {
-
             publisher.publishEvent(MatchingQueueUpdateEvent.builder()
                     .userId(id)
                     .payload(MatchingMessage.<QueueUpdateResponse>builder()
@@ -105,19 +117,17 @@ public class MatchingService {
         });
     }
 
-    private void sendMatchingSuccessEvent(Long debateId, List<Long> matchedUserIds) {
-        String connectionToken = openviduHandler.createConnectionToken(debateId.toString());
-        var message = MatchingSuccessResponse.builder()
-                .debateId(debateId.toString())
-                .connectionToken(connectionToken)
-                .build();
-        log.debug("sending matching success event: {}", message);
-        matchedUserIds.forEach(userId ->
+    private void sendMatchingSuccessEvent(Long debateId, List<PlayingUser> matchedUsers) {
+        log.debug("sending matching success event: {}", matchedUsers);
+        matchedUsers.forEach(u ->
                 publisher.publishEvent(MatchingSuccessEvent.builder()
-                        .userId(userId)
+                        .userId(u.getUserId())
                         .payload(MatchingMessage.<MatchingSuccessResponse>builder()
                                 .messageType(MatchingMessageType.MATCHING_SUCCESS)
-                                .payload(message)
+                                .payload(MatchingSuccessResponse.builder()
+                                        .debateId(debateId.toString())
+                                        .openviduToken(u.getConnection().getToken().replace("localhost", "70.12.247.159"))
+                                        .build())
                                 .build())
                         .build())
         );

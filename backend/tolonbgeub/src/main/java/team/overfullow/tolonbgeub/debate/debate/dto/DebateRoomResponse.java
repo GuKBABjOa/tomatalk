@@ -5,6 +5,7 @@ import lombok.Builder;
 import java.util.List;
 
 public record DebateRoomResponse(
+        String openviduToken,
         String debateId,
         String category,
         String subject,

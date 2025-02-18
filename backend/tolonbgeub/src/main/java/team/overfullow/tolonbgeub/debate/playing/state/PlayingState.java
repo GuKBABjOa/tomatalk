@@ -4,6 +4,8 @@ import com.google.errorprone.annotations.ThreadSafe;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import team.overfullow.tolonbgeub.debate.playing.PlayingException;
 
 import java.time.Instant;
 import java.util.*;
@@ -35,6 +37,7 @@ public class PlayingState {
     private int turnCounter = 0;
     private PlayingStatus status; // 현재 토론 상태
     private Long currentSpeakerId; // 현재 발언자
+    private String currentSpeakerConnectionId;
     private Instant currentSpeakEndTime; // 현재 발언자의 발언 종료 시각
     private Long nextSpeakerId; // 다음 발언자
     private boolean interrupted; // 끼어들기(POI) 중인지?
@@ -55,6 +58,7 @@ public class PlayingState {
     private PlayingState(Long debateId,
                          PlayingStatus status,
                          Long currentSpeakerId,
+                         String currentSpeakerConnectionId,
                          Instant currentSpeakEndTime,
                          Long nextSpeakerId,
                          boolean interrupted,
@@ -65,6 +69,7 @@ public class PlayingState {
         this.debateId = debateId;
         this.status = status;
         this.currentSpeakerId = currentSpeakerId;
+        this.currentSpeakerConnectionId = currentSpeakerConnectionId;
         this.currentSpeakEndTime = currentSpeakEndTime;
         this.nextSpeakerId = nextSpeakerId;
         this.interrupted = interrupted;
@@ -205,8 +210,18 @@ public class PlayingState {
 
     private void setState(Long currentSpeakerId, Long nextSpeakerId, int seconds) {
         this.currentSpeakerId = currentSpeakerId;
+        this.currentSpeakerConnectionId = findConnectionId(currentSpeakerId);
         this.nextSpeakerId = nextSpeakerId;
         this.currentSpeakEndTime = Instant.now().plusSeconds(seconds);
+    }
+
+    private String findConnectionId(Long currentSpeakerId) {
+        if (currentSpeakerId == null) {
+            return null;
+        }
+        Optional<PlayingUser> optional = participants.stream().filter(p -> p.getUserId().equals(currentSpeakerId)).findFirst();
+        return optional.orElseThrow(()->new PlayingException(HttpStatus.INTERNAL_SERVER_ERROR, "오픈비두 유저 커넥션이 존재하지 않습니다."))
+                .getConnection().getConnectionId();
     }
 
 

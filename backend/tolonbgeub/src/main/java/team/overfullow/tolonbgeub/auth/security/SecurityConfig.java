@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,6 +27,7 @@ import team.overfullow.tolonbgeub.user.service.UserService;
 import java.util.List;
 
 
+import static javax.swing.text.html.HTML.Tag.OPTION;
 import static org.springframework.http.HttpMethod.*;
 
 @Configuration
@@ -51,22 +53,23 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers(GET, "/api/auth/login/**").permitAll()
-                        .requestMatchers(POST, "/api/auth/login/**").permitAll()
+//                        .requestMatchers("/h2-console/**").permitAll()
+//                        .requestMatchers("/ws/**").permitAll()
+//                        .requestMatchers("/h2-console").permitAll()
+//                        .requestMatchers(GET, "/api/auth/login/**").permitAll()
+//                        .requestMatchers(POST, "/api/auth/login/**").permitAll()
+//                        .requestMatchers(GET, "/api/topics/**").permitAll()
+//                        .requestMatchers(GET, "/api/games/sample/**").permitAll()
+//                        .requestMatchers(GET, "/api/users/**").permitAll()
+//                        .requestMatchers(GET, "/api/**").permitAll()
+//                        .requestMatchers(GET, "/api/tests/**").permitAll()
+//                        .requestMatchers(GET, "/api/debates/**").permitAll()
                         .requestMatchers(POST, "/api/auth/logout").authenticated()
                         .requestMatchers(GET, "/api/auth/authentication").authenticated()
                         .requestMatchers(GET, "/api/auth/authorization").hasAuthority(UserRole.ADMIN.role())
-                        .requestMatchers(GET, "/api/topics/**").permitAll()
-                        .requestMatchers(GET, "/api/games/sample/**").permitAll()
-                        .requestMatchers(GET, "/api/users/**").permitAll()
-                        .requestMatchers(PUT, "/api/users/me").permitAll()
+                        .requestMatchers(GET, "/api/users/me").authenticated()
                         .requestMatchers(PUT, "/api/users/change").authenticated()
-                        .requestMatchers(GET, "/api/**").permitAll()
-                        .requestMatchers(GET, "/api/tests/**").permitAll()
-                        .requestMatchers("/ws/**").permitAll()
-                        .requestMatchers("/h2-console").permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .exceptionHandling(eh -> eh
                         .authenticationEntryPoint(authenticationEntryPointImpl)
                         .accessDeniedHandler(accessDeniedHandlerImpl))
@@ -90,7 +93,6 @@ public class SecurityConfig {
     }
 
 
-
     @Bean
     public AuthenticationManager authenticationManager() {
         return new ProviderManager(kakaoAuthenticationProvider, jwtAuthenticationProvider);
@@ -101,7 +103,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "spring.h2.console.enabled",havingValue = "true")
+    @ConditionalOnProperty(name = "spring.h2.console.enabled", havingValue = "true")
     public WebSecurityCustomizer configureH2ConsoleEnable() {
         return web -> web.ignoring()
                 .requestMatchers(PathRequest.toH2Console());

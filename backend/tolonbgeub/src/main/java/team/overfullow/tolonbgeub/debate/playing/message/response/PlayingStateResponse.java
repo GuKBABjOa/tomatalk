@@ -11,6 +11,7 @@ public record PlayingStateResponse(
         int sequence,                   // 상태 변경 순서
         PlayingStatus status,           // 현재 토론 상태
         String currentSpeakerId,        // 현재 발언자
+        String currentSpeakerConnectionId,
         Instant currentSpeakEndTime,    // 현재 발언자의 발언 종료 시각
         String nextSpeakerId,            // 다음 발언자
         boolean canInterrupt,            // 끼어들기(POI)가능 여부

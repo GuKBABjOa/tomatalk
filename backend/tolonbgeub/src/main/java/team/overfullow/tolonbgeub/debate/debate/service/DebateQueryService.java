@@ -21,9 +21,11 @@ import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomResponse;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateUserResponse;
 import team.overfullow.tolonbgeub.debate.debate.repository.DebateRepository;
 import team.overfullow.tolonbgeub.user.User;
+import team.overfullow.tolonbgeub.webrtc.OpenViduHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Slf4j
@@ -34,6 +36,7 @@ public class DebateQueryService {
 
     private final DebateRepository debateRepository;
     private final DebateMetricService debateMetricService;
+    private final OpenViduHandler openViduHandler;
 
     private static final String IMAGE_URL = "%s/api/users/%s/image"; // todo refactor 유저 프로필 이미지 처리
     @Value("${app.image.base-url}")
@@ -41,7 +44,7 @@ public class DebateQueryService {
 
     public DebateRoomResponse getRoomById(Long id, @Nullable Long requestUserId) {
         Debate debate = debateRepository.findById(id)
-                .orElseThrow(() -> new DebateException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new DebateException(HttpStatus.NOT_FOUND,"id에 해당하는 토론을 찾을 수 없습니다."));
         return toDebateRoomResponse(requestUserId, debate);
     }
 
@@ -68,12 +71,13 @@ public class DebateQueryService {
 
     private DebateRoomResponse toDebateRoomResponse(Long requestUserId, Debate debate) {
         return DebateRoomResponse.builder()
+                .openviduToken(openViduHandler.createConnection(debate.getId().toString()).getToken())
                 .debateId(debate.getId().toString())
                 .category(debate.getCategory().name())
                 .subject(debate.getSubject().getSubject())
                 .participant(debate.getDebateUsers().stream()
                         .map(this::toDebateUserResponse)
-                        .anyMatch(u -> u.userId().equals(requestUserId)))
+                        .anyMatch(u -> u.userId().equals(Objects.isNull(requestUserId)?null:requestUserId.toString())))
                 .users(debate.getDebateUsers().stream()
                         .map(this::toDebateUserResponse)
                         .toList())

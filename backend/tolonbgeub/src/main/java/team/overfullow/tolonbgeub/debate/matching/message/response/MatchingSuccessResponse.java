@@ -10,5 +10,5 @@ import lombok.Data;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class MatchingSuccessResponse {
     private String debateId;
-    private String connectionToken;
+    private String openviduToken;
 }

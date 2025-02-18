@@ -49,7 +49,7 @@ public class JwtProvider {
 
     private String generate(String userId, List<String> roles, JwtType type, long expirySeconds) {
         String tokenId = idGenerator.generate().toString();
-        log.info("Generated id {}", tokenId);
+        log.info("Generated token {}", tokenId);
         return JWT.create().withIssuer(issuer)
                 .withClaim(TOKEN_ID.claim(), tokenId)
                 .withClaim(USER_ID.claim(), userId)

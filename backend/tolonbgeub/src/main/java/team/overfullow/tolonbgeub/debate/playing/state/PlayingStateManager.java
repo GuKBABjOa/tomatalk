@@ -5,11 +5,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import team.overfullow.tolonbgeub.debate.debate.dto.DebateUserResponse;
 import team.overfullow.tolonbgeub.debate.debate.service.DebateService;
 import team.overfullow.tolonbgeub.debate.playing.PlayingException;
 import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingStateResponse;
 import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingUserResponse;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,7 +25,7 @@ public class PlayingStateManager {
     private final DebateService debateService;
 
     public Optional<PlayingStateResponse> join(Long debateId, Long userId) {
-        PlayingState state = states.computeIfAbsent(debateId, k -> init(debateId));
+        PlayingState state = states.computeIfAbsent(debateId, k -> init(debateId)); //todo init과 중복 코드 제거
         boolean participated = state.participate(userId);
         if (participated) {
             log.debug("join user {}", userId);
@@ -32,9 +34,10 @@ public class PlayingStateManager {
         return Optional.empty();
     }
 
-    private synchronized PlayingState init(Long debateId) {
-        var playingUsers = debateService.getRoomById(debateId, null)
-                .users().stream().map(u ->
+    public synchronized PlayingState init(Long debateId) {
+        List<DebateUserResponse> users = debateService.getRoomById(debateId, null).users();
+        var playingUsers = users.stream()
+                .map(u ->
                         PlayingUser.builder()
                                 .userId(Long.parseLong(u.userId()))
                                 .nickname(u.nickname())
@@ -45,7 +48,7 @@ public class PlayingStateManager {
                                 .participant(false)
                                 .build())
                 .toList();
-        return PlayingState.init(debateId, playingUsers);
+        return states.computeIfAbsent(debateId, k -> PlayingState.init(k, playingUsers));
     }
 
     public Optional<PlayingStateResponse> start(Long debateId) {
@@ -86,6 +89,7 @@ public class PlayingStateManager {
                 .sequence(state.getSequence().get())
                 .status(state.getStatus())
                 .currentSpeakerId(toStringOrNull(state.getCurrentSpeakerId()))
+                .currentSpeakerConnectionId(toStringOrNull(state.getCurrentSpeakerConnectionId()))
                 .currentSpeakEndTime(state.getCurrentSpeakEndTime())
                 .nextSpeakerId(toStringOrNull(state.getNextSpeakerId()))
                 .canInterrupt(state.canInterrupt())

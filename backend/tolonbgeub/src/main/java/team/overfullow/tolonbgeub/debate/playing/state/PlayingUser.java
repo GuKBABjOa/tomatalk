@@ -1,5 +1,6 @@
 package team.overfullow.tolonbgeub.debate.playing.state;
 
+import io.openvidu.java.client.Connection;
 import jakarta.validation.constraints.Min;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,6 +11,8 @@ import java.util.Objects;
 @Getter
 public class PlayingUser {
     private final Long userId;
+    @Setter
+    private Connection connection;
     private final String nickname;
     private final String profileImageUrl;
     private final String position;
@@ -22,7 +25,8 @@ public class PlayingUser {
     private volatile boolean participant;
 
     @Builder
-    protected PlayingUser(String position, Long userId, String nickname, String profileImageUrl, Integer positionOrder, Integer speechOrder, boolean participant) {
+    protected PlayingUser(Connection connection, String position, Long userId, String nickname, String profileImageUrl, Integer positionOrder, Integer speechOrder, boolean participant) {
+        this.connection = connection;
         this.userId = Objects.requireNonNull(userId);
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;

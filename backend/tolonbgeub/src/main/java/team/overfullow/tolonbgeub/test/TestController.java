@@ -65,7 +65,7 @@ public class TestController {
     @GetMapping("/api/tests/debate/{debateId}")
     public ResponseEntity<String> debateScenario(@PathVariable Long debateId,
                                                  @RequestParam String requestUserId) {
-        log.debug("test debate.join debateId: {}", debateId);
+        log.debug("test debate.join debateId: {}, requestUserId = {}", debateId,requestUserId);
         DebateRoomResponse roomResponse = debateService.getRoomById(debateId, null);
         roomResponse.users().stream().filter(u -> !u.userId().equals(requestUserId)).forEach(u->{
             try {

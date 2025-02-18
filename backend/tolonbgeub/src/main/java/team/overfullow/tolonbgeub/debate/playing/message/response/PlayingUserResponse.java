@@ -9,6 +9,7 @@ import team.overfullow.tolonbgeub.debate.playing.state.PlayingUser;
 @NoArgsConstructor
 public class PlayingUserResponse {
     private String userId;
+    private String connectionId;
     private String nickname;
     private String profileImageUrl;
     private String position;
@@ -16,7 +17,8 @@ public class PlayingUserResponse {
     private boolean participant;
 
     @Builder
-    private PlayingUserResponse(String position, String userId, String nickname, String profileImageUrl, Integer order, boolean participant) {
+    private PlayingUserResponse(String connectionId, String position, String userId, String nickname, String profileImageUrl, Integer order, boolean participant) {
+        this.connectionId = connectionId;
         this.position = position;
         this.userId = userId;
         this.nickname = nickname;
@@ -29,6 +31,7 @@ public class PlayingUserResponse {
         return PlayingUserResponse.builder()
                 .position(user.getPosition())
                 .userId(user.getUserId().toString())
+                .connectionId(user.getConnection().getConnectionId())
                 .nickname(user.getNickname())
                 .profileImageUrl(user.getProfileImageUrl())
                 .order(user.getPositionOrder())
