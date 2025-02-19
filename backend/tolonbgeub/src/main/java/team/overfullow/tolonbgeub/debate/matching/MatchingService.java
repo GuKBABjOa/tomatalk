@@ -66,7 +66,7 @@ public class MatchingService {
         Long debateId = debateService.create(result.getCategory(), result.getMatchedUserIds());
         log.debug("handleMatchingSuccess debateId: {}", debateId);
         PlayingState state = playingStateManager.init(debateId);
-        log.debug("handleMatchingSuccess state: {}", state);
+        log.debug("handleMatchingSuccegss state: {}", state);
         List<PlayingUser> playingUsers = state.getParticipants().stream().toList();
         for (int i = 0; i < playingUsers.size(); i++) {
             Connection connection = openviduHandler.createConnection(debateId.toString());

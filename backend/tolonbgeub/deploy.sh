@@ -12,14 +12,13 @@ SERVER="i12a802.p.ssafy.io"
 # jar 파일 이름 변경
 mv ./build/libs/tolonbgeub-0.0.1-SNAPSHOT.jar ./build/libs/app.jar
 
-ssh -i ${KEY_FILE} ubuntu@${SERVER} sudo rm app.jar
+# 1. .env 파일 전송
 ssh -i ${KEY_FILE} ubuntu@${SERVER} sudo rm .env
-
-# 1. jar 파일 전송
-scp -i ${KEY_FILE} ./build/libs/app.jar ubuntu@${SERVER}:~
-
-# 2. .env 파일 전송
 scp -i ${KEY_FILE} .env ubuntu@${SERVER}:~
+
+# 2. jar 파일 전송
+ssh -i ${KEY_FILE} ubuntu@${SERVER} sudo rm app.jar
+scp -i ${KEY_FILE} ./build/libs/app.jar ubuntu@${SERVER}:~
 
 # 3. 원격 서버에서 기존 프로세스 종료 후 새로운 jar 실행
 ssh -i ${KEY_FILE} ubuntu@${SERVER} "
