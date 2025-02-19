@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import team.overfullow.tolonbgeub.core.util.IdGenerator;
 import team.overfullow.tolonbgeub.debate.Category;
 import team.overfullow.tolonbgeub.debate.subject.dto.SubjectResponse;
+import team.overfullow.tolonbgeub.debate.subject.dto.RandomSubjectResponse;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @Service
@@ -18,6 +21,16 @@ public class SubjectService {
 
     private final IdGenerator idGenerator;
     private final SubjectRepository subjectRepository;
+
+    private final List<Subject> subjectCache = new ArrayList<>(); // 모든 주제 캐싱
+
+    @PostConstruct
+    public void loadAllSubject(){
+        log.info("🔄 모든 주제를 데이터베이스에서 불러옵니다...");
+        subjectCache.clear();
+        subjectCache.addAll(subjectRepository.findAll()); // 모든 주제 가져오기
+        log.info("✅ 총 {}개의 주제가 캐싱되었습니다.", subjectCache.size());
+    }
 
     public SubjectResponse getById(Long topicId) {
         return mapToSubjectResponse(subjectRepository.findById(topicId)
@@ -42,4 +55,30 @@ public class SubjectService {
                         .description("주제에 대한 추가적인 설명")
                         .build());
     }
+
+    public RandomSubjectResponse getRandomSubjects() {
+        if (subjectCache.size() < 4) {
+            throw new SubjectException(HttpStatus.NOT_FOUND, "주제 개수가 4개보다 적습니다.");
+        }
+    
+        // 중복 없이 4개의 랜덤한 주제 선택
+        Set<Subject> randomSubjects = new HashSet<>();
+        while (randomSubjects.size() < 4) {
+            int randomIndex = ThreadLocalRandom.current().nextInt(subjectCache.size());
+            randomSubjects.add(subjectCache.get(randomIndex)); // 중복 방지
+        }
+    
+        // 리스트로 변환
+        List<Subject> selectedSubjects = new ArrayList<>(randomSubjects);
+    
+        // `RandomSubjectResponse` 형식에 맞게 변환하여 반환
+        return RandomSubjectResponse.builder()
+                .subject1(selectedSubjects.get(0).getSubject())
+                .subject2(selectedSubjects.get(1).getSubject())
+                .subject3(selectedSubjects.get(2).getSubject())
+                .subject4(selectedSubjects.get(3).getSubject())
+                .build();
+    }
+    
+
 }

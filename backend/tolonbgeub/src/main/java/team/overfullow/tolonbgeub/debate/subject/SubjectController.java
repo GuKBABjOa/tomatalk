@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import team.overfullow.tolonbgeub.debate.subject.dto.RandomSubjectResponse;
 import team.overfullow.tolonbgeub.debate.subject.dto.SubjectResponse;
 
 @Slf4j
@@ -16,10 +18,19 @@ public class SubjectController {
 
     private final SubjectService subjectService;
 
+    
+
     @GetMapping("/api/subjects/{subjectId}")
     public ResponseEntity<SubjectResponse> getById(@PathVariable Long subjectId) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(subjectService.getById(subjectId));
+    }
+
+    @GetMapping("/api/subjects/random")
+    public ResponseEntity<RandomSubjectResponse> getRandomSubjects(){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(subjectService.getRandomSubjects());
     }
 }
