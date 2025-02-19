@@ -12,7 +12,7 @@ if not OPENAI_API_KEY:
 # ✅ 최신 버전의 OpenAI SDK 초기화
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
-async def generate_response(prompt: str, system_instruction: str, temperature: float = 0.7):
+async def generate_response(prompt: str, system_instruction: str, temperature: float = 0.6):
     """
     OpenAI GPT-4 모델에 프롬프트를 전달하여 응답을 생성하는 함수.
 
@@ -36,7 +36,7 @@ async def generate_response(prompt: str, system_instruction: str, temperature: f
                 {"role": "user", "content": prompt}  # 사용자 입력
             ],
             temperature=temperature,  # 창의성 조정
-            max_tokens=2048,  # 응답 최대 길이 설정
+            max_tokens=4096,  # 응답 최대 길이 설정
             n=1,  # 응답 개수
             stop=None  # 멈출 기준 없음
         )

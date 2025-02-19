@@ -1,0 +1,22 @@
+CREATE TABLE report (
+    report_id INT AUTO_INCREMENT PRIMARY KEY,  -- 고유 보고서 ID
+    script_name VARCHAR(255),                   -- 토론 스크립트의 이름 또는 제목
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 생성 시간
+);
+
+CREATE TABLE evaluation_data (
+    evaluation_id INT AUTO_INCREMENT PRIMARY KEY,  -- 고유 평가 항목 ID
+    report_id INT,                                 -- 참조된 보고서 ID (foreign key)
+    participant VARCHAR(10),                       -- 참가자 ID (O1, O2 등)
+    total INT,                                     -- 총 점수
+    total_explanation TEXT,                        -- 총점에 대한 설명
+    reasoning INT,                                 -- 논리적 구조 점수
+    reasoning_explanation TEXT,                    -- 논리적 구조 설명
+    expression INT,                                -- 표현력 점수
+    expression_explanation TEXT,                   -- 표현력 설명
+    strategy INT,                                  -- 전략 점수
+    strategy_explanation TEXT,                     -- 전략 설명
+    interaction INT,                               -- 상호작용 점수
+    interaction_explanation TEXT,                  -- 상호작용 설명
+    FOREIGN KEY (report_id) REFERENCES report(report_id)  -- 외래 키, report 테이블 참조
+);

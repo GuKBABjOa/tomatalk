@@ -1,22 +1,29 @@
-from fastapi import WebSocket
+from fastapi import WebSocket, UploadFile
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import WebSocket, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import WebSocket, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_async_db
-from transcripts.repository.repository import save_statement
+from transcripts.repository.repository import save_statement, save_summation, save_basic_practice
+from audio.utils.basic_topic import get_basic_topic
+from audio.utils.basic_step import get_question
 from ai.utils.summation import generate_summary
-from transcripts.repository.repository import save_summation
+from analytics.utils.analytics import speech_rate
 from pydub import AudioSegment
+import soundfile as sf
+import time 
 import whisper
 import numpy as np
 import torch
-import json
+import io
+import librosa
 
 SAMPLE_RATE = 16000
 
 # ✅ Whisper 모델 로드 (medium 이상 권장)
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model = whisper.load_model("medium", device="cpu")
+model = whisper.load_model("medium", device=device)
 
 async def audio_transcription(websocket: WebSocket, db: AsyncSession):
     """
@@ -24,15 +31,7 @@ async def audio_transcription(websocket: WebSocket, db: AsyncSession):
     """
     await websocket.accept()
     print("✅ WebSocket 연결됨!")
-
-    metadata = await websocket.receive_text()
-    metadata = json.loads(metadata)
-    debate_id = metadata.get("debate_id", "unknown")
-    position = metadata.get("position", "unknown")
-    user_id = metadata.get("user_id", "unknown")
-    nickname = metadata.get("nickname", "unknown")
-    round = metadata.get("round", 0)
-    print(f"📌 방: {debate_id}, 주제: {position} / 발언자: {nickname} / 라운드: {round}")
+    start_time = time.time
 
     # ✅ WebSocket 세션별 개별 상태 변수 (전역 변수 제거)
     audio_buffer = []
@@ -45,12 +44,13 @@ async def audio_transcription(websocket: WebSocket, db: AsyncSession):
                 print("⚠ 수신된 데이터 없음.")
                 break  
 
+
             # PCM 데이터를 NumPy 배열로 변환
             audio_chunk = np.frombuffer(data, dtype=np.int16)
             audio_buffer.append(audio_chunk)
 
             # 20초 분량의 오디오 데이터가 쌓이면 변환 실행
-            if len(audio_buffer) * 4096 / 160000 > 20:
+            if len(audio_buffer) * 4096 / 160000 > 200:
                 text = await process_audio(audio_buffer, websocket)
                 if text:
                     statement += text  # ✅ WebSocket 연결별 statement 유지
@@ -59,11 +59,64 @@ async def audio_transcription(websocket: WebSocket, db: AsyncSession):
         print(f"오디오 변환 오류: {e}")
     finally:
         print("🔴 WebSocket 연결이 끊어졌습니다. 변환된 발언 저장을 시도합니다...")
-        await save_statement(db, debate_id, position, user_id, nickname, round, statement)  # ✅ 개별 statement 저장
-        response = await generate_summary(statement)  # ✅ 개별 summary 저장
-        await save_summation(db, debate_id, position, user_id, nickname, round, response)  # ✅ 개별 summary 저장
+        # await save_statement(db, debate_id, position, user_id, nickname, round, statement)  # ✅ 개별 statement 저장
+        # elapsed_time = time.time - start_time 
+        # await speech_rate(db, user_id, elapsed_time, statement)
+        # response = await generate_summary(statement)  # ✅ 개별 summary 저장
+        # await save_summation(db, debate_id, position, user_id, nickname, round, response)  # ✅ 개별 summary 저장
         await close_websocket_safely(websocket)
 
+async def audio_transcription_practice(
+        websocket: WebSocket,
+        db: AsyncSession,
+        topic_id: int,
+        stance: str, 
+        step: int,
+        user_id: int):
+    """
+    오디오 데이터를 수신하고 Whisper 모델을 사용하여 텍스트로 변환하는 WebSocket 핸들러
+    """
+    await websocket.accept()
+    print("✅ WebSocket 연결됨!")
+
+    # ✅ WebSocket 세션별 개별 상태 변수 (전역 변수 제거)
+    audio_buffer = []
+    statement = ""
+
+    try:
+        while True:
+            data = await websocket.receive_bytes()
+            if not data:
+                print("⚠ 수신된 데이터 없음.")
+                break  
+
+            audio_chunk = np.frombuffer(data, dtype=np.int16)
+            audio_buffer.append(audio_chunk)
+
+            if len(audio_buffer) * 4096 / 160000 > 20:
+                text = await process_audio(audio_buffer, websocket)
+                if text:
+                    statement += text  
+                audio_buffer = []
+
+    except Exception as e:
+        print(f"❌ 오디오 변환 오류: {e}")
+    finally:
+        print("🔴 WebSocket 연결 종료 처리 중...")
+        topic = await get_basic_topic(topic_id)
+        question = await get_question(step)
+        await save_basic_practice(
+            db= db,
+            topic= topic,
+            position= stance,
+            question=question,
+            user_id= user_id,
+            statement= statement)  # ✅ 개별 statement 저장
+        try:
+            await websocket.close()
+            print("✅ WebSocket 정상 종료")
+        except Exception as e:
+            print(f"❌ WebSocket 종료 오류 발생: {e}")
 
 async def process_audio(audio_buffer, websocket):
     """
@@ -102,7 +155,7 @@ async def process_audio(audio_buffer, websocket):
             whisper_input,
             language="ko",
             temperature=0.2,
-            no_speech_threshold=0.3,
+            no_speech_threshold=0.5,
             fp16=False
         )
         text = result["text"].strip()
@@ -152,3 +205,51 @@ async def close_websocket_safely(websocket):
             print("⚠ WebSocket이 이미 종료된 상태입니다.")
     except Exception as e:
         print(f"❌ WebSocket 닫기 오류 발생: {e}")
+
+
+async def stt_file(file: UploadFile, topic: str, position: str, question: str, user_id: int, db: AsyncSession):
+    """
+    WAV 파일을 받아 Whisper STT 변환을 실행하고, 변환된 텍스트를 DB에 저장하는 함수.
+
+    Args:
+        file (UploadFile): 업로드된 WAV 파일
+        topic (str): 토론 주제
+        position (str): 찬성/반대 여부
+        question (str): 질문 내용
+        user_id (int): 사용자 ID
+        db (AsyncSession): 데이터베이스 세션
+
+    Returns:
+        dict: 변환된 텍스트 데이터 반환
+    """
+    try:
+        print(f"🔥 STT 변환 시작 (GPU 사용: {device == 'cuda'})")
+
+        # ✅ 업로드된 파일을 바로 메모리에서 읽기
+        audio_bytes = await file.read()
+        audio_data, sample_rate = sf.read(io.BytesIO(audio_bytes), dtype="float32")
+
+        # ✅ 샘플링 속도를 16kHz로 변환 (필수)
+        if sample_rate != 16000:
+            print(f"⚠️ 입력 샘플링 속도: {sample_rate}Hz → 16kHz 변환 필요")
+            audio_data = librosa.resample(audio_data, orig_sr=sample_rate, target_sr=16000)
+
+        # ✅ Whisper 변환 실행
+        result = model.transcribe(audio_data, language="ko", fp16=False)
+        text = result["text"].strip()
+
+        # ✅ 변환된 텍스트 저장
+        await save_basic_practice(
+            db=db,
+            topic=topic,
+            position=position,
+            question=question,
+            user_id=user_id,
+            statement=text
+        )
+
+        return {"message": "STT 변환 및 저장 완료", "transcription": text}
+
+    except Exception as e:
+        print(f"❌ STT 변환 오류: {e}")
+        return {"error": "음성 변환 실패"}

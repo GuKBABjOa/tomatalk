@@ -1,7 +1,12 @@
 <template>
   <div class="search-container">
     <div class="search-bar-container">
-      <input v-model="localQuery" type="text" :placeholder="placeholder" class="search-bar" />
+      <input
+        v-model="localQuery"
+        type="text"
+        :placeholder="placeholder"
+        class="search-bar"
+      />
       <button class="search-btn" @click="handleSearch">검색</button>
     </div>
 
@@ -10,7 +15,11 @@
       <div class="sort-container" v-if="sortOptions.length > 0">
         <label for="sortOption">정렬 기준:</label>
         <select id="sortOption" v-model="sortOption" @change="updateSort">
-          <option v-for="option in sortOptions" :key="option.value" :value="option.value">
+          <option
+            v-for="option in sortOptions"
+            :key="option.value"
+            :value="option.value"
+          >
             {{ option.label }}
           </option>
         </select>
@@ -18,9 +27,15 @@
 
       <!-- 카테고리 칩 (여러 개 선택 가능) -->
       <div class="category-chips" v-if="categories && categories.length">
-        <button v-for="category in categories" :key="category.value"
-          :class="['chip', { active: selectedCategories.includes(category.value) }]"
-          @click="toggleCategory(category.value)">
+        <button
+          v-for="category in categories"
+          :key="category.value"
+          :class="[
+            'chip',
+            { active: selectedCategories.includes(category.value) },
+          ]"
+          @click="toggleCategory(category.value)"
+        >
           {{ category.label }}
         </button>
       </div>
@@ -36,20 +51,20 @@ const props = defineProps({
   sort: String,
   placeholder: {
     type: String,
-    default: "토론 주제, 키워드로 검색..."
+    default: "토론 주제, 키워드로 검색...",
   },
   sortOptions: {
     type: Array,
     default: () => [
       { value: "latest", label: "최신순" },
-      { value: "popular", label: "인기순" }
-    ]
+      { value: "popular", label: "인기순" },
+    ],
   },
   // 카테고리 옵션 (칩 형태로 표시)
   categories: {
     type: Array,
-    default: () => []
-  }
+    default: () => [],
+  },
 });
 
 const emit = defineEmits(["update:query", "update:sort", "update:category"]);
@@ -72,7 +87,9 @@ const updateSort = () => {
 const toggleCategory = (value) => {
   if (selectedCategories.value.includes(value)) {
     // 이미 선택되어 있다면 제거
-    selectedCategories.value = selectedCategories.value.filter(cat => cat !== value);
+    selectedCategories.value = selectedCategories.value.filter(
+      (cat) => cat !== value
+    );
   } else {
     // 선택되지 않았다면 추가
     selectedCategories.value = [...selectedCategories.value, value];
@@ -81,13 +98,19 @@ const toggleCategory = (value) => {
   emit("update:category", selectedCategories.value);
 };
 
-watch(() => props.query, (newVal) => {
-  localQuery.value = newVal;
-});
+watch(
+  () => props.query,
+  (newVal) => {
+    localQuery.value = newVal;
+  }
+);
 
-watch(() => props.sort, (newVal) => {
-  sortOption.value = newVal;
-});
+watch(
+  () => props.sort,
+  (newVal) => {
+    sortOption.value = newVal;
+  }
+);
 </script>
 
 <style scoped>
