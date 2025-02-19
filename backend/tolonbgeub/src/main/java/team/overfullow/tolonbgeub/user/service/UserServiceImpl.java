@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import team.overfullow.tolonbgeub.user.Repository.UserRepository;
 import team.overfullow.tolonbgeub.user.UserException;
 import team.overfullow.tolonbgeub.user.dto.UserRequest;
@@ -68,6 +69,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserResponse updateUserProfile(Long userId, UserUpdateRequest userUpdateRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다"));

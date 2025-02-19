@@ -28,3 +28,15 @@ class Summation(Base):
     created_at = Column(TIMESTAMP, server_default=func.current_timestamp())  # 생성 시각
     updated_at = Column(TIMESTAMP, server_default=func.current_timestamp(), onupdate=func.current_timestamp())  # 수정 시각
 
+class BasicPractice(Base):
+    __tablename__ = "basic_practice"
+    id = Column(BigInteger, primary_key=True, autoincrement=True)  # 고유 ID
+    topic = Column(String(255), nullable=False)
+    position = Column(String(255), nullable=False)
+    question = Column(String(255), nullable=False)  # 토론 주제
+    user_id = Column(BigInteger, nullable=False)  # 사용자 ID (큰 숫자 지원)
+    statement = Column(Text, nullable=False)  # 발언 내용
+    is_deleted = Column(Boolean, nullable=False, default=False)  # 소프트 삭제 처리
+    created_at = Column(TIMESTAMP, server_default=func.current_timestamp())  # 생성 시각
+    updated_at = Column(TIMESTAMP, server_default=func.current_timestamp(), onupdate=func.current_timestamp())  # 수정 시각
+

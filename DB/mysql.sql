@@ -27,37 +27,42 @@ CREATE TABLE summation (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  -- 수정 시각
 );
 
-CREATE TABLE debate_column (
-    id bigint AUTO_INCREMENT PRIMARY KEY,  -- 고유 ID
-    title VARCHAR(255) NOT NULL,  -- 제목
-    subtitle VARCHAR(255) NOT NULL,  -- 부제목
-    category varchar(255) not null, 
-    discussion_overview TEXT NOT NULL,  -- 토론 개요
-    
-    participant_1_name VARCHAR(255) NOT NULL,  -- 참가자 1 이름
-    participant_1_statement TEXT NOT NULL,  -- 참가자 1 발언 내용
-    participant_2_name VARCHAR(255) NOT NULL,  -- 참가자 2 이름
-    participant_2_statement TEXT NOT NULL,  -- 참가자 2 발언 내용
-    participant_3_name VARCHAR(255) NOT NULL,  -- 참가자 3 이름
-    participant_3_statement TEXT NOT NULL,  -- 참가자 3 발언 내용
-    participant_4_name VARCHAR(255) NOT NULL,  -- 참가자 4 이름
-    participant_4_statement TEXT NOT NULL,  -- 참가자 4 발언 내용
-
-    conclusion TEXT NOT NULL,  -- 토론 결론
-    author_opinion TEXT NOT NULL,  -- 칼럼 작성자의 개인 의견
-    like_count bigint default 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- 생성 시간
-    is_deleted BOOLEAN DEFAULT FALSE  -- 삭제 여부
+CREATE TABLE report (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    debate_id VARCHAR(255) NOT NULL,
+    user_id BIGINT NOT NULL,
+    total INT NOT NULL,
+    total_explanation TEXT NOT NULL,
+    reasoning INT NOT NULL,
+    reasoning_explanation TEXT NOT NULL,
+    expression INT NOT NULL,
+    expression_explanation TEXT NOT NULL,
+    strategy INT NOT NULL,
+    strategy_explanation TEXT NOT NULL,
+    interaction INT NOT NULL,
+    interaction_explanation TEXT NOT NULL,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE likes (
-    id INT AUTO_INCREMENT PRIMARY KEY,   -- 고유 ID
-    user_id BIGINT NOT NULL,             -- 좋아요를 누른 사용자 ID
-    debate_column_id INT NOT NULL,       -- 좋아요한 칼럼 ID
-    is_deleted boolean default false, 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- 좋아요 누른 시간
-    UNIQUE KEY (user_id, debate_column_id),  -- 한 유저가 같은 칼럼에 한 번만 좋아요 가능
-    FOREIGN KEY (debate_column_id) REFERENCES debate_column(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+CREATE TABLE practice (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,  -- 고유 ID (자동 증가)
+    problem_id VARCHAR(255) NOT NULL,      -- 문제 ID
+    user_id BIGINT NOT NULL,               -- 사용자 ID
+    input TEXT NOT NULL,                   -- 입력 데이터
+    output TEXT NOT NULL,                  -- 출력 데이터
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,  -- 소프트 삭제 처리
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 생성 시각
 );
 
+CREATE TABLE basic_practice (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,  -- 고유 ID
+    topic VARCHAR(255) NOT NULL,  -- 토론 주제
+    position VARCHAR(255) NOT NULL,  -- 토론 주제
+    question VARCHAR(255) NOT NULL,  -- 질문 내용
+    user_id BIGINT NOT NULL,  -- 사용자 ID
+    statement TEXT NOT NULL,  -- 발언 내용
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,  -- 소프트 삭제 처리
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- 생성 시각
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  -- 수정 시각
+);

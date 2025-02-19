@@ -54,6 +54,11 @@ public class SecurityConfig {
                         .requestMatchers(GET, "/api/auth/authorization").hasAuthority(UserRole.ADMIN.role())
                         .requestMatchers(GET, "/api/users/me").authenticated()
                         .requestMatchers(PUT, "/api/users/change").authenticated()
+                        .requestMatchers(GET, "/api/**").permitAll()
+                        .requestMatchers(GET, "/api/tests/**").permitAll()
+                        .requestMatchers(OPTIONS, "/api/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/h2-console").permitAll()
                         .anyRequest().permitAll())
                 .exceptionHandling(eh -> eh
                         .authenticationEntryPoint(authenticationEntryPointImpl)
