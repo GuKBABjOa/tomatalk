@@ -1,11 +1,9 @@
-package team.overfullow.tolonbgeub.auth.security;
+package team.overfullow.tolonbgeub.core.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,19 +13,17 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import team.overfullow.tolonbgeub.auth.AuthConfigProps;
 import team.overfullow.tolonbgeub.auth.UserRole;
 import team.overfullow.tolonbgeub.auth.jwt.JwtProvider;
 import team.overfullow.tolonbgeub.auth.oauth.kakao.KakaoAuthenticationProvider;
+import team.overfullow.tolonbgeub.auth.security.AccessDeniedHandlerImpl;
+import team.overfullow.tolonbgeub.auth.security.AuthenticationEntryPointImpl;
+import team.overfullow.tolonbgeub.auth.security.JwtAuthenticationFilter;
+import team.overfullow.tolonbgeub.auth.security.JwtAuthenticationProvider;
 import team.overfullow.tolonbgeub.user.service.UserService;
 
-import java.util.List;
 
-
-import static javax.swing.text.html.HTML.Tag.OPTION;
 import static org.springframework.http.HttpMethod.*;
 
 @Configuration
@@ -53,17 +49,6 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/h2-console/**").permitAll()
-//                        .requestMatchers("/ws/**").permitAll()
-//                        .requestMatchers("/h2-console").permitAll()
-//                        .requestMatchers(GET, "/api/auth/login/**").permitAll()
-//                        .requestMatchers(POST, "/api/auth/login/**").permitAll()
-//                        .requestMatchers(GET, "/api/topics/**").permitAll()
-//                        .requestMatchers(GET, "/api/games/sample/**").permitAll()
-//                        .requestMatchers(GET, "/api/users/**").permitAll()
-//                        .requestMatchers(GET, "/api/**").permitAll()
-//                        .requestMatchers(GET, "/api/tests/**").permitAll()
-//                        .requestMatchers(GET, "/api/debates/**").permitAll()
                         .requestMatchers(POST, "/api/auth/logout").authenticated()
                         .requestMatchers(GET, "/api/auth/authentication").authenticated()
                         .requestMatchers(GET, "/api/auth/authorization").hasAuthority(UserRole.ADMIN.role())
@@ -77,21 +62,14 @@ public class SecurityConfig {
                 .build();
     }
 
-    // ✅ CORS 설정 추가
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Vue 요청 허용
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
-        configuration.setAllowCredentials(true); // 쿠키 허용 (필요한 경우)
-
-        source.registerCorsConfiguration("/**", configuration);
-        return (CorsConfigurationSource) source; // 명시적으로 CorsConfigurationSource로 반환
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring()
+                .requestMatchers(
+                        PathRequest.toStaticResources().atCommonLocations(), // 정적 리소스 (css, js 등) 허용
+                        PathRequest.toH2Console() // H2 콘솔 허용 (필요 시)
+                );
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager() {
@@ -101,12 +79,4 @@ public class SecurityConfig {
     private JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(authConfigProps, authenticationManager(), userService, jwtProvider);
     }
-
-    @Bean
-    @ConditionalOnProperty(name = "spring.h2.console.enabled", havingValue = "true")
-    public WebSecurityCustomizer configureH2ConsoleEnable() {
-        return web -> web.ignoring()
-                .requestMatchers(PathRequest.toH2Console());
-    }
-
 }

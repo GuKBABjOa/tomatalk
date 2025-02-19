@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.core.async;
+package team.overfullow.tolonbgeub.core.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;

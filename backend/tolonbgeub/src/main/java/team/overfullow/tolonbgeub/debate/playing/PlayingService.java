@@ -4,15 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import team.overfullow.tolonbgeub.core.async.PreciseInstantScheduler;
+import team.overfullow.tolonbgeub.core.util.PreciseInstantScheduler;
 import team.overfullow.tolonbgeub.debate.playing.event.StateUpdateEvent;
 import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessage;
 import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessageType;
 import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingStateResponse;
 import team.overfullow.tolonbgeub.debate.playing.state.PlayingStateManager;
 import team.overfullow.tolonbgeub.debate.playing.state.PlayingStatus;
-
-import java.util.Optional;
 
 @Slf4j
 @Service

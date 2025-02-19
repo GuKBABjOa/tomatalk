@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import team.overfullow.tolonbgeub.core.async.PreciseInstantScheduler;
+import team.overfullow.tolonbgeub.core.util.PreciseInstantScheduler;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

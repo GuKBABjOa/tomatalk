@@ -1,14 +1,21 @@
 #!/bin/bash
 
-# 빌드
-./gradlew build
-
-# jar 파일 이름 변경
-mv ./build/libs/*.jar ./build/libs/app.jar
-
 # 변수 설정
 KEY_FILE="~/.ssh/I12A802T.pem"
 SERVER="i12a802.p.ssafy.io"
+
+# 빌드: Java 안깔린 경우 intellij gradle 탭에서 수동 빌드
+#./gradlew build
+./gradlew clean
+./gradlew bootJar
+
+# jar 파일 이름 변경
+mv ./build/libs/tolonbgeub-0.0.1-SNAPSHOT.jar ./build/libs/app.jar
+
+ssh -i ${KEY_FILE} ubuntu@${SERVER} "
+sudo rm app.jar
+sudo rm .env
+"
 
 # 1. jar 파일 전송
 scp -i ${KEY_FILE} ./build/libs/app.jar ubuntu@${SERVER}:~
@@ -41,13 +48,9 @@ ssh -i ${KEY_FILE} ubuntu@${SERVER} "
   export \$(grep -v '^#' ~/.env | xargs)
 
   echo \"Starting new server...\"
-
-  # 1. 로그 관제용
-    sudo java -jar ~/app.jar
-
-  # 2. 환경변수를 적용하여 jar 파일을 백그라운드에서 실행
+  # 환경변수를 적용하여 jar 파일을 백그라운드에서 실행
   # sudo -E nohup java -jar ~/app.jar > ~/app.log 2>&1 &
+  sudo java -jar ~/app.jar
 
   echo \"Server started with PID \$!\"
-
 "

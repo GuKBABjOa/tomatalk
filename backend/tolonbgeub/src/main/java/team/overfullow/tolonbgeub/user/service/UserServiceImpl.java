@@ -12,11 +12,9 @@ import team.overfullow.tolonbgeub.user.dto.UserRequest;
 import team.overfullow.tolonbgeub.user.dto.UserResponse;
 import team.overfullow.tolonbgeub.user.User;
 
-import team.overfullow.tolonbgeub.auth.util.IdGenerator;
+import team.overfullow.tolonbgeub.core.util.IdGenerator;
 import team.overfullow.tolonbgeub.user.dto.UserUpdateRequest;
 
-import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;

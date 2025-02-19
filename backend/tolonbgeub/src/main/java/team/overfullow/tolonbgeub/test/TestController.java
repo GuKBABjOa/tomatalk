@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import team.overfullow.tolonbgeub.core.async.PreciseInstantScheduler;
+import team.overfullow.tolonbgeub.core.util.PreciseInstantScheduler;
 import team.overfullow.tolonbgeub.debate.Category;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomResponse;
 import team.overfullow.tolonbgeub.debate.debate.service.DebateService;

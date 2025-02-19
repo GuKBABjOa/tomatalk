@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import team.overfullow.tolonbgeub.auth.util.IdGenerator;
+import team.overfullow.tolonbgeub.core.util.IdGenerator;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

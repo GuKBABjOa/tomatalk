@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.core;
+package team.overfullow.tolonbgeub.core.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

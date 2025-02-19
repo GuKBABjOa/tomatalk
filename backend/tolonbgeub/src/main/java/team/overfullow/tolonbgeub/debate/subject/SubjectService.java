@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import team.overfullow.tolonbgeub.auth.util.IdGenerator;
+import team.overfullow.tolonbgeub.core.util.IdGenerator;
 import team.overfullow.tolonbgeub.debate.Category;
 import team.overfullow.tolonbgeub.debate.subject.dto.SubjectResponse;
 

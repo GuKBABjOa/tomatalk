@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.auth;
+package team.overfullow.tolonbgeub.core.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
-public class AuthWebMvcConfig implements WebMvcConfigurer {
+public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
@@ -24,9 +24,10 @@ public class AuthWebMvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOriginPatterns(
-                        "*",
+//                        "*",
+                        "https://i12a802.p.ssafy.io",
                         "http://localhost:5173",
-                        "http://127.0.0.1:5173"
+                        "http://localhost:8080"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
@@ -37,4 +38,5 @@ public class AuthWebMvcConfig implements WebMvcConfigurer {
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
+
 }

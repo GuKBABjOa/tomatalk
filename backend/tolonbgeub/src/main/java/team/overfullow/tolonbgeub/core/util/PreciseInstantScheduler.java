@@ -1,4 +1,4 @@
-package team.overfullow.tolonbgeub.core.async;
+package team.overfullow.tolonbgeub.core.util;
 
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;

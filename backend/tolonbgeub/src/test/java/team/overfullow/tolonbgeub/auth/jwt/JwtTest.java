@@ -3,7 +3,7 @@ package team.overfullow.tolonbgeub.auth.jwt;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import team.overfullow.tolonbgeub.auth.util.UniqueIdGenerator;
+import team.overfullow.tolonbgeub.core.util.UniqueIdGenerator;
 
 import java.util.Collections;
 

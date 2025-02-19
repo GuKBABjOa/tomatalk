@@ -26,7 +26,6 @@ import java.util.Optional;
 import static org.apache.commons.lang3.StringUtils.substringAfter;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AuthConfigProps authConfigProps;
