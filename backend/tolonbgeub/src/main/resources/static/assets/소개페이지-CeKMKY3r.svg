@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500">
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    text {
+      font-family: 'Pretendard', sans-serif;
+    }
+    .feature-card:hover {
+      filter: brightness(0.95);
+    }
+  </style>
+
+  <!-- Background -->
+  <rect width="1200" height="1500" fill="#FFFFFF"/>
+
+  <!-- 첫 번째 SVG 내용 -->
+  <g transform="translate(80, 60)">
+    <text x="0" y="0" font-size="32" font-weight="bold" fill="#111827">
+      <tspan x="0" dy="1.2em">미래 교육의 핵심,</tspan>
+      <tspan x="0" dy="1.2em" fill="#FF6B6B">토론으로 시작하세요</tspan>
+    </text>
+    <text x="0" y="140" font-size="20" fill="#4B5563">세계는 이미 토론 중심 교육으로</text>
+    <text x="0" y="170" font-size="20" fill="#4B5563">변화하고 있습니다</text>
+  </g>
+
+  <!-- 뉴스 섹션 -->
+  <g transform="translate(80, 220)">
+    <rect width="480" height="300" rx="16" fill="#F6F6F6" stroke="#CACACA" stroke-width="2"/>
+    <text x="40" y="50" font-size="24" font-weight="bold" fill="#111827">이제 한국의 교육도 변화하고 있습니다</text>
+    <g transform="translate(40, 80)">
+      <rect width="400" height="90" rx="8" fill="#FFFFFF" stroke="#CACACA" stroke-width="1"/>
+      <text x="20" y="35" font-size="18" font-weight="bold" fill="#111827">교육부, 2025년까지 전국 100개교</text>
+      <text x="20" y="60" font-size="18" font-weight="bold" fill="#111827">IB 도입 추진</text>
+      <text x="20" y="80" font-size="14" fill="#6B7280">연합뉴스 2024.01</text>
+    </g>
+  </g>
+
+  <!-- 두 번째 SVG 내용 -->
+  <g transform="translate(80, 600)">
+    <text x="0" y="0" font-size="32" font-weight="bold" fill="#111827">토마톡에서 경험하는 토론 학습</text>
+  </g>
+
+  <!-- AI 토론 연습 -->
+  <g transform="translate(80, 660)">
+    <g class="feature-card">
+      <rect width="520" height="240" rx="16" fill="#F6F6F6" stroke="#CACACA" stroke-width="2"/>
+      <rect x="40" y="40" width="200" height="160" rx="8" fill="#FFFFFF" stroke="#CACACA" stroke-width="1"/>
+      <g transform="translate(280, 40)">
+        <text font-size="24" font-weight="bold" fill="#111827">토론 연습</text>
+        <text y="40" font-size="18" fill="#4B5563">AI 토리와 함께하는</text>
+        <text y="70" font-size="18" fill="#4B5563">1:1 맞춤형 토론 연습</text>
+        <rect y="100" width="200" height="40" rx="20" fill="#FF6B6B"/>
+        <text x="100" y="125" font-size="16" fill="white" text-anchor="middle">연습 시작하기</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- 실전 토론 -->
+  <g transform="translate(80, 920)">
+    <g class="feature-card">
+      <rect width="520" height="240" rx="16" fill="#F6F6F6" stroke="#CACACA" stroke-width="2"/>
+      <rect x="40" y="40" width="200" height="160" rx="8" fill="#FFFFFF" stroke="#CACACA" stroke-width="1"/>
+      <g transform="translate(280, 40)">
+        <text font-size="24" font-weight="bold" fill="#111827">실전 토론</text>
+        <text y="40" font-size="18" fill="#4B5563">다른 사용자들과 함께하는</text>
+        <text y="70" font-size="18" fill="#4B5563">실시간 화상 토론</text>
+        <rect y="100" width="200" height="40" rx="20" fill="#FF6B6B"/>
+        <text x="100" y="125" font-size="16" fill="white" text-anchor="middle">토론 참여하기</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- 진행 중인 토론 -->
+  <g transform="translate(600, 660)">
+    <g class="feature-card">
+      <rect width="520" height="240" rx="16" fill="#F6F6F6" stroke="#CACACA" stroke-width="2"/>
+      <rect x="40" y="40" width="200" height="160" rx="8" fill="#FFFFFF" stroke="#CACACA" stroke-width="1"/>
+      <g transform="translate(280, 40)">
+        <text font-size="24" font-weight="bold" fill="#111827">진행 중인 토론</text>
+        <text y="40" font-size="18" fill="#4B5563">실시간으로 진행되는</text>
+        <text y="70" font-size="18" fill="#4B5563">토론 구경하기</text>
+        <rect y="100" width="200" height="40" rx="20" fill="#FF6B6B"/>
+        <text x="100" y="125" font-size="16" fill="white" text-anchor="middle">구경하기</text>
+      </g>
+    </g>
+  </g>
+</svg>

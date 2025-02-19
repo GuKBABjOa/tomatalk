@@ -12,10 +12,8 @@ SERVER="i12a802.p.ssafy.io"
 # jar 파일 이름 변경
 mv ./build/libs/tolonbgeub-0.0.1-SNAPSHOT.jar ./build/libs/app.jar
 
-ssh -i ${KEY_FILE} ubuntu@${SERVER} "
-sudo rm app.jar
-sudo rm .env
-"
+ssh -i ${KEY_FILE} ubuntu@${SERVER} sudo rm app.jar
+ssh -i ${KEY_FILE} ubuntu@${SERVER} sudo rm .env
 
 # 1. jar 파일 전송
 scp -i ${KEY_FILE} ./build/libs/app.jar ubuntu@${SERVER}:~

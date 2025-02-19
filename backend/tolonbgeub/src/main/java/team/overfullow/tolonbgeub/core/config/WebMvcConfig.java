@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import team.overfullow.tolonbgeub.auth.resolver.AccessTokenResolver;
 
@@ -32,6 +34,19 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
+    }
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        // Vue 라우팅을 위해 특정 경로를 index.html로 전달
+        registry.addViewController("/").setViewName("forward:/index.html");
+        registry.addViewController("/callback/oauth/kakao").setViewName("forward:/index.html");
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/view/**")
+                .addResourceLocations("classpath:/static/index.html");
     }
 
     @Bean
