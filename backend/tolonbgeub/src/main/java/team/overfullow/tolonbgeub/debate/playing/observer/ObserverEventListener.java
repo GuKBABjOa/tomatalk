@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.AbstractSubProtocolEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
@@ -38,6 +39,7 @@ public class ObserverEventListener {
     }
 
     // 사용자가 특정 토픽을 구독할 때 실행
+    @Async
     @EventListener
     public void handleSessionSubscribeEvent(SessionSubscribeEvent event) {
         String debateId = extractDebateId(event);
@@ -49,6 +51,7 @@ public class ObserverEventListener {
     }
 
     // 사용자가 특정 토픽을 구독 해제할 때 실행
+    @Async
     @EventListener
     public void handleSessionUnsubscribeEvent(SessionUnsubscribeEvent event) {
         String debateId = extractDebateId(event);
@@ -59,6 +62,7 @@ public class ObserverEventListener {
         }
     }
 
+    @Async
     @EventListener
     public void handleSessionSessionDisconnectEvent(SessionDisconnectEvent event) {
         String sessionId = extractSessionId(event);

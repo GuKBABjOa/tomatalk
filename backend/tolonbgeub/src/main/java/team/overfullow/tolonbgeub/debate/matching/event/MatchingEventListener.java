@@ -15,6 +15,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 public class MatchingEventListener {
     private final SimpMessagingTemplate messagingTemplate;
 
+    @Async
     @EventListener
     public void handleMatchingQueueUpdate(MatchingQueueUpdateEvent event) {
         log.debug("handle matching queue update event: {}", event);
@@ -44,6 +45,7 @@ public class MatchingEventListener {
         );
     }
 
+    @Async
     @EventListener
     public void handleWebSocketDisconnect(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
