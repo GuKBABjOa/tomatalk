@@ -19,6 +19,7 @@ public class ExceptionController {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ErrorResponse> handleCustomException(CustomException e) {
+        log.error(e.getMessage());
         return ResponseEntity
                 .status(e.status)
                 .body(ErrorResponse.builder()
@@ -33,7 +34,7 @@ public class ExceptionController {
             MissingRequestCookieException.class
     })
     public ResponseEntity<ErrorResponse> handleBadRequest(Exception e) {
-        log.debug("bad request handle : {}",e.getMessage());
+        log.error("bad request handle : {}",e.getMessage());
         if (e instanceof BindException be) {
             FieldError error = requireNonNull(be.getFieldError(), "FiledError can not be null");
             return ResponseEntity.status(BAD_REQUEST)
