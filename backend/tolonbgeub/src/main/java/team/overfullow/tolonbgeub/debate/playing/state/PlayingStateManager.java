@@ -25,7 +25,7 @@ public class PlayingStateManager {
     private final DebateService debateService;
 
     public Optional<PlayingStateResponse> join(Long debateId, Long userId) {
-        PlayingState state = states.computeIfAbsent(debateId, k -> init(debateId)); //todo init과 중복 코드 제거
+        PlayingState state =getPlayingState(debateId);
         boolean participated = state.participate(userId);
         if (participated) {
             log.debug("join user {}", userId);
@@ -80,7 +80,7 @@ public class PlayingStateManager {
 
     private PlayingState getPlayingState(Long debateId) {
         return states.computeIfAbsent(debateId, (k) -> {
-            throw new PlayingException(HttpStatus.NOT_FOUND, "진행중이지 않은 토론 id");
+            throw new PlayingException(HttpStatus.NOT_FOUND, "Playing Exception: 진행중이지 않은 토론 id, "+debateId);
         });
     }
 
@@ -108,5 +108,9 @@ public class PlayingStateManager {
 
     public boolean isLatestSequence(Long debateId, PlayingStateResponse currentState) {
         return getPlayingState(debateId).checkSequence(currentState.sequence());
+    }
+
+    public int getActiveParticipantCount(Long debateId) {
+        return (int)getPlayingState(debateId).getParticipants().stream().filter(PlayingUser::isParticipant).count();
     }
 }

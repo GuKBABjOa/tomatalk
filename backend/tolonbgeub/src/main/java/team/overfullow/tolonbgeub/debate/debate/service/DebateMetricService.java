@@ -1,17 +1,19 @@
 package team.overfullow.tolonbgeub.debate.debate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import team.overfullow.tolonbgeub.debate.playing.observer.DebateObserverManager;
 
 @Component
-@Deprecated
+@RequiredArgsConstructor
 public class DebateMetricService {
-    //todo PlayingService 사용
-    public Integer getEstimatedTimeMinute(Long id) {
+    private final DebateObserverManager debateObserverManager;
 
-        return null;
+    public Integer getEstimatedTimeMinute(Long debateId) {
+        return 45;
     }
 
-    public Integer getSpectatorsCount(Long id) {
-        return null;
+    public Integer getSpectatorsCount(Long debateId) {
+        return debateObserverManager.getObserverCount(debateId.toString());
     }
 }

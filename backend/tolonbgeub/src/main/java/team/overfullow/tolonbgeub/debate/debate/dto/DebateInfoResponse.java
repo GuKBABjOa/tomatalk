@@ -10,10 +10,10 @@ public record DebateInfoResponse(
         String category,
         String subject,                 // 논제
         DebateStatus status,            // 상태
-        Integer startedAtHour,          // 시작 시간,
-        Integer startedAtMinute,        // 시작 시간,
+        Integer startedAtHour,          // 시작 hour,
+        Integer startedAtMinute,        // 시작 minute,
         Integer estimatedTimeMinute,    // 예상 소요 시간(분)
-        Integer spectatorsCount,         // 관전자 수
+        int spectatorsCount,         // 관전자 수
         LocalDateTime createdAt,
         LocalDateTime lastModifiedAt
 ){

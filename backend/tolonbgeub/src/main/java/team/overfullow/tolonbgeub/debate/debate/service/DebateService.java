@@ -3,6 +3,7 @@ package team.overfullow.tolonbgeub.debate.debate.service;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.overfullow.tolonbgeub.core.util.IdGenerator;
@@ -79,7 +80,7 @@ public class DebateService {
         return queryService.getUsersByDebateId(debateId);
     }
 
-    public CursorResponse<DebateInfoResponse> search(CursorRequest cursorRequest, SortBy sortBy, Set<Category> categories, DebateStatus status, String keyword) {
+    public Page<DebateInfoResponse> search(CursorRequest cursorRequest, SortBy sortBy, Set<Category> categories, DebateStatus status, String keyword) {
         return queryService.search(cursorRequest, sortBy, categories, status, keyword);
     }
 

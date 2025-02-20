@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +37,6 @@ import java.util.Set;
 public class DebateQueryService {
 
     private final DebateRepository debateRepository;
-    private final DebateMetricService debateMetricService;
     private final OpenViduHandler openViduHandler;
 
     private static final String IMAGE_URL = "%s/api/users/%s/image"; // todo refactor 유저 프로필 이미지 처리
@@ -48,7 +49,7 @@ public class DebateQueryService {
         return toDebateRoomResponse(requestUserId, debate);
     }
 
-    public CursorResponse<DebateInfoResponse> search(
+    public Page<DebateInfoResponse> search(
             CursorRequest cursorRequest,
             SortBy sortBy,
             Set<Category> categories,
@@ -56,7 +57,7 @@ public class DebateQueryService {
             String keyword
     ){
         Page<Debate> page = debateRepository.searchByCursor(cursorRequest, sortBy, categories, status, keyword);
-        return toCursorResponse(page, cursorRequest);
+        return page.map(this::toDebateInfoResponse);
     }
 
     public List<DebateUserResponse> getUsersByDebateId(Long debateId) {
@@ -98,21 +99,6 @@ public class DebateQueryService {
                 .build();
     }
 
-    private CursorResponse<DebateInfoResponse> toCursorResponse(
-            Page<Debate> page,
-            CursorRequest cursorRequest
-    ) {
-        List<DebateInfoResponse> content = page.getContent().stream()
-                .map(this::toDebateInfoResponse)
-                .toList();
-        return CursorResponse.<DebateInfoResponse>builder()
-                .content(content)
-                .size(content.size())
-                .first(cursorRequest.cursor() == null)
-                .last(!page.hasNext())
-                .build();
-    }
-
     private DebateInfoResponse toDebateInfoResponse(Debate debate) {
         LocalDateTime createdAt = debate.getCreatedAt();
         return DebateInfoResponse.builder()
@@ -122,8 +108,6 @@ public class DebateQueryService {
                 .status(debate.getStatus())
                 .startedAtHour(createdAt.getHour()) // WAITING->STARTED 로 상태 바뀔 때,별도로 계산하는 게 좋을 거 같음
                 .startedAtMinute(createdAt.getMinute())
-                .estimatedTimeMinute(debateMetricService.getEstimatedTimeMinute(debate.getId()))
-                .spectatorsCount(debateMetricService.getSpectatorsCount(debate.getId()))
                 .createdAt(debate.getCreatedAt())
                 .lastModifiedAt(debate.getLastModifiedAt())
                 .build();
