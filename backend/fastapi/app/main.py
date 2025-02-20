@@ -5,6 +5,9 @@ from ai import ai_router
 from transcripts import transcripts_router
 from reports import report_router
 from practice import practice_router
+import ssl
+import uvicorn
+import os
 
 
 app = FastAPI()
@@ -18,11 +21,11 @@ app.add_middleware(
     allow_headers=["*"],  # 허용할 HTTPS 헤더
 )
 
-app.include_router(ai_router.router, prefix="/api/ai", tags=["ai"])
-app.include_router(audio_router.router, prefix="/api/audio", tags=["audio"])
-app.include_router(transcripts_router.router, prefix="/api/transcripts", tags=["transcripts"])
-app.include_router(practice_router.router, prefix="/api/practice", tags=["practice"])
-app.include_router(report_router.router, prefix="/api/report", tags=["report"])
+app.include_router(ai_router.router, prefix="python/api/ai", tags=["ai"])
+app.include_router(audio_router.router, prefix="python/api/audio", tags=["audio"])
+app.include_router(transcripts_router.router, prefix="python/api/transcripts", tags=["transcripts"])
+app.include_router(practice_router.router, prefix="python/api/practice", tags=["practice"])
+app.include_router(report_router.router, prefix="python/api/report", tags=["report"])
 
 
 

@@ -193,7 +193,7 @@ async def get_statement(
         result = await db.execute(query)
         print("조회 성공 ")
         statement_obj = result.scalars().all()
-        return [statement.nickname + "(" + statement.position + "): " + statement.statement for statement in statement_obj] if statement_obj else []
+        return [statement.nickname + "(" + str(statement.user_id) +","+ statement.position + "): " + statement.statement for statement in statement_obj] if statement_obj else []
     except Exception as e:
         print(f"❌ Statement 조회 오류: {e}")
         raise e

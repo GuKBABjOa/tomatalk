@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from practice.schemas.schemas import PracticeRequest, GetPracticeRequest, BasicPracticeRequest, BasicPracticeResponse
-from practice.utils.pratice import practice_check, search_practice, get_basic_practice_result
+from practice.utils.pratice import practice_check, search_practice, get_basic_practice_result, post_practice_progress
 from database import get_async_db
 
 router = APIRouter()
@@ -39,3 +39,17 @@ async def get_practice(
         db = db,
         topic = request.topic,
         user_id= request.user_id)
+
+@router.post("/progress")
+async def post_practice(
+    user_id: int, 
+    problem_id: int, 
+    db: AsyncSession = Depends(get_async_db),
+    ):
+    """
+    문제 풀이 진행 결과를 저장 
+    """
+    return await post_practice_progress(
+        db = db,
+        user_id= user_id,
+        problem_id = problem_id)

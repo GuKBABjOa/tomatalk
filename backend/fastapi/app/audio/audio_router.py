@@ -21,6 +21,11 @@ async def websocket_endpoint(websocket: WebSocket, db: AsyncSession = Depends(ge
     Returns:
         웹 소켓을 통해 변환된 텍스트 데이터를 전송
     """
+    query_params = websocket.query_params
+    topic_id = int(query_params.get("topic_id"))
+    stance = query_params.get("stance")
+    step = int(query_params.get("step"))
+    user_id = int(query_params.get("user_id"))
     await audio_transcription(websocket, db)
 
 # ✅ 기초 연습 함수 

@@ -20,11 +20,7 @@
         <div class="card-icon">💪</div>
         <div class="card-content">
           <h3>강점 분석</h3>
-          <p>
-            학생은 교복 자율화가 학생들의 개성을 존중하고 자기표현의 자유를
-            보장하는 긍정적인 변화라는 주장을 명확하게 제시했습니다. 또한, 유럽
-            일부 국가의 사례를 통해 주장을 뒷받침하고 있습니다.
-          </p>
+          <p>{{ analysis.strengths || "분석된 강점이 없습니다." }}</p>
         </div>
       </div>
 
@@ -33,11 +29,7 @@
         <div class="card-icon">🔍</div>
         <div class="card-content">
           <h3>보완할 점</h3>
-          <p>
-            유럽 일부 국가의 사례를 언급했지만, 구체적인 국가나 학교 이름을
-            제시하면 더 설득력이 있을 것입니다. 또한, 학업 분위기가 유지된다는
-            점을 구체적으로 설명하면 좋겠습니다.
-          </p>
+          <p>{{ analysis.improvements || "분석된 보완할 점이 없습니다." }}</p>
         </div>
       </div>
 
@@ -46,12 +38,7 @@
         <div class="card-icon">🚀</div>
         <div class="card-content">
           <h3>효과적인 토론 전략</h3>
-          <p>
-            반대 입장에서 제기될 수 있는 경제적 차이에 대한 우려를 해결하기 위해
-            기본적인 복장 가이드라인을 설정하는 방안을 제시한 점은 좋습니다.
-            이와 더불어, 이러한 가이드라인이 실제로 어떻게 운영될 수 있는지
-            구체적인 예시를 추가하면 주장을 더욱 강화할 수 있습니다.
-          </p>
+          <p>{{ analysis.strategy || "분석된 전략이 없습니다." }}</p>
         </div>
       </div>
     </section>
@@ -59,6 +46,21 @@
 </template>
 
 <script setup lang="ts">
+import { defineProps } from "vue";
+
+// ✅ 부모 컴포넌트에서 `analysis` props를 받아 사용
+defineProps({
+  analysis: {
+    type: Object,
+    required: true,
+    default: () => ({
+      strengths: "",
+      improvements: "",
+      strategy: "",
+    }),
+  },
+});
+
 const getImageUrl = (filename: string): string => {
   return new URL(`../assets/${filename}`, import.meta.url).href;
 };

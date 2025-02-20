@@ -8,7 +8,7 @@ class Report(Base):
     id = Column(BigInteger, primary_key=True, autoincrement=True)  # 고유 ID
     debate_id = Column(String(255), nullable=False)  # 토론 ROOM ID
     user_id = Column(BigInteger, nullable=False)  # 사용자 ID (큰 숫자 지원)
-    total = Column(Integer, nullable=False),
+    total = Column(Integer, nullable=False)
     total_explanation = Column(Text, nullable=False)
     reasoning = Column(Integer, nullable=False)
     reasoning_explanation = Column(Text, nullable=False)
