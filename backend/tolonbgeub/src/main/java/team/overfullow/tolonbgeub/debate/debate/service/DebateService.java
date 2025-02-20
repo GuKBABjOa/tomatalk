@@ -51,7 +51,7 @@ public class DebateService {
             Long target = userIds.get(i);
             debateUsers.add(DebateUser.builder()
                     .id(idGenerator.generate())
-                    .user(users.stream().findFirst().filter(u -> u.getId().equals(target)).orElse(null))
+                    .user(users.stream().filter(u -> u.getId().equals(target)).findFirst().orElse(null)) // todo check
                     .position(positions[i])
                     .positionOrder(i % 2 + 1) // 1,2,1,2 기본 룰 값
                     .speechOrder(i + 1) // 1,2,3,4 기분 룰 값
