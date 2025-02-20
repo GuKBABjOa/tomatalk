@@ -5,6 +5,7 @@ from sentence_transformers import SentenceTransformer
 from ai.utils.report import generate_chat_response
 from transcripts.repository.repository import get_statement
 from sqlalchemy.ext.asyncio import AsyncSession
+from reports.repository.repository import save_report
 
 # Load the multilingual SentenceTransformer model
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
@@ -20,7 +21,8 @@ file_names = ['../documents/debatabase\\Economy_global_free_trade.txt', '../docu
 
 async def evaluate_statement(
     db: AsyncSession,
-    debate_id: str
+    debate_id: str,
+    user_id: int
     ) -> str:
 
     """
@@ -47,7 +49,7 @@ async def evaluate_statement(
     for idx in indices[0]:
         if idx != -1 and idx < len(file_names):  # Check that index is valid
             similar_statements.append(file_names[idx])  # Get the filenames of similar statements
-    
+                                                                    
     # If no similar statements found, provide a message indicating this
     if not similar_statements:
         return "No similar statements found."
@@ -56,7 +58,22 @@ async def evaluate_statement(
     similar_text = "\n".join([f"- {stmt}" for stmt in similar_statements])
     print("유사 텍스트:"+similar_text)
     # Call the new ChatCompletion API interface (v1.0.0+)
-    json_response = await generate_chat_response(statement, similar_text)
-    response = json.loads(json_response)
+    temp_response = await generate_chat_response(user_id, statement, similar_text)
+    response = temp_response.split("/")
+    await save_report(
+        db=db,
+        debate_id=debate_id,
+        user_id=user_id,
+        total=response[0],
+        total_explanation=response[1],
+        reasoning=response[2],
+        reasoning_explanation=response[3],
+        expression=response[4],
+        expression_explanation=response[5],
+        strategy=response[6],
+        strategy_explanation=response[7],
+        interaction= response[8],
+        interaction_explanation=response[9]
+        )
     return response
 

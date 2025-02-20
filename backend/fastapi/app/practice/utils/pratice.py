@@ -101,3 +101,14 @@ async def get_basic_practice_result(
             improvement="Error occurred while processing response.",
             strategy="Error occurred while processing response."
         )
+    
+
+async def post_practice_progress(
+        db: AsyncSession,
+        user_id: int,
+        problem_id: int
+        ):
+    """
+    문제풀이 결과를 저장 
+    """
+    return None
