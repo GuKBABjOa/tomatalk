@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
         if(optionalUser.isPresent()) {
             throw new UserException(HttpStatus.CONFLICT, "이미 존재하는 회원 이메일입니다.");
         } else if(StringUtils.isBlank(request.nickname())){
-            userBuilder.nickname(UUID.randomUUID().toString()); // UUID로 랜덤 별명 지정
+            userBuilder.nickname(request.email()); // 초기 닉네임 이메일로 지정
         } else if (checkNickname(request.nickname())) {
             throw new UserException(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다.");
         }
