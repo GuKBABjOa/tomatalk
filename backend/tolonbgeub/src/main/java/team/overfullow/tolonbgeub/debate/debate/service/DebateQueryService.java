@@ -86,7 +86,7 @@ public class DebateQueryService {
     private DebateUserDto toDebateUserResponse(DebateUser du) {
         User user = du.getUser();
         return DebateUserDto.builder()
-                .userId(user.getId().toString())
+                .userId(user.getId().toString()) // todo 매칭 후 nullpointerex 발생
                 .nickname(user.getNickname())
                 .profileImageUrl((user.getProfileImage() != null) ?
                         String.format(IMAGE_URL, imageBaseUrl, user.getId())

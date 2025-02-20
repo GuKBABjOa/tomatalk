@@ -18,7 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @ThreadSafe
 public class PlayingState {
     private static final int waitingTimeSeconds = 5;
-    private static final int speechingTimeSeconds = 10; // todo 테스트를 위해 짧게 설정
+    private static final int speechingTimeSeconds = 30; // todo 테스트를 위해 짧게 설정
     private static final int preparingTimeSeconds = 15; // todo 테스트를 위해 짧게 설정
 
 

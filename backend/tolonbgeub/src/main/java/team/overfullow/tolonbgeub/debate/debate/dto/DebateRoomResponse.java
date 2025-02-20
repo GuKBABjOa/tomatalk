@@ -21,8 +21,8 @@ public record DebateRoomResponse(
         return DebateRoomResponse.builder()
                 .openviduToken(dto.openviduToken())
                 .debateId(dto.debateId())
-                .category(dto.debateId())
-                .subject(dto.debateId())
+                .category(dto.category())
+                .subject(dto.subject())
                 .participant(dto.participant())
                 .users(users)
                 .build();

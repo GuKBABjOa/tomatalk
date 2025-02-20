@@ -6,7 +6,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 import team.overfullow.tolonbgeub.debate.Category;
+import team.overfullow.tolonbgeub.debate.debate.repository.DebateRepository;
 import team.overfullow.tolonbgeub.debate.debate.service.DebateService;
+import team.overfullow.tolonbgeub.debate.playing.PlayingService;
 import team.overfullow.tolonbgeub.report.ReportEntity;
 import team.overfullow.tolonbgeub.report.ReportRepository;
 import team.overfullow.tolonbgeub.report.ReportUser;
@@ -28,11 +30,21 @@ public class DataInitializer {
     private final DebateService debateService;
     private final ReportRepository reportRepository;
     private final UserRepository userRepository;
+    private final PlayingService playingService;
+    private final DebateRepository debateRepository;
 
 //    @Bean
 //    public ApplicationRunner dataLoader() {
 //        return args -> initializeData();
+//        return args -> fortest();
 //    }
+
+    @Transactional
+    public void fortest() {
+        debateRepository.findAll().forEach(debate -> {
+            playingService.forceInit(debate.getId());
+        });
+    }
 
     public void initializeData() {
         List<Long> userIds = new ArrayList<>();

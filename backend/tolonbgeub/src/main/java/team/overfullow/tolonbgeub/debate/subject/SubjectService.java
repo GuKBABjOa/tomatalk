@@ -44,8 +44,8 @@ public class SubjectService {
                 Subject.builder()
                         .id(idGenerator.generate())
                         .category(category)
-                        .subject("카테고리에 해당하는 랜덤 주제")
-                        .description("주제에 대한 추가적인 설명")
+                        .subject("행복은 통상적으로 돈에 비례한다.")
+                        .description("")
                         .build());
     }
 
