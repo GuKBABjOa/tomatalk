@@ -29,12 +29,11 @@ public class DataInitializer {
     private final ReportRepository reportRepository;
     private final UserRepository userRepository;
 
-    @Bean
-    public ApplicationRunner dataLoader() {
-        return args -> initializeData();
-    }
+//    @Bean
+//    public ApplicationRunner dataLoader() {
+//        return args -> initializeData();
+//    }
 
-    @Transactional
     public void initializeData() {
         List<Long> userIds = new ArrayList<>();
         for (int i = 0; i < 100; i++) {

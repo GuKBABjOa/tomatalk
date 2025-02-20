@@ -43,7 +43,7 @@ public class PlayingState {
     private boolean interrupted; // 끼어들기(POI) 중인지?
     private Long interruptSpeakerId; // 끼어들기(POI) 발언자
     private Instant interruptEndTime;//끼어들기(POI) 발언 종료 시각
-    private Set<PlayingUser> participants = new CopyOnWriteArraySet<>(); // 토론 참여자 리스트
+    private final Set<PlayingUser> participants = new CopyOnWriteArraySet<>(); // 토론 참여자 리스트
 
     public static PlayingState init(Long debateId, List<PlayingUser> participants) {
         PlayingState playingState = PlayingState.builder()
@@ -110,7 +110,6 @@ public class PlayingState {
                 return false;
             }
             this.status = PlayingStatus.STARTED;
-            this.nextSpeakerId = findFirstSpeaker().getUserId();
             this.currentSpeakEndTime = Instant.now().plusSeconds(waitingTimeSeconds);
             sequence.getAndIncrement();
             return true;
@@ -173,14 +172,14 @@ public class PlayingState {
 //                setState(currentSpeakerId, nextSpeakerId, speechingTimeSeconds);
 //            }
             case STARTED ->{
-                Long currentSpeakerId = this.currentSpeakerId;
-                Long nextSpeakerId = this.nextSpeakerId;
+//                Long currentSpeakerId = this.currentSpeakerId;
+//                Long nextSpeakerId = this.nextSpeakerId;
                 setDefaultState(PlayingStatus.PREPARING);
                 setState(currentSpeakerId, nextSpeakerId, preparingTimeSeconds);
             }
             case PREPARING -> {
-                Long currentSpeakerId = this.currentSpeakerId;
-                Long nextSpeakerId = this.nextSpeakerId;
+                Long currentSpeakerId = findFirstSpeaker().getUserId();
+                Long nextSpeakerId = findNextSpeakerId(currentSpeakerId);
                 setDefaultState(PlayingStatus.WAITING);
                 setState(currentSpeakerId, nextSpeakerId, waitingTimeSeconds);
             }
@@ -194,7 +193,7 @@ public class PlayingState {
                 if(turnCounter++ < maxTurnCount) {
                     log.debug("Debate {}: turn {} update state", debateId, turnCounter);
                     Long currentSpeakerId = this.nextSpeakerId;
-                    Long nextSpeakerId = findNextSpeakerId(currentSpeakerId);
+                    Long nextSpeakerId = this.findNextSpeakerId(currentSpeakerId);
                     setDefaultState(PlayingStatus.WAITING);
                     setState(currentSpeakerId, nextSpeakerId, waitingTimeSeconds);
                 }else{

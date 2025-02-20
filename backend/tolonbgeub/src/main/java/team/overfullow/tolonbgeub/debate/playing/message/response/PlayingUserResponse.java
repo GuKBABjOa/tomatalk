@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import team.overfullow.tolonbgeub.debate.playing.state.PlayingUser;
 
+import static java.util.Objects.isNull;
+
 @Data
 @NoArgsConstructor
 public class PlayingUserResponse {
@@ -31,7 +33,7 @@ public class PlayingUserResponse {
         return PlayingUserResponse.builder()
                 .position(user.getPosition())
                 .userId(user.getUserId().toString())
-                .connectionId(user.getConnection().getConnectionId())
+                .connectionId(isNull(user.getConnection())?null:user.getConnection().getConnectionId())
                 .nickname(user.getNickname())
                 .profileImageUrl(user.getProfileImageUrl())
                 .order(user.getPositionOrder())
