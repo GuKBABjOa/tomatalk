@@ -2,6 +2,7 @@ package team.overfullow.tolonbgeub.debate.debate.repository;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -14,6 +15,7 @@ import team.overfullow.tolonbgeub.core.dto.SortBy;
 import team.overfullow.tolonbgeub.debate.Category;
 import team.overfullow.tolonbgeub.debate.debate.domain.Debate;
 import team.overfullow.tolonbgeub.debate.debate.domain.DebateStatus;
+import team.overfullow.tolonbgeub.debate.debate.dto.CategoryDebateCount;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,6 +28,21 @@ import static team.overfullow.tolonbgeub.debate.debate.domain.QDebate.debate;
 @RequiredArgsConstructor
 public class DebateQueryRepositoryImpl implements DebateQueryRepository {
     private final JPAQueryFactory queryFactory;
+
+    /**
+     * 각 Category별 진행중인(IN_PROGRESS) 토론방 개수를 조회합니다.
+     * @return Category별 토론방 개수가 담긴 DTO 리스트
+     */
+    public List<CategoryDebateCount> countInProgressDebatesByCategory() {
+        return queryFactory
+                .select(Projections.constructor(CategoryDebateCount.class,
+                        debate.category,
+                        debate.count()))
+                .from(debate)
+                .where(debate.status.eq(DebateStatus.IN_PROGRESS))
+                .groupBy(debate.category)
+                .fetch();
+    }
 
     @Override
     public Page<Debate> searchByCursor(

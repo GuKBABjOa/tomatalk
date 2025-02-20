@@ -18,6 +18,7 @@ import team.overfullow.tolonbgeub.core.dto.CursorResponse;
 import team.overfullow.tolonbgeub.core.dto.SortBy;
 import team.overfullow.tolonbgeub.debate.Category;
 import team.overfullow.tolonbgeub.debate.debate.domain.DebateStatus;
+import team.overfullow.tolonbgeub.debate.debate.dto.CategoryDebateCount;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateInfoResponse;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomResponse;
 import team.overfullow.tolonbgeub.debate.debate.service.DebateMetricService;
@@ -60,6 +61,11 @@ public class DebateController {
         log.debug("진행중인 토론 조회: request = {}, sortBy = {}, status = {}, categories = {}, keyword = {}", request, sortBy, status, categories, keyword);
         Page<DebateInfoResponse> page = debateService.search(request, sortBy, categories, status, keyword);
         return ResponseEntity.ok(toCursorResponse(page, request));
+    }
+
+    @GetMapping("/api/debates/aggregates/category")
+    public ResponseEntity<List<CategoryDebateCount>> getCategoryDebateCount() {
+        return ResponseEntity.ok(debateService.countInProgressDebatesByCategory());
     }
 
     private CursorResponse<DebateInfoResponse> toCursorResponse(

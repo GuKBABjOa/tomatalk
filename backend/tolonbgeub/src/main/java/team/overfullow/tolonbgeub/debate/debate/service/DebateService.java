@@ -14,6 +14,7 @@ import team.overfullow.tolonbgeub.debate.Category;
 import team.overfullow.tolonbgeub.debate.debate.domain.Debate;
 import team.overfullow.tolonbgeub.debate.debate.domain.DebateStatus;
 import team.overfullow.tolonbgeub.debate.debate.domain.DebateUser;
+import team.overfullow.tolonbgeub.debate.debate.dto.CategoryDebateCount;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateInfoResponse;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomResponse;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateUserResponse;
@@ -92,5 +93,9 @@ public class DebateService {
                 .sorted(Comparator.comparing(Debate::getCreatedAt).reversed())
                 .map(d -> d.getId())
                 .findFirst().get();
+    }
+
+    public List<CategoryDebateCount> countInProgressDebatesByCategory(){
+        return debateRepository.countInProgressDebatesByCategory();
     }
 }
