@@ -18,6 +18,7 @@ import team.overfullow.tolonbgeub.debate.debate.DebateException;
 import team.overfullow.tolonbgeub.debate.debate.domain.Debate;
 import team.overfullow.tolonbgeub.debate.debate.domain.DebateStatus;
 import team.overfullow.tolonbgeub.debate.debate.domain.DebateUser;
+import team.overfullow.tolonbgeub.debate.debate.dto.CategoryDebateCount;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateInfoResponse;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomResponse;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateUserResponse;
@@ -111,5 +112,9 @@ public class DebateQueryService {
                 .createdAt(debate.getCreatedAt())
                 .lastModifiedAt(debate.getLastModifiedAt())
                 .build();
+    }
+
+    public List<CategoryDebateCount> countInProgressDebatesByCategory(){
+        return debateRepository.countInProgressDebatesByCategory();
     }
 }

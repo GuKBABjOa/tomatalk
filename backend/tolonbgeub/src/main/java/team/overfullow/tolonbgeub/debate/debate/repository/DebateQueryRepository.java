@@ -6,10 +6,15 @@ import team.overfullow.tolonbgeub.core.dto.SortBy;
 import team.overfullow.tolonbgeub.debate.Category;
 import team.overfullow.tolonbgeub.debate.debate.domain.Debate;
 import team.overfullow.tolonbgeub.debate.debate.domain.DebateStatus;
+import team.overfullow.tolonbgeub.debate.debate.dto.CategoryDebateCount;
 
+import java.util.List;
 import java.util.Set;
 
 public interface DebateQueryRepository {
+
+    List<CategoryDebateCount> countInProgressDebatesByCategory();
+
     /**
      * 토론 목록을 커서 기반으로 조회합니다.
      *
@@ -27,4 +32,6 @@ public interface DebateQueryRepository {
             DebateStatus status,
             String keyword
     );
+
+
 }
