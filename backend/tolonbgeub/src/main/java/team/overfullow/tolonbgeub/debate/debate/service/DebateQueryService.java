@@ -5,13 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.overfullow.tolonbgeub.core.dto.CursorRequest;
-import team.overfullow.tolonbgeub.core.dto.CursorResponse;
 import team.overfullow.tolonbgeub.core.dto.SortBy;
 import team.overfullow.tolonbgeub.debate.Category;
 import team.overfullow.tolonbgeub.debate.debate.DebateException;
@@ -20,8 +17,8 @@ import team.overfullow.tolonbgeub.debate.debate.domain.DebateStatus;
 import team.overfullow.tolonbgeub.debate.debate.domain.DebateUser;
 import team.overfullow.tolonbgeub.debate.debate.dto.CategoryDebateCount;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateInfoResponse;
-import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomResponse;
-import team.overfullow.tolonbgeub.debate.debate.dto.DebateUserResponse;
+import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomDto;
+import team.overfullow.tolonbgeub.debate.debate.dto.DebateUserDto;
 import team.overfullow.tolonbgeub.debate.debate.repository.DebateRepository;
 import team.overfullow.tolonbgeub.user.User;
 import team.overfullow.tolonbgeub.webrtc.OpenViduHandler;
@@ -44,7 +41,7 @@ public class DebateQueryService {
     @Value("${app.image.base-url}")
     private String imageBaseUrl;
 
-    public DebateRoomResponse getRoomById(Long id, @Nullable Long requestUserId) {
+    public DebateRoomDto getRoomById(Long id, @Nullable Long requestUserId) {
         Debate debate = debateRepository.findById(id)
                 .orElseThrow(() -> new DebateException(HttpStatus.NOT_FOUND,"id에 해당하는 토론을 찾을 수 없습니다."));
         return toDebateRoomResponse(requestUserId, debate);
@@ -61,7 +58,7 @@ public class DebateQueryService {
         return page.map(this::toDebateInfoResponse);
     }
 
-    public List<DebateUserResponse> getUsersByDebateId(Long debateId) {
+    public List<DebateUserDto> getUsersByDebateId(Long debateId) {
         return getById(debateId).getDebateUsers().stream()
                 .map(this::toDebateUserResponse)
                 .toList();
@@ -71,8 +68,8 @@ public class DebateQueryService {
         return debateRepository.findById(id).orElseThrow(() -> new DebateException(HttpStatus.NOT_FOUND));
     }
 
-    private DebateRoomResponse toDebateRoomResponse(Long requestUserId, Debate debate) {
-        return DebateRoomResponse.builder()
+    private DebateRoomDto toDebateRoomResponse(Long requestUserId, Debate debate) {
+        return DebateRoomDto.builder()
                 .openviduToken(openViduHandler.createConnection(debate.getId().toString()).getToken())
                 .debateId(debate.getId().toString())
                 .category(debate.getCategory().name())
@@ -86,9 +83,9 @@ public class DebateQueryService {
                 .build();
     }
 
-    private DebateUserResponse toDebateUserResponse(DebateUser du) {
+    private DebateUserDto toDebateUserResponse(DebateUser du) {
         User user = du.getUser();
-        return DebateUserResponse.builder()
+        return DebateUserDto.builder()
                 .userId(user.getId().toString())
                 .nickname(user.getNickname())
                 .profileImageUrl((user.getProfileImage() != null) ?

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import team.overfullow.tolonbgeub.debate.debate.dto.DebateUserResponse;
+import team.overfullow.tolonbgeub.debate.debate.dto.DebateUserDto;
 import team.overfullow.tolonbgeub.debate.debate.service.DebateService;
 import team.overfullow.tolonbgeub.debate.playing.PlayingException;
 import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingStateResponse;
@@ -35,20 +35,22 @@ public class PlayingStateManager {
     }
 
     public synchronized PlayingState init(Long debateId) {
-        List<DebateUserResponse> users = debateService.getRoomById(debateId, null).users();
-        var playingUsers = users.stream()
-                .map(u ->
-                        PlayingUser.builder()
-                                .userId(Long.parseLong(u.userId()))
-                                .nickname(u.nickname())
-                                .position(u.position())
-                                .profileImageUrl(u.profileImageUrl())
-                                .positionOrder(u.positionOrder())
-                                .speechOrder(u.speechOrder())
-                                .participant(false)
-                                .build())
-                .toList();
-        return states.computeIfAbsent(debateId, k -> PlayingState.init(k, playingUsers));
+        return states.computeIfAbsent(debateId, k -> {
+            List<DebateUserDto> users = debateService.getRoomById(debateId, null).users();
+            var playingUsers = users.stream()
+                    .map(u ->
+                            PlayingUser.builder()
+                                    .userId(Long.parseLong(u.userId()))
+                                    .nickname(u.nickname())
+                                    .position(u.position())
+                                    .profileImageUrl(u.profileImageUrl())
+                                    .positionOrder(u.positionOrder())
+                                    .speechOrder(u.speechOrder())
+                                    .participant(false)
+                                    .build())
+                    .toList();
+            return PlayingState.init(k, playingUsers);
+        });
     }
 
     public Optional<PlayingStateResponse> start(Long debateId) {
@@ -83,6 +85,11 @@ public class PlayingStateManager {
             throw new PlayingException(HttpStatus.NOT_FOUND, "Playing Exception: 진행중이지 않은 토론 id, "+debateId);
         });
     }
+
+    public PlayingStateResponse getStateUpdateResponse(Long debateId){
+        return toStateUpdate(getPlayingState(debateId));
+    }
+
 
     private static PlayingStateResponse toStateUpdate(PlayingState state) {
         return PlayingStateResponse.builder()

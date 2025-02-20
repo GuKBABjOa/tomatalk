@@ -9,8 +9,11 @@ import team.overfullow.tolonbgeub.debate.playing.event.StateUpdateEvent;
 import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessage;
 import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessageType;
 import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingStateResponse;
+import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingUserResponse;
 import team.overfullow.tolonbgeub.debate.playing.state.PlayingStateManager;
 import team.overfullow.tolonbgeub.debate.playing.state.PlayingStatus;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -74,6 +77,14 @@ public class PlayingService {
                         .payload(playingStateResponse)
                         .build())
                 .build();
+    }
+
+    public List<PlayingUserResponse> getPlayingUsers(Long debateId){
+        return stateManager.getStateUpdateResponse(debateId).participants();
+    }
+
+    public void forceInit(Long debateId){
+        stateManager.init(debateId);
     }
 
 //    public CompletableFuture<Void> handleInterrupt(String debateId, InterruptRequest payload) {

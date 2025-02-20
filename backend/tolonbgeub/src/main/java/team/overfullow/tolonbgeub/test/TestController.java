@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import team.overfullow.tolonbgeub.core.util.PreciseInstantScheduler;
 import team.overfullow.tolonbgeub.debate.Category;
-import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomResponse;
+import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomDto;
 import team.overfullow.tolonbgeub.debate.debate.service.DebateService;
 import team.overfullow.tolonbgeub.debate.matching.MatchingException;
 import team.overfullow.tolonbgeub.debate.matching.MatchingService;
@@ -66,7 +66,7 @@ public class TestController {
     public ResponseEntity<String> debateScenario(@PathVariable Long debateId,
                                                  @RequestParam String requestUserId) {
         log.debug("test debate.join debateId: {}, requestUserId = {}", debateId,requestUserId);
-        DebateRoomResponse roomResponse = debateService.getRoomById(debateId, null);
+        DebateRoomDto roomResponse = debateService.getRoomById(debateId, null);
         roomResponse.users().stream().filter(u -> !u.userId().equals(requestUserId)).forEach(u->{
             try {
                 Thread.sleep(1000);
@@ -80,12 +80,12 @@ public class TestController {
     }
 
     @GetMapping("/api/tests/debate")
-    public ResponseEntity<DebateRoomResponse> createDebateScenario(@RequestParam String requestUserId) {
+    public ResponseEntity<DebateRoomDto> createDebateScenario(@RequestParam String requestUserId) {
 
         matchingScenario(Category.POLITICS.name());
         matchingService.handleJoin(Category.POLITICS, Long.valueOf(requestUserId));
         long debateId = debateService.getTestDebateId(Long.valueOf(requestUserId));
-        DebateRoomResponse roomResponse = debateService.getRoomById(debateId, null);
+        DebateRoomDto roomResponse = debateService.getRoomById(debateId, null);
         scheduler.scheduleAtInstant(Instant.now().plusSeconds(10),()->debateScenario(debateId, requestUserId));
         return ResponseEntity.ok(roomResponse);
     }

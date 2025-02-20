@@ -8,6 +8,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import team.overfullow.tolonbgeub.auth.UserId;
 import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessage;
 import team.overfullow.tolonbgeub.debate.playing.message.PlayingMessageType;

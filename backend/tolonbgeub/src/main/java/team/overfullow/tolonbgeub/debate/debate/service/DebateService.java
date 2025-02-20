@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.overfullow.tolonbgeub.core.util.IdGenerator;
 import team.overfullow.tolonbgeub.core.dto.CursorRequest;
-import team.overfullow.tolonbgeub.core.dto.CursorResponse;
 import team.overfullow.tolonbgeub.core.dto.SortBy;
 import team.overfullow.tolonbgeub.debate.Category;
 import team.overfullow.tolonbgeub.debate.debate.domain.Debate;
@@ -16,8 +15,8 @@ import team.overfullow.tolonbgeub.debate.debate.domain.DebateStatus;
 import team.overfullow.tolonbgeub.debate.debate.domain.DebateUser;
 import team.overfullow.tolonbgeub.debate.debate.dto.CategoryDebateCount;
 import team.overfullow.tolonbgeub.debate.debate.dto.DebateInfoResponse;
-import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomResponse;
-import team.overfullow.tolonbgeub.debate.debate.dto.DebateUserResponse;
+import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomDto;
+import team.overfullow.tolonbgeub.debate.debate.dto.DebateUserDto;
 import team.overfullow.tolonbgeub.debate.debate.repository.DebateRepository;
 import team.overfullow.tolonbgeub.debate.subject.SubjectService;
 import team.overfullow.tolonbgeub.user.Repository.UserRepository;
@@ -73,11 +72,11 @@ public class DebateService {
         queryService.getById(debateId).start();
     }
 
-    public DebateRoomResponse getRoomById(Long id, @Nullable Long requestUserId) {
+    public DebateRoomDto getRoomById(Long id, @Nullable Long requestUserId) {
         return queryService.getRoomById(id, requestUserId);
     }
 
-    public List<DebateUserResponse> getUsersByDebateId(Long debateId) {
+    public List<DebateUserDto> getUsersByDebateId(Long debateId) {
         return queryService.getUsersByDebateId(debateId);
     }
 

@@ -2,7 +2,7 @@ package team.overfullow.tolonbgeub.debate.debate.dto;
 
 import lombok.Builder;
 
-public record DebateUserResponse(
+public record DebateUserDto(
         String userId,
         String nickname,
         String profileImageUrl,
@@ -11,6 +11,6 @@ public record DebateUserResponse(
         Integer speechOrder
 ) {
     @Builder
-    public DebateUserResponse {
+    public DebateUserDto {
     }
 }

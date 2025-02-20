@@ -18,11 +18,11 @@ import team.overfullow.tolonbgeub.core.dto.CursorResponse;
 import team.overfullow.tolonbgeub.core.dto.SortBy;
 import team.overfullow.tolonbgeub.debate.Category;
 import team.overfullow.tolonbgeub.debate.debate.domain.DebateStatus;
-import team.overfullow.tolonbgeub.debate.debate.dto.CategoryDebateCount;
-import team.overfullow.tolonbgeub.debate.debate.dto.DebateInfoResponse;
-import team.overfullow.tolonbgeub.debate.debate.dto.DebateRoomResponse;
+import team.overfullow.tolonbgeub.debate.debate.dto.*;
 import team.overfullow.tolonbgeub.debate.debate.service.DebateMetricService;
 import team.overfullow.tolonbgeub.debate.debate.service.DebateService;
+import team.overfullow.tolonbgeub.debate.playing.PlayingService;
+import team.overfullow.tolonbgeub.debate.playing.message.response.PlayingUserResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,16 +38,19 @@ public class DebateController {
 
     private final DebateService debateService;
     private final DebateMetricService debateMetricService;
+    private final PlayingService playingService;
 
     @GetMapping("/api/debates/{debateId}/room")
     public ResponseEntity<DebateRoomResponse> getById(@PathVariable Long debateId,
-                                                      @AuthenticationPrincipal UserId userId
+                                                 @AuthenticationPrincipal UserId userId
     ) {
         log.debug("토론 방 정보 조회 요청: debateId={}, requestUserId(nullable)={}", debateId, userId);
         Long requestUserId = isNull(userId) ? null : Long.valueOf(userId.value());
-        return ResponseEntity.ok(debateService.getRoomById(debateId, requestUserId));
+        playingService.forceInit(debateId);
+        List<PlayingUserResponse> playingUsers = playingService.getPlayingUsers(debateId);
+        DebateRoomDto dto = debateService.getRoomById(debateId, requestUserId);
+        return ResponseEntity.ok(DebateRoomResponse.fromDto(dto, playingUsers));
     }
-
     /**
      * 토론 목록 페이징 및 필터링 API
      */
