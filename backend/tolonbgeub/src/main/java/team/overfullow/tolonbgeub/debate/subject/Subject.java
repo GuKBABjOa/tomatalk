@@ -15,6 +15,8 @@ import team.overfullow.tolonbgeub.debate.Category;
 public class Subject extends BaseTimeEntity {
     @Id
     private Long id;
+
+    @Enumerated(EnumType.STRING)
     private Category category;
     private String subject;
     private String description;
