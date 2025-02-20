@@ -51,6 +51,7 @@ public class PlayingService {
         eventPublisher.publishEvent(generateStateUpdateEvent(debateId, currentState));
 
         if (currentState.status() == PlayingStatus.FINISHED) {
+            stateManager.finish(debateId);
             return;
         }
 

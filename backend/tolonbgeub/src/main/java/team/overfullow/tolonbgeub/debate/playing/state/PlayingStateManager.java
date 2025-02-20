@@ -120,4 +120,8 @@ public class PlayingStateManager {
     public int getActiveParticipantCount(Long debateId) {
         return (int)getPlayingState(debateId).getParticipants().stream().filter(PlayingUser::isParticipant).count();
     }
+
+    public void finish(Long debateId) {
+        debateService.finish(debateId);
+    }
 }

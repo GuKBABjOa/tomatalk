@@ -39,6 +39,6 @@ public class DebateObserverManager {
     }
 
     public int getObserverCount(String debateId) {
-        return getSubscriberCount(debateId) - playingStateManager.getActiveParticipantCount(Long.valueOf(debateId));
+        return getSubscriberCount(debateId);
     }
 }

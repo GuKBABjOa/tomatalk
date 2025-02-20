@@ -45,4 +45,8 @@ public class Debate extends BaseTimeEntity {
     public void start() {
         status = DebateStatus.IN_PROGRESS;
     }
+
+    public void finish() {
+        status = DebateStatus.FINISHED;
+    }
 }

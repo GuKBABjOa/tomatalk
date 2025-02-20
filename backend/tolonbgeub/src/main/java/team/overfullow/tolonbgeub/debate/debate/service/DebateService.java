@@ -97,4 +97,8 @@ public class DebateService {
     public List<CategoryDebateCount> countInProgressDebatesByCategory(){
         return debateRepository.countInProgressDebatesByCategory();
     }
+
+    public void finish(Long debateId) {
+        queryService.getById(debateId).finish();
+    }
 }
