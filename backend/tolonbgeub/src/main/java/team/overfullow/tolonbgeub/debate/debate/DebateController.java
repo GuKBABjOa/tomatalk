@@ -62,6 +62,9 @@ public class DebateController {
                                                                       @RequestParam @Nullable String keyword
     ) {
         log.debug("진행중인 토론 조회: request = {}, sortBy = {}, status = {}, categories = {}, keyword = {}", request, sortBy, status, categories, keyword);
+        request = CursorRequest.builder()
+                .size(100)
+                .build();
         Page<DebateInfoResponse> page = debateService.search(request, sortBy, categories, status, keyword);
         return ResponseEntity.ok(toCursorResponse(page, request));
     }

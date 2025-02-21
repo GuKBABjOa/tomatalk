@@ -94,7 +94,7 @@ public class DebateQueryRepositoryImpl implements DebateQueryRepository {
 
     // 토론 상태 필터링 조건
     private BooleanExpression statusEq(DebateStatus status) {
-        return status != null ? debate.status.eq(status) : null;
+        return status != null ? debate.status.in(status, DebateStatus.READY) : null;
     }
 
     // 논제 검색 조건

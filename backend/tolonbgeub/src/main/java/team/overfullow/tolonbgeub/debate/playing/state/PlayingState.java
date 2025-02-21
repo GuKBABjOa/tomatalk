@@ -23,7 +23,7 @@ public class PlayingState {
 
 
     private final ReentrantLock stateLock = new ReentrantLock();
-    private final int maxTurnCount = 8;
+    private final int maxTurnCount = 4;
     private final Long debateId;
 
     /*
@@ -174,8 +174,12 @@ public class PlayingState {
             case STARTED ->{
 //                Long currentSpeakerId = this.currentSpeakerId;
 //                Long nextSpeakerId = this.nextSpeakerId;
-                setDefaultState(PlayingStatus.PREPARING);
-                setState(currentSpeakerId, nextSpeakerId, preparingTimeSeconds);
+//                setDefaultState(PlayingStatus.PREPARING);
+//                setState(currentSpeakerId, nextSpeakerId, preparingTimeSeconds);
+                Long currentSpeakerId = findFirstSpeaker().getUserId();
+                Long nextSpeakerId = findNextSpeakerId(currentSpeakerId);
+                setDefaultState(PlayingStatus.WAITING);
+                setState(currentSpeakerId, nextSpeakerId, waitingTimeSeconds);
             }
             case PREPARING -> {
                 Long currentSpeakerId = findFirstSpeaker().getUserId();
@@ -190,7 +194,7 @@ public class PlayingState {
                 setState(currentSpeakerId, nextSpeakerId, speechingTimeSeconds);
             }
             case SPEECHING -> {
-                if(turnCounter++ < maxTurnCount) {
+                if(++turnCounter < maxTurnCount) {
                     log.debug("Debate {}: turn {} update state", debateId, turnCounter);
                     Long currentSpeakerId = this.nextSpeakerId;
                     Long nextSpeakerId = this.findNextSpeakerId(currentSpeakerId);

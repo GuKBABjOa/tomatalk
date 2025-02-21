@@ -41,6 +41,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         // Vue 라우팅을 위해 특정 경로를 index.html로 전달
         registry.addViewController("/").setViewName("forward:/index.html");
         registry.addViewController("/callback/oauth/kakao").setViewName("forward:/index.html");
+        registry.addViewController("/debate").setViewName("forward:/index.html");
     }
 
     @Override
