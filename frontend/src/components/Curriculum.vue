@@ -47,16 +47,6 @@ export default defineComponent({
         title: "실전 토론 도전",
         features: ["실시간 매칭 토론", "관중 피드백 시스템", "토론 기록 분석"],
       },
-      {
-        step: 4,
-        emoji: "🏆",
-        title: "토론 마스터 인증",
-        features: [
-          "단계별 인증서 발급",
-          "토론 마스터 등급",
-          "전문 토론가 인증",
-        ],
-      },
     ];
 
     return { steps };
@@ -67,50 +57,65 @@ export default defineComponent({
 <style scoped>
 .curriculum {
   background-color: #fef2f2;
-  padding: 48px;
+  padding: 3rem;
+  padding-left: 5rem;
+  padding-right: 5rem;
 }
 
 .section-title {
   text-align: center;
-  font-size: 32px;
   font-weight: bold;
   color: #111827;
-  margin-bottom: 80px;
+  font-size: 2rem;
+  /* 기존 32px → 2rem */
+  margin-bottom: 5rem;
+  /* 기존 80px → 5rem */
 }
 
 .steps {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
+  /* 기존 20px → 1.25rem */
 }
 
 .step-card {
   background: white;
-  padding: 32px;
-  border-radius: 16px;
+  padding: 2rem;
+  /* 기존 32px → 2rem */
+  border-radius: 1rem;
+  /* 기존 16px → 1rem */
+  height: 18.75rem;
+  /* 기존 300px → 18.75rem */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  height: 300px;
 }
 
 .step-emoji {
-  font-size: 40px;
+  font-size: 2.5rem;
+  /* 기존 40px → 2.5rem */
+  margin-bottom: 1.25rem;
+  /* 기존 20px → 1.25rem */
   display: block;
-  margin-bottom: 20px;
 }
 
 .step-number {
-  font-size: 20px;
+  font-size: 1.25rem;
+  /* 기존 20px → 1.25rem */
+  margin-bottom: 0.5rem;
+  /* 기존 8px → 0.5rem */
   font-weight: bold;
   color: #111827;
-  margin-bottom: 8px;
 }
 
 .step-title {
-  font-size: 18px;
   font-weight: bold;
   color: #ff6b6b;
-  margin-bottom: 20px;
+  font-size: 1.125rem;
+  /* 기존 18px → 1.125rem */
+  margin-bottom: 1.25rem;
+  /* 기존 20px → 1.25rem */
 }
+
 .step-features {
   list-style: none;
   padding: 0;
@@ -118,10 +123,13 @@ export default defineComponent({
 
 .step-features li {
   color: #4b5563;
-  font-size: 14px;
-  margin-bottom: 8px;
+  font-size: 0.875rem;
+  /* 기존 14px → 0.875rem */
+  margin-bottom: 0.5rem;
+  /* 기존 8px → 0.5rem */
+  padding-left: 0.75rem;
+  /* 기존 12px → 0.75rem */
   position: relative;
-  padding-left: 12px;
 }
 
 .step-features li::before {

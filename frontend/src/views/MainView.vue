@@ -16,15 +16,44 @@
       </div>
     </section>
 
-    <StudyProgress />
+    <!-- Progress & Stats Combined Section -->
+    <section class="progress-stats-section">
+      <div class="progress-stats-wrapper">
+        <!-- 왼쪽: 진행 단계 -->
+        <div class="stages-section">
+          <div class="stages-row">
+            <template v-for="(stage, index) in stages" :key="index">
+              <div class="stage-item">
+                <div class="stage-circle" :style="{ backgroundColor: getStageColor(stage.status) }">
+                  <div class="stage-number" :style="{ color: getStageNumberColor(stage.status) }">
+                    {{ index + 1 }}
+                  </div>
+                </div>
+                <div class="stage-info">
+                  <div class="stage-title">{{ stage.title }}</div>
+                  <div class="stage-progress">{{ stage.progress }}</div>
+                </div>
+              </div>
+              <!-- 연결선 (마지막 아이템 제외) -->
+              <div v-if="index < stages.length - 1" class="stage-connector"
+                :style="{ backgroundColor: getConnectorColor(index) }"></div>
+            </template>
+          </div>
+        </div>
 
-    <!-- Stats Section -->
-    <section class="stats-section">
-      <div v-for="(stat, index) in stats" :key="index" class="stat-card">
-        <h3>{{ stat.title }}</h3>
-        <p class="stat-value">{{ stat.value }}</p>
-        <div class="stat-divider"></div>
-        <p class="stat-subtext">{{ stat.subtext }}</p>
+        <!-- 구분선 -->
+        <div class="vertical-divider"></div>
+
+        <!-- 오른쪽: 통계 -->
+        <div class="stats-row">
+          <div v-for="stat in stats" :key="stat.key" class="stat-item">
+            <div class="stat-title">{{ stat.title }}</div>
+            <button class="stat-value" @click="goToStatDetail(stat.key)">
+              {{ stat.value }}
+            </button>
+            <div class="stat-subtext">{{ stat.subtext }}</div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -33,7 +62,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { useRouter } from "vue-router";
+import DebateExplorer from "@/components/DebateExplorer.vue";
+import { ref } from "vue";
 
 interface UserStats {
   debateCount: number;
@@ -48,10 +79,12 @@ interface PopularDebate {
   level: string;
   spectators: number;
 }
-StudyProgress;
-import DebateExplorer from "@/components/DebateExplorer.vue";
-import StudyProgress from "@/components/StudyProgress.vue";
-import { ref } from "vue";
+
+const router = useRouter();
+
+const goToStatDetail = (key: string) => {
+  router.push(`/stats/${key}`);
+};
 
 const getImageUrl = (filename: string): string => {
   return new URL(`../assets/${filename}`, import.meta.url).href;
@@ -75,21 +108,67 @@ const userStats = ref<UserStats>({
 
 const stats = ref([
   {
+    key: "debate-count",
     title: "참여한 토론",
     value: `${userStats.value.debateCount}회`,
     subtext: `지난 주 대비 +${userStats.value.weeklyDebateIncrease}회`,
   },
   {
-    title: "승률",
-    value: `${userStats.value.winRate}%`,
+    key: "score",
+    title: "점수",
+    value: `${userStats.value.winRate}점`,
     subtext: `상위 ${userStats.value.percentileRank}%`,
   },
   {
+    key: "feedback",
     title: "받은 피드백",
     value: `${userStats.value.feedbackCount}개`,
     subtext: `새 피드백 +${userStats.value.newFeedbacks}개`,
   },
 ]);
+
+// stages 데이터 추가 (기존 Stats 섹션은 유지)
+const stages = ref([
+  {
+    title: "기본기",
+    progress: "3/3 완료",
+    status: "completed",
+  },
+  {
+    title: "실전 연습",
+    progress: "2/5 진행중",
+    status: "current",
+  },
+  {
+    title: "실전 토론",
+    progress: "0/3 준비중",
+    status: "locked",
+  },
+]);
+
+// 스테이지 색상 함수
+const getStageColor = (status: string) => {
+  switch (status) {
+    case "completed":
+      return "#FF6B6B";
+    case "current":
+      return "#FF6B6B";
+    default:
+      return "#F6F6F6";
+  }
+};
+
+const getStageNumberColor = (status: string) => {
+  return status === "locked" ? "#111827" : "#FFFFFF";
+};
+
+// 연결선 색상 함수
+const getConnectorColor = (index: number) => {
+  if (stages.value[index].status === "completed") {
+    return "#FF6B6B";
+  }
+  return "#F6F6F6";
+};
 
 const quickActions = ref([
   {
@@ -130,105 +209,239 @@ const popularDebates = ref<PopularDebate[]>([
 /* Welcome Section */
 .welcome-section {
   background: none;
-  border-radius: 16px;
-  border: 2px solid #cacaca; /* 테두리 두께와 색상 설정 */
-  height: 120px;
-  margin-top: 20px;
-  margin-bottom: 32px;
+  height: 7.5rem;
+  margin-top: 1.25rem;
+  margin-bottom: 2rem;
 }
 
 .welcome-content {
   display: flex;
   align-items: center;
   height: 100%;
-  padding: 0 40px;
+  padding: 0 2.5rem;
 }
 
 .tori-character {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 6.25rem;
+  height: 6.25rem;
   border-radius: 50%;
 }
 
 .welcome-text {
-  margin-left: 48px;
+  margin-left: 3rem;
 }
 
 .welcome-text h2 {
-  font-size: 24px;
   font-weight: bold;
   color: #111827;
-  margin-bottom: 12px;
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .welcome-text p {
-  font-size: 18px;
+  font-size: 1.125rem;
   color: #4b5563;
 }
 
-/* Stats Section */
-.stats-section {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-bottom: 48px;
+/* Progress & Stats Section */
+.progress-stats-section {
+  margin-bottom: 2rem;
 }
 
-.stat-card {
-  background: rgb(246, 246, 246);
-  border-radius: 16px;
-  padding: 32px;
-  height: 160px;
+.progress-stats-wrapper {
+  background: #ffffff;
+  border: 1px solid #f1f1f1;
+  border-radius: 1rem;
+  padding: 2rem 3rem;
+  display: flex;
+  align-items: center;
+  min-height: 7.5rem;
+  gap: 3rem;
 }
 
-.stat-card h3 {
-  font-size: 18px;
+/* 스테이지 섹션 */
+.stages-section {
+  flex: 1.2;
+}
+
+.stages-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stage-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stage-circle {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stage-number {
+  color: #ffffff;
   font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.stage-info {
+  text-align: center;
+}
+
+.stage-title {
+  font-weight: 600;
   color: #111827;
-  margin-bottom: 16px;
+  margin-bottom: 0.25rem;
+}
+
+.stage-progress {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.stage-connector {
+  width: 5rem;
+  height: 2px;
+  margin: 0 0.5rem;
+}
+
+/* 구분선 */
+.vertical-divider {
+  width: 1px;
+  height: 5rem;
+  background: #e9ecef;
+  margin: 0 1rem;
+}
+
+/* 통계 섹션 */
+.stats-row {
+  flex: 2;
+  display: flex;
+  /* 항목들을 가로로 배치 */
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.stat-item {
+  flex: 1;
+  display: flex;
+  /* 추가: 내부 요소들을 세로로 배치 */
+  flex-direction: column;
+  /* 추가: 세로 방향으로 설정 */
+  text-align: left;
 }
 
 .stat-value {
-  font-size: 32px;
+  font-size: 1.75rem;
   font-weight: bold;
   color: #ff6b6b;
-  margin-bottom: 16px;
+  margin-bottom: 0.5rem;
+  /* 간격 조정 */
+  order: 2;
+  /* 추가: 순서 설정 */
 }
 
-.stat-divider {
-  border-top: 1px solid #e5e7eb;
-  margin-bottom: 16px;
+.stat-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.5rem;
+  order: 1;
+  /* 추가: 순서 설정 */
 }
 
 .stat-subtext {
-  font-size: 16px;
+  font-size: 0.875rem;
   color: #6b7280;
+  order: 3;
+  /* 추가: 순서 설정 */
+}
+
+/* 차트 스타일 */
+.stat-chart {
+  height: 2rem;
+  margin: 0.75rem 0;
+}
+
+.bar-chart::before,
+.bar-chart::after {
+  content: "";
+  display: block;
+  width: 0.5rem;
+  height: 1.25rem;
+  background: #ffe3e3;
+  margin-right: 0.25rem;
+}
+
+.bar-chart::after {
+  height: 1.75rem;
+  background: #ff6b6b;
+}
+
+.line-chart {
+  position: relative;
+  overflow: hidden;
+}
+
+.line-chart::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #ff6b6b;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.dot-chart::before,
+.dot-chart::after {
+  content: "";
+  display: block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #ff6b6b;
+  margin-right: 0.5rem;
+}
+
+.dot-chart::after {
+  background: #ffe3e3;
 }
 
 /* Quick Start Section */
 .quick-start-section {
-  margin-bottom: 48px;
+  margin-bottom: 3rem;
 }
 
 .quick-start-section h2 {
-  font-size: 24px;
   font-weight: bold;
   color: #111827;
-  margin-bottom: 24px;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 1.25rem;
 }
 
 .action-card {
   background: #000000;
-  border-radius: 16px;
-  padding: 32px;
-  height: 100px;
+  border-radius: 1rem;
+  padding: 2rem;
+  height: 6.25rem;
   color: white;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -239,35 +452,35 @@ const popularDebates = ref<PopularDebate[]>([
 }
 
 .action-card h3 {
-  font-size: 20px;
   font-weight: bold;
-  margin-bottom: 8px;
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .action-card p {
-  font-size: 16px;
+  font-size: 1rem;
   opacity: 0.9;
 }
 
 /* Popular Debates Section */
 .popular-debates-section h2 {
-  font-size: 24px;
   font-weight: bold;
   color: #111827;
-  margin-bottom: 24px;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .debates-container {
   background: white;
-  border-radius: 16px;
-  padding: 32px;
+  border-radius: 1rem;
+  padding: 2rem;
 }
 
 .debate-card {
   background: #fff1f1;
-  border-radius: 8px;
-  height: 80px;
-  margin-bottom: 16px;
+  border-radius: 0.5rem;
+  height: 5rem;
+  margin-bottom: 1rem;
 }
 
 .debate-card:last-child {
@@ -279,18 +492,18 @@ const popularDebates = ref<PopularDebate[]>([
   justify-content: space-between;
   align-items: center;
   height: 100%;
-  padding: 0 24px;
+  padding: 0 1.5rem;
 }
 
 .debate-content h3 {
-  font-size: 18px;
+  font-size: 1.125rem;
+  margin-bottom: 0.25rem;
   font-weight: bold;
   color: #111827;
-  margin-bottom: 4px;
 }
 
 .debate-content p {
-  font-size: 16px;
+  font-size: 1rem;
   color: #6b7280;
 }
 
@@ -298,9 +511,9 @@ const popularDebates = ref<PopularDebate[]>([
   background: #ff6b6b;
   color: white;
   border: none;
-  border-radius: 20px;
-  padding: 10px 48px;
-  font-size: 16px;
+  border-radius: 1.25rem;
+  padding: 0.625rem 3rem;
+  font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.2s;
   font-family: inherit;

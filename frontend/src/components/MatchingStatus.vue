@@ -10,7 +10,10 @@
               <span class="label">주제 카테고리</span>
               <h2 class="category-title">
                 {{ matchingDetails.category || "기본 카테고리" }}
-                <span class="emoji">🔬</span>
+                <<<<<<< HEAD <span class="emoji">🤔</span>
+                  =======
+                  <span class="emoji">🔬</span>
+                  >>>>>>> a29b106a6e616e80d4fbb87eabc0e66a040e978c
               </h2>
             </div>
             <div class="status-info">
@@ -76,7 +79,6 @@ const debateId = ref(null);
 const categoryCode = ref("POLITICS");
 const matchingDetails = computed(() => matchingStore.matchingDetails || null);
 const matchedCount = computed(() => matchingStore.matchedCount || 0);
-
 
 console.log("matchingStore:", matchingStore);
 console.log("matchingStore.isMatching:", matchingStore.isMatching);
@@ -201,7 +203,10 @@ const handleMatchComplete = () => {
     } else {
       clearInterval(countdownInterval);
       isModalOpen.value = false;
-      router.push(`/debate/${matchingStore.matchingDetails.debateId}`);
+      router.push({
+        name: "debatePrepare",
+        params: { debateId: matchingStore.matchingDetails.debateId }, // debateId 전달
+      });
     }
   }, 1000);
 };

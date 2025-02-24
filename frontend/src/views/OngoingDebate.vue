@@ -6,15 +6,15 @@
       <p class="subtitle">다양한 주제의 토론에 참여하고 의견을 나눠보세요</p>
     </header>
 
-    <main class="debate-content">
+    <main class="debate-content grid grid-cols-2">
       <!-- 버블 섹션 -->
-      <section class="debate-bubbles">
+      <section class="debate-bubbles col-span-1">
         <div v-for="(category, index) in processedCategories" :key="category.value" class="bubble" :style="{
           backgroundColor: category.color,
           width: `${category.size}px`,
           height: `${category.size}px`,
-          left: getBubblePosition(index).x + 'px',
-          top: getBubblePosition(index).y + 'px',
+          // left: getBubblePosition(index).x + 'px',
+          // top: getBubblePosition(index).y + 'px',
         }" @click="selectCategory([category.value])">
           <div class="bubble-content">
             <div class="category-title">{{ category.label }}</div>
@@ -27,7 +27,7 @@
       </section>
 
       <!-- 토론 목록 섹션 -->
-      <section class="debate-list">
+      <section class="debate-list col-span-1">
         <div class="category-header">
           <h2>{{ getCurrentCategoryLabel() }} 토론</h2>
           <div class="sort-options">
@@ -43,7 +43,7 @@
           <div v-else-if="errorMessage" class="error-message">
             {{ errorMessage }}
           </div>
-          <template v-else>
+          <template v-else class="playDebateList">
             <div v-for="debate in debates" :key="debate.debateId" class="debate-card">
               <h3>{{ debate.subject }}</h3>
               <p>{{ formatNumber(debate.spectatorsCount) }}명 관전중</p>
@@ -101,8 +101,8 @@ const isLoading = ref(true);
 const isFetchingMore = ref(false);
 const errorMessage = ref<string | null>(null);
 const sortOption = ref("latest");
-const cursor = ref<number>(9007199254740991);
-const size = ref<number>(5);
+const cursor = ref<number | null>(null);
+const size = ref<number>(100);
 const selectedCategory = ref(["POLITICS"]);
 
 // 무한 스크롤 관련
@@ -119,7 +119,8 @@ const categories = [
 ];
 
 const enterDebate = (debateId: string) => {
-  window.location.href = "/";
+  console.log(debateId)
+  window.location.href = `/debate/${debateId}`;
 };
 
 // 정렬 옵션 매핑
@@ -135,7 +136,6 @@ const fetchDebates = async (append: boolean = false) => {
       isFetchingMore.value = true;
     } else {
       isLoading.value = true;
-      cursor.value = 9007199254740991;
     }
 
     const categoriesParam = selectedCategory.value.join(",");
@@ -196,15 +196,41 @@ const processedCategories = computed(() => {
   categoryArray.sort((a, b) => b.totalViewers - a.totalViewers);
 
   const maxViewers = Math.max(...categoryArray.map((c) => c.totalViewers || 0));
-  const maxSize = 160;
-  const minSize = 80;
+  const baseSize = 120;  // 내부 텍스트 최소 크기 고려
+  const maxSize = 200;
 
-  return categoryArray.map((category, index) => ({
-    ...category,
-    size: category.totalViewers
-      ? Math.max(minSize, (category.totalViewers / maxViewers) * maxSize)
-      : minSize,
-  }));
+  return categoryArray.map((category) => {
+    let dynamicSize = category.totalViewers
+      ? Math.max(baseSize, (category.totalViewers / maxViewers) * maxSize)
+      : baseSize;
+
+    // 내부 텍스트 길이에 따라 최소 크기 보정
+    const estimatedTextSize = Math.max(
+      100, // 최소 크기 보장
+      category.label.length * 10 + category.debateCount.toString().length * 5
+    );
+
+    return {
+      ...category,
+      size: Math.max(dynamicSize, estimatedTextSize),
+    };
+  });
+  return categoryArray.map((category) => {
+    let dynamicSize = category.totalViewers
+      ? Math.max(baseSize, (category.totalViewers / maxViewers) * maxSize)
+      : baseSize;
+
+    // 내부 텍스트 길이에 따라 최소 크기 보정
+    const estimatedTextSize = Math.max(
+      100, // 최소 크기 보장
+      category.label.length * 10 + category.debateCount.toString().length * 5
+    );
+
+    return {
+      ...category,
+      size: Math.max(dynamicSize, estimatedTextSize),
+    };
+  });
 });
 
 // 유틸리티 함수들
@@ -285,15 +311,16 @@ watch(
 
 <style scoped>
 .debate-dashboard {
-  padding: 2rem;
-  background-color: #f8fafc;
+  /* padding: 2rem; */
+  /* background-color: #f8fafc; */
 }
 
 .debate-header {
   background: white;
   border-radius: 16px;
-  padding: 10px 40px;
-  margin-bottom: 20px;
+  /* padding: 10px 40px; */
+  padding-top: 40px;
+  margin-bottom: 3rem;
 }
 
 .title {
@@ -309,22 +336,28 @@ watch(
 }
 
 .debate-content {
-  display: flex;
   background: white;
   border-radius: 16px;
-  overflow: hidden;
 }
 
 .debate-bubbles {
-  flex: 1;
-  padding: 20px;
-  position: relative;
-  height: 600px;
+  /* padding: 20px; */
+  /* padding-top: 2rem;
+  padding-bottom: 2rem; */
+  padding-right: 1rem;
+  max-height: 100%;
   background: #ffffff;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
 }
 
 .bubble {
-  position: absolute;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -332,6 +365,34 @@ watch(
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  overflow: hidden;
+  /* 넘치는 텍스트 방지 */
+  padding: 10px;
+}
+
+.bubble-content {
+  width: 90%;
+  /* bubble 크기에 맞춰 조정 */
+  max-width: 90%;
+  word-wrap: break-word;
+  /* 자동 줄바꿈 */
+  font-size: 14px;
+  /* 기본 글자 크기 */
+  text-align: center;
+  overflow: hidden;
+  /* 넘치는 텍스트 방지 */
+  padding: 10px;
+}
+
+.bubble-content {
+  width: 90%;
+  /* bubble 크기에 맞춰 조정 */
+  max-width: 90%;
+  word-wrap: break-word;
+  /* 자동 줄바꿈 */
+  font-size: 14px;
+  /* 기본 글자 크기 */
 }
 
 .bubble:hover {
@@ -364,18 +425,9 @@ watch(
 .debate-list {
   flex: 1;
   padding: 40px;
-  border-left: 1px solid #e5e7eb;
-  overflow-y: auto;
-  height: 600px;
-  scrollbar-width: none;
-  /* Firefox */
-  -ms-overflow-style: none;
-  /* IE and Edge */
-}
-
-.debate-list::-webkit-scrollbar {
-  display: none;
-  /* Chrome, Safari, Opera */
+  /* border-left: 1px solid #e5e7eb; */
+  max-height: 500px;
+  /* 내부 스크롤을 적용할 최대 높이 설정 */
 }
 
 .category-header {
@@ -434,12 +486,12 @@ watch(
   position: absolute;
   top: 20px;
   right: 20px;
-  background: #ff6b6b;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 16px;
-  font-size: 14px;
-  box-shadow: 0 2px 4px rgba(255, 107, 107, 0.2);
+  /* background: #ff6b6b; */
+  color: #ff6b6b;
+  /* padding: 4px 8px; */
+  /* border-radius: 16px; */
+  font-size: 12px;
+  /* box-shadow: 0 2px 4px rgba(255, 107, 107, 0.2); */
 }
 
 .loading,
@@ -451,5 +503,28 @@ watch(
 
 .error-message {
   color: #ef4444;
+}
+
+.debate-cards {
+  overflow-y: auto;
+  max-height: 90%;
+  scrollbar-width: thin;
+  /* 스크롤바 얇게 조정 (옵션) */
+  scrollbar-color: #d1d5db transparent;
+  /* 스크롤 색상 조정 (옵션) */
+}
+
+/* 웹킷(Chrome, Safari)에서 스크롤 커스텀 */
+.debate-cards::-webkit-scrollbar {
+  width: 6px;
+}
+
+.debate-cards::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 10px;
+}
+
+.debate-cards::-webkit-scrollbar-track {
+  background: transparent;
 }
 </style>

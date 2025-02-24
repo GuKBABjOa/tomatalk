@@ -7,7 +7,6 @@ const globalToken = ref<string | null>(localStorage.getItem("token"));
 const globalId = ref<string | null>(localStorage.getItem("id"));
 const globalIsLoggedIn = computed(() => !!globalToken.value);
 let isProcessing = false; // 처리 중인지 확인하는 플래그 추가
-
 export function useKakaoAuth() {
   const router = useRouter();
 
@@ -59,11 +58,11 @@ export function useKakaoAuth() {
     globalToken.value = newToken;
     if (!localStorage.getItem("id")) {
       try {
-        const response = await fetch(backendUrl + '/api/users/me', {
+        const response = await fetch(backendUrl + "/api/users/me", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${newToken}`
+            Authorization: `Bearer ${newToken}`,
           },
         });
 
@@ -73,7 +72,7 @@ export function useKakaoAuth() {
         const data = await response.json();
         globalId.value = data.userId;
         localStorage.setItem("id", data.userId);
-        localStorage.setItem("username", data.nickname)
+        localStorage.setItem("username", data.nickname);
       } catch (error) {
         console.error("Profile loading failed:", error);
       }
@@ -82,11 +81,11 @@ export function useKakaoAuth() {
 
   const handleLogout = async (): Promise<void> => {
     try {
-      const response = await fetch(backendUrl + '/api/auth/logout', {
+      const response = await fetch(backendUrl + "/api/auth/logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
       if (!response.ok) {

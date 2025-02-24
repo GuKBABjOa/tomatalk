@@ -30,7 +30,7 @@
               <div v-for="debate in debates" :key="debate.debateId" class="debate-item">
                 <span class="debate-label">{{
                   getCurrentCategoryLabel()
-                  }}</span>
+                }}</span>
                 <span class="debate-title">{{ debate.subject }}</span>
                 <span class="participants">{{ formatNumber(debate.spectatorsCount) }}명 참여</span>
                 <button @click="enterDebate(debate.debateId)" class="enter-button">
@@ -78,7 +78,7 @@ const debates = ref<DebateInfoResponse[]>([]);
 const isLoading = ref(true);
 const isFetchingMore = ref(false);
 const errorMessage = ref<string | null>(null);
-const cursor = ref<number>(9007199254740991);
+const cursor = ref<number | null>(null);
 const size = ref<number>(5);
 const selectedCategory = ref<string | null>("POLITICS");
 const sentinel = ref<HTMLElement | null>(null);
@@ -115,7 +115,6 @@ const fetchDebates = async (append: boolean = false) => {
       isFetchingMore.value = true;
     } else {
       isLoading.value = true;
-      cursor.value = 9007199254740991;
     }
 
     const response = await axios.get<CursorResponse<DebateInfoResponse>>(

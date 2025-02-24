@@ -3,6 +3,7 @@ from typing import Union
 from ai.utils.prompt import generate_chat_response
 from ai.utils.utils import basic_ai_bot
 import re
+from ai.utils.bad_word_check import predict_bad_word # 욕설 예측 함수
 
 
 router = APIRouter() 

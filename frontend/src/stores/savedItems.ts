@@ -13,7 +13,7 @@ export const useSavedItemsStore = defineStore('savedItems', () => {
   }
 
   function removeMemo(id: string) {
-    savedItems.value = savedItems.value.filter((item) => item.id !== id) // ✅ 메모 삭제
+    savedItems.value = savedItems.value.filter((item) => item.id !== id) // 메모 삭제
   }
 
   return { savedItems, addMemo, addResource, removeMemo }

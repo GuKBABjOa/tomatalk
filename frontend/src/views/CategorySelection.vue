@@ -35,13 +35,8 @@
 
     <!-- Category Grid -->
     <div class="category-grid">
-      <div
-        v-for="category in categories"
-        :key="category.id"
-        class="category-card"
-        :class="{ selected: selectedCategory === category.id }"
-        @click="handleCategoryClick(category.id)"
-      >
+      <div v-for="category in categories" :key="category.id" class="category-card"
+        :class="{ selected: selectedCategory === category.id }" @click="handleCategoryClick(category.id)">
         <div class="icon-circle">
           <span class="icon">{{ category.icon }}</span>
         </div>
@@ -135,21 +130,23 @@ const goToNext = () => {
 
 <style scoped>
 .header {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
   background: linear-gradient(180deg, #fff1f1 0%, #ffffff 100%);
   padding: 48px 0;
   margin-bottom: 40px;
 }
 
 .header-content {
-  max-width: 1104px;
+  width: 75%;
   margin: 0 auto;
 }
 
 .title {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: bold;
   color: #111827;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .subtitle {
@@ -207,7 +204,7 @@ const goToNext = () => {
 }
 
 .category-card {
-  width: 270px;
+  /* width: 270px; */
   border-radius: 16px;
   padding: 40px;
   text-align: center;
@@ -272,15 +269,21 @@ const goToNext = () => {
   height: auto;
   background: #efefef;
   border-radius: 8px;
-  padding: 1px; /* 기존 padding: 20px에서 조정 */
-  margin: 20px auto; /* 기존 margin-top: 40px 제거 */
-  max-width: 1080px; /* 중앙 정렬을 위한 최대 너비 설정 */
-  text-align: center; /* 텍스트 중앙 정렬 */
+  padding: 1px;
+  /* 기존 padding: 20px에서 조정 */
+  margin: 20px auto;
+  /* 기존 margin-top: 40px 제거 */
+  max-width: 1080px;
+  /* 중앙 정렬을 위한 최대 너비 설정 */
+  text-align: center;
+  /* 텍스트 중앙 정렬 */
 }
 
 .info-box p {
   color: #ff6b6b;
-  font-size: 16px;
+  font-size: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 
 .before-button {

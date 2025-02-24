@@ -20,25 +20,25 @@ export default defineComponent({
 <style scoped>
 .footer {
   background-color: #ffffff;
-  padding: 48px;
+  padding: 3rem;
 }
 
 .footer-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 20px;
+  padding-top: 1.25rem;
   border-top: 1px solid #e5e7eb;
 }
 
 .footer-links {
   display: flex;
-  gap: 40px;
+  gap: 2.5rem;
 }
 
 .footer-link {
   color: #949494;
-  font-size: 16px;
+  font-size: 1rem;
   text-decoration: none;
 }
 

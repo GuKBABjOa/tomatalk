@@ -7,11 +7,7 @@
       <div class="preview-section">
         <div class="chat-container">
           <div class="chat-message tori">
-            <img
-              :src="getImageUrl('Tori.svg')"
-              alt="토리 이미지"
-              class="tori-avatar-small"
-            />
+            <img :src="getImageUrl('Tori.svg')" alt="토리 이미지" class="tori-avatar-small" />
             <div class="message">
               안녕하세요! 저는 토론 코치 토리입니다. 교복 자율화에 대해 어떻게
               생각하시나요? 그 이유도 함께 말씀해주세요.
@@ -27,11 +23,7 @@
           </div>
 
           <div class="chat-message tori">
-            <img
-              :src="getImageUrl('Tori.svg')"
-              alt="토리 이미지"
-              class="tori-avatar-small"
-            />
+            <img :src="getImageUrl('Tori.svg')" alt="토리 이미지" class="tori-avatar-small" />
             <div class="message">
               말씀하신 의견을 뒷받침할 수 있는 구체적인 사례나 경험을 들어
               설명해주실 수 있나요?
@@ -100,6 +92,7 @@ const getImageUrl = (filename) => {
   color: white;
   font-size: 16px;
 }
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -120,6 +113,11 @@ const getImageUrl = (filename) => {
   width: 800px;
   max-height: 90vh;
   overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.modal-content::-webkit-scrollbar {
+  display: none;
 }
 
 .modal-content h2 {

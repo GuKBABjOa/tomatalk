@@ -92,7 +92,7 @@
             </div>
             <span class="mic-status">{{
               isMicActive ? "마이크 켜짐" : "마이크 꺼짐"
-            }}</span>
+              }}</span>
           </button>
           <button class="skip-button" @click="handleSkip">
             <span class="skip-text">다음 단계</span>
@@ -132,7 +132,8 @@ let audioContext: AudioContext | null = null;        // AudioContext 인스턴�
 let pcmNode: AudioWorkletNode | null = null;         // AudioWorkletNode
 let socket: WebSocket | null = null;                 // WebSocket 연결
 
-
+const wsPythonUrl = import.meta.env.VITE_WS_PYTHON_URL;
+const pythonUrl = import.meta.env.VITE_PYTHON_URL;
 async function startAudioProcessing() {
   try {
     // 1. 마이크 스트림 얻기
@@ -149,7 +150,7 @@ async function startAudioProcessing() {
 
     // 5. WebSocket 연결 생성
     socket = new WebSocket(
-    `ws://70.12.247.158:8000/api/audio/basic?topic_id=${props.topic.id}&stance=${props.stance}&step=${stages.value[currentStageIndex.value].step}&user_id=2`);
+      `${wsPythonUrl}/api/audio/basic?topic_id=${props.topic.id}&stance=${props.stance}&step=${stages.value[currentStageIndex.value].step}&user_id=2`);
 
     socket.binaryType = 'arraybuffer';  // 이진 데이터 전송을 위해 설정
 
@@ -178,7 +179,7 @@ async function startAudioProcessing() {
 
 async function fetchPracticeResult() {
   try {
-    const response = await fetch("http://70.12.247.158:8000/api/practice/basic", {
+    const response = await fetch(pythonUrl + "/api/practice/basic", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -293,7 +294,7 @@ const timerCircleOffset = computed(() => {
 
 const stages = computed<Stage[]>(() => [
   {
-    step: 1, 
+    step: 1,
     title: "1단계: 주장 세우기",
     description: "자신의 입장을 명확하게 밝히고 핵심 주장을 제시하세요",
     question: props.topic?.title ?? "주제에 대한 당신의 입장은 무엇인가요?",
@@ -309,7 +310,7 @@ const stages = computed<Stage[]>(() => [
       }와 관련된 구체적인 사례나 근거를 들어 설명해주세요.`,
   },
   {
-    step: 3, 
+    step: 3,
     title: "3단계: 다른 관점 고려하기",
     description: "반대 입장의 주장과 근거를 고려하고 대응하세요",
     question:
@@ -318,7 +319,7 @@ const stages = computed<Stage[]>(() => [
       } 입장에서 제기할 수 있는 의견을 고려하고 답변해주세요.`,
   },
   {
-    step: 4, 
+    step: 4,
     title: "4단계: 주장 강화하기",
     description: "앞선 논의를 종합하여 최종 주장을 강화하세요",
     question: "지금까지의 논의를 종합하여, 최종 입장을 말씀해주세요.",
@@ -470,10 +471,14 @@ onUnmounted(() => {
 <style scoped>
 /* 전체적인 테마 색상 변수 정의 */
 :root {
-  --primary-color: #ff6b6b; /* 서비스 주요 색상 */
-  --primary-dark: #ff4f4f;  /* 활성화 및 호버 시 사용할 어두운 색상 */
-  --bg-light: #f1f5f9;      /* 버튼 기본 배경색 */
-  --text-default: #1f2937;  /* 기본 텍스트 색상 */
+  --primary-color: #ff6b6b;
+  /* 서비스 주요 색상 */
+  --primary-dark: #ff4f4f;
+  /* 활성화 및 호버 시 사용할 어두운 색상 */
+  --bg-light: #f1f5f9;
+  /* 버튼 기본 배경색 */
+  --text-default: #1f2937;
+  /* 기본 텍스트 색상 */
   --secondary-color: #4b5563;
   --accent-color: #60a5fa;
   --agree-color: #10b981;
@@ -541,11 +546,15 @@ onUnmounted(() => {
 .stage-progress {
   /* 바를 중앙 정렬하고, 마커를 위해 아래쪽 여백 확보 */
   margin: 1.5rem auto;
-  width: 80%;        /* 원하는 비율 or 고정 px 값 사용 */
-  max-width: 800px;  /* 최대 너비 */
+  width: 80%;
+  /* 원하는 비율 or 고정 px 값 사용 */
+  max-width: 800px;
+  /* 최대 너비 */
   position: relative;
-  padding-bottom: 3rem; /* 마커 아래 라벨 공간 */
-  overflow: visible;     /* 마커가 밖으로 나올 수 있으므로 visible */
+  padding-bottom: 3rem;
+  /* 마커 아래 라벨 공간 */
+  overflow: visible;
+  /* 마커가 밖으로 나올 수 있으므로 visible */
 }
 
 .progress-bar {
@@ -576,8 +585,10 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  top: 50%; /* 바의 수직 중앙 */
-  transform: translate(-50%, -50%); /* 가로 중앙 -50%, 세로 중앙 -50% */
+  top: 50%;
+  /* 바의 수직 중앙 */
+  transform: translate(-50%, -50%);
+  /* 가로 중앙 -50%, 세로 중앙 -50% */
   gap: 0.4rem;
 }
 
@@ -614,7 +625,8 @@ onUnmounted(() => {
   font-size: 0.7rem;
   font-weight: 500;
   color: white;
-  white-space: nowrap; /* 글자가 줄바꿈 없이 표시되도록 */
+  white-space: nowrap;
+  /* 글자가 줄바꿈 없이 표시되도록 */
 }
 
 
@@ -717,7 +729,8 @@ onUnmounted(() => {
 .tori-avatar {
   width: 48px;
   height: 48px;
-  background-color: #e0e7ff; /* 기존 파란 배경 유지 */
+  background-color: #e0e7ff;
+  /* 기존 파란 배경 유지 */
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -734,11 +747,13 @@ onUnmounted(() => {
 /* 말 풍선 스타일의 질문 박스 */
 .question-box {
   flex-grow: 1;
-  background-color: #ffe9e9; /* ✅ 옅은 핑크 배경 */
+  background-color: #ffe9e9;
+  /* ✅ 옅은 핑크 배경 */
   padding: 1.3rem 1.5rem;
   border-radius: 0.8rem;
   box-shadow: var(--shadow-md);
-  border: 1px solid #ffc5c5; /* ✅ 핑크색 테두리 */
+  border: 1px solid #ffc5c5;
+  /* ✅ 핑크색 테두리 */
   position: relative;
 }
 
@@ -752,20 +767,23 @@ onUnmounted(() => {
   height: 0;
   border-top: 8px solid transparent;
   border-bottom: 8px solid transparent;
-  border-right: 10px solid #ffe9e9; /* ✅ 박스 배경과 같은 핑크 */
+  border-right: 10px solid #ffe9e9;
+  /* ✅ 박스 배경과 같은 핑크 */
   filter: drop-shadow(-3px 1px 1px rgba(0, 0, 0, 0.05));
 }
 
 .question-box h2 {
   font-size: 1.1rem;
   margin-bottom: 0.7rem;
-  color: var(--text-primary, #1f2937); /* 기본 텍스트 컬러 */
+  color: var(--text-primary, #1f2937);
+  /* 기본 텍스트 컬러 */
   font-weight: 600;
 }
 
 .question-box p {
   font-size: 0.95rem;
-  color: var(--text-secondary, #4b5563); /* 서브 텍스트 컬러 */
+  color: var(--text-secondary, #4b5563);
+  /* 서브 텍스트 컬러 */
   line-height: 1.5;
 }
 
@@ -798,7 +816,8 @@ onUnmounted(() => {
   padding: 0.8rem 1.6rem;
   border: none;
   border-radius: 9999px;
-  background-color: #f1f5f9;  /* 기본 배경 */
+  background-color: #f1f5f9;
+  /* 기본 배경 */
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -891,6 +910,7 @@ onUnmounted(() => {
     transform: scale(1);
     opacity: 0.8;
   }
+
   100% {
     transform: scale(2.2);
     opacity: 0;
@@ -1000,9 +1020,8 @@ onUnmounted(() => {
   }
 
   .question-box p {
-    
+
     font-size: 0.85rem;
   }
 }
-
 </style>

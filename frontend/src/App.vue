@@ -1,8 +1,8 @@
 <template>
-  <div class="app-container">
+  <div class="app-container flex justify-center">
     <!-- 전체를 감싸는 컨테이너 추가 -->
     <div class="app">
-      <Navigation v-if="!hideNavbar" />
+      <Navigation class="nav" v-if="!hideNavbar" />
       <div class="app-content" :class="{ 'no-navbar': hideNavbar }">
         <main>
           <router-view :userName="userName" />
@@ -26,8 +26,8 @@ import MatchingCompleteModal from "./components/MatchingCompleteModal.vue";
 import Footer from "@/components/Footer.vue";
 import { useMatchingStore } from "@/stores/matchingStore";
 import { useRouter, useRoute } from "vue-router";
-import { onMounted, ref } from "vue";
-import { computed } from "vue"
+import { ref } from "vue";
+import { computed } from "vue";
 
 const matchingStore = useMatchingStore();
 const router = useRouter();
@@ -43,36 +43,57 @@ const userName = ref<string>("김토론");
 const startDiscussion = () => {
   const debateId = matchingStore.matchingDetails.debateId;
   resetMatching(); // 매칭 상태 초기화 후 이동
-  router.push(`/debate/${debateId}`); // debateId를 사용하여 라우팅
+  router.push({
+    name: "debatePrepare",
+    params: { debateId: debateId }, // debateId 전달
+  });
 };
 
 const handleClose = () => {
   matchingStore.isMatched = false;
 };
 
-const route = useRoute()
+const route = useRoute();
 const hiddenPaths = ["/debate/", "/debate-prepare/"];
 
 const hideNavbar = computed(() => {
-  return hiddenPaths.some(path => route.path.startsWith(path));
+  return hiddenPaths.some((path) => route.path.startsWith(path));
 });
-
 </script>
 
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap");
 
+html {
+  font-size: 12px;
+  /* 기본 16px의 75%로 줄이기 */
+}
+
 .app-container {
+  box-sizing: border-box;
   position: relative;
   width: 100%;
+  /* 화면 전체를 사용 */
   min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  /* 수평 중앙 정렬 */
+  align-items: center;
+  /* 수직 중앙 정렬 */
+}
+
+.nav {
+  width: 100%;
+  /* 원하는 너비 */
 }
 
 .app {
   position: relative;
-  width: 100%;
+  width: 75%;
+  /* 원하는 너비 */
   max-width: 1280px;
-  margin: 0 auto;
+
+
   font-family: "Pretendard", sans-serif;
   display: flex;
   flex-direction: column;
@@ -80,7 +101,7 @@ const hideNavbar = computed(() => {
 }
 
 .app-content {
-  padding-top: 80px;
+  padding-top: 60px;
   /* Match the height of the navigation bar */
 }
 

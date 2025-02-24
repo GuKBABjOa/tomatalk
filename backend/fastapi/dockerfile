@@ -11,5 +11,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # app 폴더 내부 파일만 복사
 COPY ./app /app
 
+RUN python -c "from transformers import AutoTokenizer, BertForSequenceClassification; \
+    AutoTokenizer.from_pretrained('happypigs7/check_badword'); \
+    BertForSequenceClassification.from_pretrained('happypigs7/check_badword')"
+
 # FastAPI 실행 (개발 모드)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000", "--workers", "4"]

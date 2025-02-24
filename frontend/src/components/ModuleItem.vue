@@ -42,7 +42,10 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useRouter } from "vue-router";
 import { BarChart3, ChevronRight } from "lucide-vue-next";
+
+const router = useRouter();
 
 interface Props {
   title: string;
@@ -50,11 +53,13 @@ interface Props {
   progress: number;
   completed?: boolean;
   locked?: boolean;
+  targetUrl?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   completed: false,
   locked: false,
+  targetUrl: "/prep/explain",
 });
 
 const buttonText = computed(() => {
@@ -68,6 +73,7 @@ function handleClick() {
     alert("아직 준비중 입니다.");
     return;
   }
+  router.push(props.targetUrl);
 }
 </script>
 
@@ -131,8 +137,6 @@ function handleClick() {
   background: #fff1f1;
   color: #ff6b6b;
 }
-
-
 
 .description {
   font-size: 14px;

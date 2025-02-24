@@ -36,10 +36,6 @@
               hoveredId === debate.debateId ? 'hovered' : '',
             ]" @click="handleSpectate(debate.debateId)">
               방청하기
-              <ArrowRight :size="18" :class="[
-                'arrow-icon',
-                hoveredId === debate.debateId ? 'shifted' : '',
-              ]" />
             </button>
           </div>
         </div>
@@ -86,8 +82,8 @@ const sortedHotDebates = computed(() => {
 const getCardStyle = (debate: DebateInfoResponse, index: number) => {
   const positions = [
     { x: 0, z: 40, scale: 1.1 }, // center
-    { x: -360, z: 20, scale: 0.95 }, // left
-    { x: 360, z: 20, scale: 0.9 }, // right
+    { x: -250, z: 20, scale: 0.95 }, // left
+    { x: 250, z: 20, scale: 0.9 }, // right
   ];
 
   const isHovered = hoveredId.value === debate.debateId;
@@ -159,7 +155,7 @@ const getCategoryLabel = (category: string) => {
 };
 
 const handleSpectate = (debateId: string) => {
-  router.push("/debate");
+  router.push(`/debate/${debateId}`);
 };
 
 onMounted(() => {
@@ -172,7 +168,7 @@ onMounted(() => {
   padding: 2rem;
   position: relative;
   width: 100%;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .title {

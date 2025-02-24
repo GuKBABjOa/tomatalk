@@ -18,11 +18,7 @@
       <div class="case-card">
         <div class="case-image">
           <div class="image-container harvard-image">
-            <<img
-              :src="harvardImage"
-              alt="Harvard"
-              style="width: 100%; height: 100%; object-fit: cover"
-            />
+            <img :src="harvardImage" alt="Harvard" style="width: 100%; height: 100%; object-fit: cover" />
           </div>
           <div class="overlay-gradient"></div>
         </div>
@@ -48,11 +44,7 @@
       <div class="case-card">
         <div class="case-image">
           <div class="image-container ib-image">
-            <img
-              :src="Ib"
-              alt="Harvard"
-              style="width: 100%; height: 100%; object-fit: cover"
-            />
+            <img :src="Ib" alt="Harvard" style="width: 100%; height: 100%; object-fit: cover" />
           </div>
           <div class="overlay-gradient"></div>
         </div>

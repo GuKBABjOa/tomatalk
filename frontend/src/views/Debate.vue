@@ -15,11 +15,10 @@
       <div class="video-section">
         <!-- 메인 발언자 큰 영상 (4:3 비율) -->
         <div class="main-speaker-video">
+          <!-- 스킵하기 버튼 -->
+          <button @click="skip" class="absolute skip" v-if="skippable">스킵하기</button>
           <!-- <video v-if="currentSpeaker" autoplay ref="mainVideoRef"></video> -->
-          <video autoplay playsinline muted="false" ref="mainVideoRef"></video>
-          <!-- <div class="video-placeholder">
-            <span v-if=!participants.length>발언자가 없습니다.</span>
-          </div> -->
+          <video autoplay ref="mainVideoRef"></video>
           <div class="speaker-timer">
             <svg class="timer-circle" viewBox="0 0 60 60">
               <circle class="timer-bg" cx="30" cy="30" r="25" />
@@ -36,7 +35,7 @@
         <div class="participant-videos">
           <div v-for="participant in otherParticipants"
             :key="participant.stream?.connection?.connectionId || participant.nickname" class="participant-video">
-            <video class="rounded-2xl" v-if="participant.stream" autoplay muted></video>
+            <video v-if="participant.stream" autoplay muted></video>
             <div v-else class="video-placeholder">
               <span>{{ participant.nickname }}</span>
             </div>
@@ -44,7 +43,7 @@
         </div>
       </div>
 
-      <div class="notes-container">
+      <div class="notes-container" v-if="participant">
         <!-- 오른쪽 섹션: 검색 및 메모 -->
         <div class="notes-section" :class="{ visible: isNotesVisible }">
           <!-- Add Button -->
@@ -65,11 +64,12 @@
               </div>
 
               <!-- Tabs -->
-              <div class="tabs modal-tabs">
-                <button @click="currentTab = 'memo'" :class="{ active: currentTab === 'memo' }">
+              <div class="tabs modal-tabs flex justify-between">
+                <button @click="currentTab = 'memo'" :class="{ active: currentTab === 'memo' }" class="tapsButton">
                   메모
                 </button>
-                <button @click="currentTab = 'resource'" :class="{ active: currentTab === 'resource' }">
+                <button @click="currentTab = 'resource'" :class="{ active: currentTab === 'resource' }"
+                  class="tapsButton">
                   자료
                 </button>
               </div>
@@ -141,8 +141,10 @@
           </div>
           <h3 class="result">{{ searchQuery ? "검색 결과" : "메모" }}</h3>
           <div class="saved-items">
-            <div v-for="item in filteredItems" :key="item.id" class="saved-item"
-              :class="{ 'memo-item': item.type === 'memo', 'resource-item': item.type === 'resource' }">
+            <div v-for="item in filteredItems" :key="item.id" class="saved-item" :class="{
+              'memo-item': item.type === 'memo',
+              'resource-item': item.type === 'resource',
+            }">
               <div class="item-header">
                 <span class="item-title">{{ item.title }}</span>
                 <span class="item-type">
@@ -154,16 +156,16 @@
                 </span>
               </div>
               <div class="item-tags">
-                <span v-for="tag in [...item.tags]" :key="tag" class="tag"
-                  :class="{ 'memo-tag': item.type === 'memo', 'resource-tag': item.type === 'resource' }">
+                <span v-for="tag in [...item.tags]" :key="tag" class="tag" :class="{
+                  'memo-tag': item.type === 'memo',
+                  'resource-tag': item.type === 'resource',
+                }">
                   # {{ tag }}
                 </span>
               </div>
               <div class="item-content">
                 {{
-                  item.content.length > 100
-                    ? item.content.slice(0, 100) + "..."
-                    : item.content
+                  item.content
                 }}
               </div>
               <div class="item-footer">
@@ -173,10 +175,52 @@
           </div>
         </div>
       </div>
+      <div v-else class="analysis-panel">
+        <div class="analysis-tabs">
+          <button :class="['tab', { active: audienceCurrentTab === 'analysis' }]" @click="handleTabChange('analysis')">
+            분석 노트
+          </button>
+          <button :class="['tab', { active: audienceCurrentTab === 'template' }]" @click="handleTabChange('template')">
+            분석 템플릿
+          </button>
+        </div>
+
+        <!-- Quick Input -->
+        <div class="quick-input">
+          <h3>빠른 메모</h3>
+          <textarea v-model="quickNote" placeholder="발언에 대한 생각을 자유롭게 기록해보세요"></textarea>
+          <button class="submit-button" @click="handleQuickNoteSubmit">
+            작성
+          </button>
+        </div>
+
+        <!-- Saved Notes -->
+        <div class="saved-notes">
+          <template v-if="audienceCurrentTab === 'analysis'">
+            <div v-for="(note, index) in mockTemplates.analysis" :key="index" :class="['note', note.type]">
+              <div class="note-header">
+                <span class="note-badge">{{ note.type.toUpperCase() }} 분석</span>
+                <span class="note-time">• {{ new Date().toLocaleTimeString() }}</span>
+              </div>
+              <p class="note-content">{{ note.content }}</p>
+            </div>
+          </template>
+          <template v-else>
+            <div v-for="(template, index) in mockTemplates.template" :key="index" :class="['note', template.type]">
+              <div class="note-header">
+                <span class="note-badge">{{
+                  template.type.toUpperCase()
+                  }}</span>
+              </div>
+              <p class="note-content">{{ template.content }}</p>
+            </div>
+          </template>
+        </div>
+      </div>
     </div>
 
     <!-- 타임라인 -->
-    <div class="timeline">
+    <div v-if="participant" class="timeline">
       <div class="timeline-track">
         <div class="progress-bar" :style="{ '--progress-width': progressBarWidth }"></div>
         <div v-for="(stage, index) in timelineStages" :key="index" class="timeline-stage" :class="getStageClass(index)">
@@ -188,6 +232,77 @@
         </div>
       </div>
     </div>
+    <!-- 방청객 버전 타임 라인 -->
+    <div v-else class="timeline-section">
+      <div class="timeline-header">
+        <h2>토론 진행 상황</h2>
+        <p>클릭하여 각 발언 내용을 확인할 수 있습니다</p>
+      </div>
+      <!-- Timeline and Summary Container -->
+      <div class="timeline-summary-container">
+        <!-- Argument Selection Tabs - 위치 변경 -->
+        <div class="timeline-column">
+          <div class="argument-tabs">
+            <button :class="[
+              'argument-tab',
+              { active: currentArgument === 'first' },
+            ]" @click="handleArgumentChange('first')">
+              첫 번째 주장
+            </button>
+            <button :class="[
+              'argument-tab',
+              { active: currentArgument === 'second' },
+            ]" @click="handleArgumentChange('second')">
+              두 번째 주장
+            </button>
+          </div>
+          <!-- Timeline -->
+          <div class="argument-timeline">
+            <div class="timeline">
+              <div class="timeline-track">
+                <div class="timeline-progress"></div>
+              </div>
+              <div class="timeline-points">
+                <div v-for="(point, index) in displayedTimeline" :key="index" :class="[
+                  'point',
+                  { current: currentPointIndex === index, disabled: !point },
+                ]" @click="point ? handleTimelineClick(index) : null" style="cursor: pointer">
+                  <div class="point-marker"></div>
+                  <div class="point-label">
+                    {{ defaultSpeakers[index] }} <!-- 기본 발언자 정보 -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-column">
+          <div v-if="isSummaryModalOpen" class="speech-summary">
+            <div class="summary-header">
+              <span class="summary-badge">발언 요약</span>
+              <button @click="closeSummaryModal" class="close-button2">×</button>
+            </div>
+            <p class="summary-content">
+              {{ selectedSummaryContent }}
+            </p>
+            <div class="summary-tags">
+              <span v-for="tag in currentPoint?.tags || []" :key="tag" class="tag">
+                #{{ tag }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 토론 종료 모달 -->
+    <div v-if="showEndModal" class="modal-overlay2">
+      <div class="modal">
+        <p>토론이 종료됩니다. 모두 수고하셨습니다.</p>
+        <p>{{ countdown }}초 후 메인 페이지로 이동합니다.</p>
+        <img src="../assets/Tori.svg" alt="Tori Mascot" class="tori-mascot" />
+      </div>
+    </div>
   </main>
 </template>
 
@@ -197,13 +312,13 @@ import axios from 'axios'
 import { OpenVidu, Session, Stream } from "openvidu-browser"
 import { useWebSocket } from "@/composables/useWebSocket"
 import { useTimer } from "@/composables/useTimer"
-// import { useMatchingStore } from "@/stores/matchingStore"
-// import { log } from "console"
+import { useRouter } from "vue-router"
 
-const wsUrl = import.meta.env.VITE_WS_URL + "/ws";
 
-// const matchingStore = useMatchingStore()
-// 수정 : Debater 타입 선언
+// 토론 진행 정보 구독
+const pyWsUrl = import.meta.env.VITE_PY_WS_URL + "/ws";
+const pyUrl = import.meta.env.VITE_PYTHON_URL;
+
 interface Debater {
   userId: string,
   nickname: string,
@@ -217,41 +332,188 @@ interface Debater {
   addVideoElement?: (element: HTMLVideoElement) => void;
 }
 
+const audienceCurrentTab = ref("analysis");
+const quickNote = ref<string>("");
+const savedNotes = ref<any>([]);
+const handleTabChange = (tab: string) => {
+  audienceCurrentTab.value = tab;
+};
+const handleQuickNoteSubmit = () => {
+  if (quickNote.value.trim()) {
+    const newNote = {
+      type: "quick",
+      content: quickNote.value,
+      time: new Date().toLocaleTimeString(),
+    };
+    savedNotes.value = [newNote, ...savedNotes.value];
+    quickNote.value = "";
+    // TODO: API 연동 시 서버로 전송하는 로직 추가
+  }
+};
+const mockTemplates = {
+  analysis: [
+    { type: "prep", content: "PREP 분석 노트 내용" },
+    { type: "logic", content: "논리성 분석 노트 내용" },
+    { type: "quick", content: "빠른 분석 노트 내용" },
+  ],
+  template: [
+    { type: "structure", content: "구조화 템플릿" },
+    { type: "evidence", content: "증거 분석 템플릿" },
+    { type: "counter", content: "반론 구성 템플릿" },
+  ],
+};
+// 상태 관리
+const currentArgument = ref("first");
+
+const selectedSummaryContent = computed(() => {
+  return currentPointIndex.value !== null ? timelineData.value[currentPointIndex.value] : "발언 내용을 선택해주세요";
+});
+
+// 발언 시간 (기본값 포함)
+const selectedSummaryTime = computed(() => {
+  return currentPointIndex.value !== null ? defaultTimes[currentPointIndex.value] : "-";
+});
+
+// API 요청 함수
+const fetchSummary = async () => {
+  try {
+    const response = await axios.post(pyUrl + "/api/transcripts/", {
+      devate_id: props.debateId,
+      // devate_id: "debate_001",
+      user_id: 0,
+      current_round: 0
+    });
+
+    if (response.data && Array.isArray(response.data)) {
+      // 응답 데이터가 있으면 업데이트
+      console.log(`제발제발제발제발제발제발제발제발제발제발제발제발제발제발 ${response.data}`)
+      timelineData.value = response.data;
+      console.log(timelineData.value)
+
+      // **응답이 8개 미만이면 기본값 추가** (타임라인은 항상 8개 유지)
+      while (timelineData.value.length < 8) {
+        timelineData.value.push("아직 데이터가 없습니다.");
+      }
+    }
+  } catch (error) {
+    console.error("❌ 발언 요약 데이터 요청 실패:", error);
+  }
+};
+
+const isSummaryModalOpen = ref(false); // 모달 상태
+// 기본 발언자 목록 (최대 8개)
+const defaultSpeakers = [
+  "A(찬성)", "B(반대)", "C(찬성)", "D(반대)",
+  "A(찬성)", "B(반대)", "C(찬성)", "D(반대)"
+];
+
+// 기본 발언 시간 (예제)
+const defaultTimes = [
+  "00:30", "01:00", "01:30", "02:00",
+  "02:30", "03:00", "03:30", "04:00"
+];
+
+// 타임라인 클릭 시 처리
+const handleTimelineClick = (index: number) => {
+  currentPointIndex.value = index; // 클릭된 인덱스 업데이트
+  isSummaryModalOpen.value = true; // 모달 열기
+};
+
+const closeSummaryModal = () => {
+  isSummaryModalOpen.value = false; // 모달 닫기
+};
+
+// 주장 변경 이벤트
+const handleArgumentChange = (argument: string) => {
+  currentArgument.value = argument;
+  currentPoint.value = null; // 주장 변경 시 선택된 요약 초기화
+  currentPointIndex.value = null;
+};
+const currentPointIndex = ref<number | null>(null); // 현재 선택된 타임라인 포인트 인덱스
+const currentPoint = ref<TimelinePoint | null>(null); // 현재 선택된 발언 요약
+
+interface TimelinePoint {
+  speaker: string;
+  time: string;
+  content: string;
+  tags: string[];
+}
+
+const defaultTimelineData = Array(8).fill("아직 데이터가 없습니다.");
+
+const timelineData = ref<string[]>([...defaultTimelineData]);
+// 첫 번째 주장(앞 4개) / 두 번째 주장(뒤 4개) 구분
+const displayedTimeline = computed(() => {
+  console.log(`살려주세요 진짜로 ${currentArgument.value}`)
+  return currentArgument.value === "first"
+    ? timelineData.value.slice(0, 4)
+    : timelineData.value.slice(4, 8);
+});
+
+
+let intervalId: string | number | NodeJS.Timeout | null | undefined = null;
+
+const wsUrl = import.meta.env.VITE_WS_URL + "/ws";
+
+// const matchingStore = useMatchingStore()
+// 수정 : Debater 타입 선언
+interface Debater {
+  userId: string;
+  nickname: string;
+  profileImageUrl: string;
+  position: string;
+  order: number;
+  participant: boolean;
+  connectionId: string;
+  stream: any; // 구체적인 타입을 알고 있다면 사용
+  placeholder?: boolean;
+  addVideoElement?: (element: HTMLVideoElement) => void;
+}
+
+const leaveSession = () => {  // 세션 종료 함수
+  if (session.value) {
+    session.value.disconnect();
+  }
+  session.value = null;
+  OV.value = null;
+  subscribers.value = [];
+  publisher.value = null;
+  console.log("OpenVidu 세션 종료")
+}
+
+
 onMounted(() => {
-  fetchDebateRoomInfo() // 입장하면 방 정보를 찾아와라
-  joinSession() // OpenVidu 세션 참가
+  fetchDebateRoomInfo(); // 입장하면 방 정보를 찾아와라
+  joinSession(); // OpenVidu 세션 참가
+  fetchSummary(); // 초기 데이터 로드, 라운드 별 요약 정보보
+  intervalId = setInterval(fetchSummary, 30000); // 30초마다 갱신
 
   watch(currentSpeaker, (newSpeaker) => {
     if (newSpeaker && mainVideoRef.value) {
       newSpeaker.addVideoElement(mainVideoRef.value)
     }
   })
-  // 수정 : watch 타입 단언
-  watch(
-    () => otherParticipants.value as Debater[],
-    (newParticipants: Debater[]) => {
-      const videoElements = document.querySelectorAll(".participant-video video") as NodeListOf<HTMLVideoElement>;
 
-      newParticipants
-        .filter((participant): participant is Debater => !participant.placeholder) // 유효한 Debater만 필터링
-        .forEach((participant, index) => {
-          if (videoElements[index] && participant.addVideoElement) {
-            participant.addVideoElement(videoElements[index]);
-          }
-        });
-    }
-  );
-
+  watch(otherParticipants, (newParticipants) => {
+    const videoElements = document.querySelectorAll(".participant-video video")
+    newParticipants.forEach((participant, index) => {
+      if (videoElements[index]) {
+        participant.addVideoElement(videoElements[index])
+      }
+    })
+  })
 })
-// 수정: unmount 시 cleanup
+
 onUnmounted(() => {
-  // Clean up video elements
+  if (intervalId !== null) {
+    clearInterval(intervalId);
+  }
   if (mainVideoRef.value) {
     mainVideoRef.value.srcObject = null;
   }
 
   // Clean up subscribers
-  subscribers.value.forEach(subscriber => {
+  subscribers.value.forEach((subscriber) => {
     if (subscriber.stream) {
       subscriber.stream.dispose();
     }
@@ -260,8 +522,95 @@ onUnmounted(() => {
   // Proper session cleanup
   leaveSession();
 });
+let stream: MediaStream | null = null;              // getUserMedia로 얻은 MediaStream
+let audioContext: AudioContext | null = null;        // AudioContext 인스턴스
+let pcmNode: AudioWorkletNode | null = null;         // AudioWorkletNode
+let socket: WebSocket | null = null;                 // WebSocket 연결
 
-const mainVideoRef = ref<HTMLVideoElement | null>(null)
+async function startAudioProcessing() {
+  try {
+    // 1. 마이크 스트림 얻기
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    // 2. AudioContext 생성
+    audioContext = new AudioContext({ sampleRate: 16000 });
+
+    // 3. AudioWorklet 모듈 등록 (파일 경로는 실제 파일 위치에 맞게 조정)
+    await audioContext.audioWorklet.addModule('/pcm-processor.js');
+
+    // 4. AudioWorkletNode 생성
+    pcmNode = new AudioWorkletNode(audioContext, 'pcm-processor');
+
+    // 5. WebSocket 연결 생성
+    socket = new WebSocket(
+      `${pyWsUrl}/api/audio/stt?debate_id=${props.debateId}&stance=${position.value}&nickname=${username}&round=${round.value}`);
+
+    socket.binaryType = 'arraybuffer';  // 이진 데이터 전송을 위해 설정
+
+    // 6. AudioWorkletNode의 메시지를 WebSocket으로 전송
+    pcmNode.port.onmessage = (event) => {
+
+      const pcmArray = new Int16Array(event.data);
+      console.log('메인 스레드: PCM 데이터 (Int16Array):', pcmArray);
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(event.data);
+        console.log('메인 스레드: WebSocket으로 데이터 전송');
+      } else {
+        console.warn('메인 스레드: WebSocket 연결 상태가 OPEN이 아님:', socket?.readyState);
+      }
+    };
+
+    // 7. 마이크 스트림을 AudioContext에 연결
+    const source = audioContext.createMediaStreamSource(stream);
+    source.connect(pcmNode).connect(audioContext.destination);
+
+    console.log('오디오 캡처 및 전송 시작');
+  } catch (error) {
+    console.error('오디오 처리 시작 중 오류 발생:', error);
+  }
+}
+
+function stopAudioProcessing() {
+  // 1. WebSocket 연결 종료
+  if (socket) {
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.close();
+      console.log('WebSocket 연결 종료');
+    }
+    socket = null;
+  }
+
+  // 2. AudioWorkletNode 연결 해제
+  if (pcmNode) {
+    pcmNode.disconnect();
+    pcmNode = null;
+    console.log('AudioWorkletNode 연결 해제');
+  }
+
+
+  // 3. AudioContext 종료
+  if (audioContext) {
+    audioContext.close().then(() => {
+      console.log('AudioContext 종료');
+    }).catch((error) => {
+      console.error('AudioContext 종료 중 오류 발생:', error);
+    });
+    audioContext = null;
+  }
+
+  // 4. MediaStream의 모든 트랙 중지 (마이크 끄기)
+  if (stream) {
+    stream.getTracks().forEach((track) => track.stop());
+    stream = null;
+    console.log('MediaStream 트랙 중지(마이크 끄기)');
+  }
+}
+
+const subscribers = ref<any[]>([])
+const publisher = ref<any>(null)
+const mainVideoRef = ref<HTMLVideoElement | null>(null);
+
+
 
 // Vue Router의 props로 전달된 debateId를 받음
 const props = defineProps<{ debateId: string }>()
@@ -270,9 +619,12 @@ const props = defineProps<{ debateId: string }>()
 const subject = ref<string>("") // 토론 주제
 const participant = ref<boolean>(true) // 토론 참여자인 경우 true, 아닐 경우 false
 const users = ref<{ userId: number; nickname: string; profileImage: string; position: string; order: number }[]>([])
+const username = localStorage.getItem("username")
+const userId = localStorage.getItem("id")
+const position = ref<string>("")
+const token = localStorage.getItem("token") // api 요청 해더에 token 값 필요함
 const fetchDebateRoomInfo = async () => {
   try {
-    const token = localStorage.getItem("token") // api 요청 해더에 token 값 필요함
     console.log('토큰 확인:', token)
     if (!token) {
       throw new Error("로그인이 필요합니다.")
@@ -298,14 +650,9 @@ const fetchDebateRoomInfo = async () => {
 // OpenVidu 세션 참가
 const OV = ref<OpenVidu | null>(null)
 const session = ref<Session | null>(null)
-const subscribers = ref<any[]>([])
-const publisher = ref<any>(null)
-const mySessionId = ref<string>("SessionA")
-const myUserName = ref<string>("Participant")
-const userId = localStorage.getItem("id")
-const isSpeaker = ref<boolean>(false)
-
-const participants = computed(() => latestDebateState.value.participants || []);
+const connectionId = ref<string>("")
+const speakerConnectionId = ref<string | null>(null)
+const skippable = ref<Boolean>(false)
 // const clientData = computed(() => {
 //     const { clientData } = getConnectionData();
 //     return clientData;
@@ -321,41 +668,89 @@ const joinSession = async () => {
     console.log("OpenVidu 세션에 연결 시도")
     OV.value = new OpenVidu()
     session.value = OV.value.initSession()
-
+    console.log('session:', session.value)
     // 스트림 생성 시 참가자 추가
-    session.value.on("streamCreated", (event: any) => {
-      const subscriber = session.value!.subscribe(event.stream, undefined);
-      subscriber.subscribeToAudio(true);
-      subscribers.value.push(subscriber); // 참가자 명단에 추가
-      console.log("session.value:", session.value);
+    // 참가자인지?
+    // 참가자면 비디오 true,. 오디오 false  
+    // 관전자면 비디오&오디오 false
+    session.value?.on("streamCreated", async (event: any) => {
+      console.log("📡 streamCreated 이벤트 발생", event);
 
-    })
+      if (!event.stream) {
+        console.error("⚠️ event.stream이 존재하지 않음");
+        return;
+      }
+
+      try {
+        console.log("🛠️ session.value.subscribe() 실행 전...");
+        const subscriber = session.value!.subscribe(event.stream, undefined);
+
+        if (!subscriber) {
+          console.error("⚠️ subscriber가 생성되지 않음");
+          return;
+        }
+
+        console.log("✅ 구독 객체 생성 완료:", subscriber);
+        subscribers.value.push(subscriber);
+
+        // ✅ 스트림이 준비될 때까지 기다렸다가 오디오 활성화
+        setTimeout(() => {
+          const audioTracks = subscriber.stream.getMediaStream().getAudioTracks();
+          console.log("🎤 오디오 트랙 목록:", audioTracks);
+
+          if (audioTracks.length > 0) {
+            console.log("🔊 오디오 트랙이 존재함, subscribeToAudio 실행");
+            subscriber.subscribeToAudio(true);
+
+            // ✅ HTML 오디오 요소 생성 및 연결
+            const audioElement = document.createElement("audio");
+            audioElement.srcObject = subscriber.stream.getMediaStream();
+            audioElement.autoplay = true;
+            audioElement.controls = true;
+            audioElement.hidden = true;
+            document.body.appendChild(audioElement);
+            console.log("🎧 오디오 태그에 스트림 연결 완료");
+          } else {
+            console.error("⚠️ 오디오 트랙이 존재하지 않음");
+          }
+        }, 1000);
+      } catch (error) {
+        console.error("❌ 구독 중 오류 발생:", error);
+      }
+    });
+
+    session.value.on("connectionCreated", (event: any) => {
+      console.log("🔗 connectionCreated 이벤트 발생", event);
+    });
+
     // console.log(session.value.connection.connectionId);
     // localStorage에서 토큰 가져오기
-    const openviduToken = getToken()
+    const openviduToken = getToken();
     // OpenVidu 세션에 연결
-
     await session.value.connect(openviduToken, { clientData: localStorage.getItem("id") })
-
     // 비디오 스트림 생성
     // 수정 : participants 리스트에 있는 user만 publish
-    const isPublisher = computed(() => {
-      return participants.value.some((participant: Debater) => participant.userId === userId);
-    });
-    if (isPublisher) {
+    if (participant) {
       publisher.value = OV.value.initPublisher(undefined, {
         audioSource: undefined,
         videoSource: undefined,
-        publishAudio: true,
+        publishAudio: false,
         publishVideo: true,
-        resolution: "640x480",
+        resolution: "480x360",
         frameRate: 30,
         insertMode: "APPEND",
         mirror: true,
       })
       console.log("Publisher 객체:", publisher.value);
 
-      session.value.publish(publisher.value)
+      session.value.publish(publisher.value);
+      connectionId.value = session.value.connection.connectionId
+      if (publisher.value) {
+        session.value.publish(publisher.value);
+        console.log("🚀 퍼블리싱 완료");
+      } else {
+        console.error("⚠️ 퍼블리셔가 생성되지 않음");
+      }
     }
     console.log(session.value.connection.connectionId)
     console.log("OpenVidu 세션 연결 완료")
@@ -372,17 +767,6 @@ const getToken = () => {
   return openviduToken
 }
 
-const leaveSession = () => {  // 세션 종료 함수
-  if (session.value) {
-    session.value.disconnect();
-  }
-  session.value = null;
-  OV.value = null;
-  subscribers.value = [];
-  publisher.value = null;
-  console.log("OpenVidu 세션 종료")
-}
-
 // 마이크 & 카메라 ON/OFF 함수
 const toggleAudio = () => {
   if (publisher.value) {
@@ -396,22 +780,24 @@ const toggleVideo = () => {
   }
 };
 
-
 // 토론 진행 정보 구독
-// const wsUrl = `ws://localhost:8000/ws/debate/${props.debateId}`
-const { messages, isConnected, debateState } = useWebSocket(wsUrl)
-const latestDebateState = computed(() => debateState.value || { // 가장 최근의 토론 상태를 가져오기
-  sequence: 0,
-  status: "WAITING",
-  currentSpeakerId: null,
-  currentSpeakEndTime: null,
-  nextSpeakerId: null,
-  canInterrupt: false,
-  isInterrupted: false,
-  interruptSpeakerId: null,
-  interruptEndTime: null,
-  participants: []
-})
+const { messages, isConnected, debateState, skipTurn } = useWebSocket(wsUrl);
+const latestDebateState = computed(
+  () =>
+    debateState.value || {
+      // 가장 최근의 토론 상태를 가져오기
+      sequence: 0,
+      status: "WAITING",
+      currentSpeakerId: null,
+      currentSpeakEndTime: null,
+      nextSpeakerId: null,
+      canInterrupt: false,
+      isInterrupted: false,
+      interruptSpeakerId: null,
+      interruptEndTime: null,
+      participants: [],
+    }
+);
 
 const currentSpeakerPosition = computed(() => { // 현재 발언자 입장
   const currentSpeakerId = latestDebateState.value.currentSpeakerId
@@ -482,51 +868,77 @@ const getStageClass = (index: number) => {
   return ""; // 나머지는 기본 스타일
 };
 
-watch(() => latestDebateState.value.status, (newStatus) => {
-  if (newStatus === "SPEECHING") {
-    step.value++; // "SPEECHING" 상태가 될 때마다 step 증가
+const count = ref<number>(0)
 
-    if (step.value === 4) {
-      if (!resetDone) {
-        round.value = 2; // round 값을 2로 변경
-        step.value = 0;  // step을 0으로 초기화 (첫 번째 반복만)
-        resetDone = true; // 이후에는 다시 초기화되지 않도록 설정
-        console.log("step 초기화 & round 증가");
-      } else {
-        console.log("step이 4지만 이미 초기화된 적이 있어 유지");
-        step.value = 3
+watch(
+  () => latestDebateState.value.status,
+  (newStatus) => {
+    if (newStatus === "SPEECHING") {
+      count.value++;
+      if (count.value !== 1) {
+        step.value++; // "SPEECHING" 상태가 될 때마다 step 증가
       }
+
+      if (step.value === 4) {
+        if (!resetDone) {
+          round.value = 2; // round 값을 2로 변경
+          step.value = 0; // step을 0으로 초기화 (첫 번째 반복만)
+          count.value = 0;
+          resetDone = true; // 이후에는 다시 초기화되지 않도록 설정
+          console.log("step 초기화 & round 증가");
+        } else {
+          console.log("step이 4지만 이미 초기화된 적이 있어 유지");
+          step.value = 3;
+        }
+      }
+
+      console.log(`현재 step: ${step.value}, round: ${round.value}`);
+      console.log('speakers:', currentSpeaker, otherParticipants)
     }
 
-    console.log(`현재 step: ${step.value}, round: ${round.value}`);
-    subscribers.value.forEach((subscriber, index) => {
-      console.log(`🎧 Subscriber[${index}] audio 설정 확인:`);
-      console.log("subscribeToAudio 상태:", subscriber.subscribeToAudio);
-      console.log("subscriber.stream.audioActive:", subscriber.stream.audioActive);
-    });
+    // `round`가 변경되었을 때 step 초기화 (단, 한 번만 실행)
+    if (round.value === 2 && step.value === 4 && !resetDone) {
+      step.value = 0;
+      console.log("타임라인 초기화 (라운드 2 시작)");
+    }
+  });
 
-  }
-
-  // `round`가 변경되었을 때 step 초기화 (단, 한 번만 실행)
-  if (round.value === 2 && step.value === 4 && !resetDone) {
-    step.value = 0;
-    console.log("타임라인 초기화 (라운드 2 시작)");
-  }
-});
-
-// 수정 : 발언권 자동관리
+// 수정 : 발언권 자동관리 (완료)
 watch(() => latestDebateState.value, (newState) => {
-  if (!publisher.value) return; // publisher가 없는 경우 안전하게 종료
-  const newSpeakerId = newState.currentSpeakerConnectionId;
-  if (newState.status === "SPEECHING" && newState.currentSpeakerId === userId) {
-    publisher.value.publishAudio = true;  // 현재 사용자가 발언자이면 마이크 활성화
-  } else {
-    publisher.value.publishAudio = false; // 현재 사용자가 발언자가 아니면 마이크 비활성화
+  console.log("🛠️ latestDebateState 변경 감지:", newState);
+  if (!publisher.value) {
+    console.log("⚠️ publisher.value가 아직 초기화되지 않음");
+    return;
   }
-  console.log(`발언자 업데이트됨: ${newSpeakerId}, 사용자(${userId}) 마이크: ${publisher.value.publishAudio}`);
+  const newSpeakerId = newState.currentSpeakerConnectionId;
+  console.log("🎙️ 새로운 발언자 ID:", newSpeakerId, "현재 사용자 ID:", connectionId.value);
+  // 🔍 현재 토론 상태 출력 (디버깅용)
+  if (newState.status === "SPEECHING" && newSpeakerId === connectionId.value) {
+    console.log("✅ 현재 사용자가 발언자입니다. 마이크 활성화 시도...");
+    try {
+      publisher.value.publishAudio(true);
+      speakerConnectionId.value = connectionId.value
+      skippable.value = true;
+      startAudioProcessing();
+      console.log("🎙️ 마이크 활성화 요청 완료");
+    } catch (error) {
+      console.error("❌ 마이크 활성화 중 오류 발생:", error);
+    }
+  }
+  else {
+    console.log("🔇 현재 사용자가 발언자가 아님. 마이크 비활성화 시도...");
+    try {
+      publisher.value.publishAudio(false);
+      skippable.value = false;
+      speakerConnectionId.value = null
+      stopAudioProcessing();
+      console.log("🔕 마이크 비활성화 요청 완료");
+    } catch (error) {
+      console.error("❌ 마이크 비활성화 중 오류 발생:", error);
+    }
+  }
+  console.log(`🔄 발언자 업데이트됨: ${newSpeakerId}, 사용자(${connectionId.value}) 마이크 상태: ${publisher.value.stream?.audioActive}`);
 }, { deep: true });
-
-
 
 const progressBarWidth = computed(() => {
   return `${(step.value / 3) * 100}%`; // step이 0~3 사이에서 0%, 33%, 66%, 100%로 변경
@@ -535,7 +947,7 @@ const progressBarWidth = computed(() => {
 // 현재 발언자의 캠을 메인 영역에, 나머지 참가자는 작은 영역에 배치하기
 const currentSpeaker = computed(() => {
   subscribers.value.find(subscriber =>
-    console.log('am I currentSpeaker?:', subscriber.stream.connection.connectionId === latestDebateState.value.currentSpeakerConnectionId)
+    console.log(subscriber.stream.connection.connectionId === latestDebateState.value.currentSpeakerConnectionId)
   )
   return subscribers.value.find(subscriber =>
     subscriber.stream.connection.connectionId === latestDebateState.value.currentSpeakerConnectionId
@@ -543,15 +955,11 @@ const currentSpeaker = computed(() => {
 }
 );
 
-
-// 수정 : otherParticipants 구분
 const otherParticipants = computed(() => {
-  // const filteredParticipants = subscribers.value.filter(subscriber =>
-  //   subscriber.stream.connection.connectionId !== latestDebateState.value.currentSpeakerConnectionId
-  // );
-  const filteredParticipants: Debater[] = latestDebateState.value.participants.filter((participant: Debater) =>
-    participant.connectionId !== latestDebateState.value.currentSpeakerConnectionId);
-  // console.log('oP:', otherParticipants)
+  const filteredParticipants = subscribers.value.filter(subscriber =>
+    subscriber.stream.connection.connectionId !== latestDebateState.value.currentSpeakerConnectionId
+  );
+  console.log('oP:', otherParticipants.value)
   // 참가자가 없을 경우 기본 UI를 위한 placeholder 추가
   return filteredParticipants.length > 0 ? filteredParticipants : [
     { nickname: "참가자 없음", stream: null, placeholder: true },
@@ -638,7 +1046,7 @@ const saveMemo = () => {
     createdAt: new Date().toLocaleDateString("ko-KR"),
   };
 
-  savedItemsStore.addMemo(newMemo)
+  savedItemsStore.addMemo(newMemo);
 
   // Reset memo inputs
   memoContent.value = "";
@@ -665,14 +1073,8 @@ const saveResource = () => {
     createdAt: new Date().toLocaleDateString("ko-KR"),
   };
 
-  savedItemsStore.addResource(newResource);
 
-  // Reset resource inputs
-  resourceUrl.value = "";
-  resourceTitle.value = "";
-  resourceTags.value = [];
-  uploadedFile.value = null;
-  selectedResourceType.value = "url";
+  savedItemsStore.addResource(newResource);
 };
 
 // Modal state
@@ -707,13 +1109,19 @@ const handleSave = () => {
 // 기존 imports 아래에 추가
 const isNotesVisible = ref(false);
 
+// skip하기
+const skip = () => {
+  console.log('스킵할래')
+  skipTurn();
+}
+
 // 토글 함수 추가
 const toggleNotes = () => {
   isNotesVisible.value = !isNotesVisible.value;
 };
 
 import { useSavedItemsStore } from "@/stores/savedItems";
-const savedItemsStore = useSavedItemsStore() // pinia에서 저장된 메모 리스트 가져오기
+const savedItemsStore = useSavedItemsStore(); // pinia에서 저장된 메모 리스트 가져오기
 
 const filteredItems = computed(() => {
   const query = searchQuery.value.toLowerCase().trim();
@@ -745,6 +1153,55 @@ const getResourceEmoji = (type: string) => {
       return "📁";
   }
 };
+
+// 퇴장 모달
+const router = useRouter();
+const showEndModal = ref(false);
+const countdown = ref(5);
+watch(() => latestDebateState.value.status, (newStatus) => {
+  if (newStatus === "FINISHED") {
+    showEndModal.value = true;
+    startCountdown();
+  }
+});
+
+function startCountdown() {
+  let timer = setInterval(() => {
+    countdown.value -= 1;
+    if (countdown.value <= 0) {
+      clearInterval(timer);
+      router.push('/');
+    }
+  }, 1000);
+}
+
+// const toggleResultModal = async() => {
+
+// }
+
+// const getResult = async () => {
+//   try {
+//     const response = await fetch(`${pyUrl}/api/report/create?debate_id=${props.debateId}&user_id=${userId}`,
+//     {
+//       method: "POST",
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//         "Content-Type": "application/json",
+//       },
+//     });
+//     console.log(response.ok)
+//     if (response.ok) {
+//       // 대기중 모달 필요
+//       setTimeout(() => {
+//         toggleResultModal();
+//       }, 5000);
+//       toggleResultModal();
+//       router.push("/");
+//     }
+//   } catch (error) {
+//     console.error("❌ Failed to send reports:", error);
+//   }
+// };
 </script>
 
 <style scoped>
@@ -752,7 +1209,6 @@ const getResourceEmoji = (type: string) => {
   max-width: 100vw;
   height: 100vh;
   margin: 0;
-  padding: 1vh 2vw;
   display: flex;
   flex-direction: column;
   font-family: "Pretendard", sans-serif;
@@ -763,9 +1219,10 @@ const getResourceEmoji = (type: string) => {
   display: flex;
   align-items: center;
   background-color: white;
-  border-bottom: 1px solid #cacaca;
+  /* border-bottom: 1px solid #cacaca; */
   /* border-radius: 16px; */
-  padding: 1vh 1vw;
+  padding: 1vh 0;
+  margin-top: 1vh;
   margin-bottom: 1vh;
   height: 8vh;
 }
@@ -865,7 +1322,6 @@ const getResourceEmoji = (type: string) => {
   display: none;
 }
 
-
 .modal-content .tags {
   margin-bottom: 16px;
 }
@@ -908,6 +1364,10 @@ const getResourceEmoji = (type: string) => {
 }
 
 /* 비디오 섹션 */
+video {
+  height: 100%;
+}
+
 .video-section {
   display: flex;
   flex-direction: column;
@@ -922,6 +1382,22 @@ const getResourceEmoji = (type: string) => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.skip {
+  right: 1.8rem;
+  bottom: 1.25rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 1.2rem;
+  padding-right: 1.2rem;
+  background-color: #ff6b6b;
+  color: white;
+  border-radius: 1rem;
+}
+
+.skip:hover {
+  background-color: red;
 }
 
 .video-placeholder {
@@ -1046,8 +1522,20 @@ const getResourceEmoji = (type: string) => {
   cursor: pointer;
 }
 
+.close-button2 {
+  position: absolute;
+  top: -5px;
+  right: 0;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+}
+
 .modal-tabs {
   margin-bottom: 20px;
+  width: 130px;
 }
 
 .modal-content {
@@ -1077,6 +1565,9 @@ const getResourceEmoji = (type: string) => {
 
 .participant-videos {
   display: flex;
+  align-items: center;
+  /* 또는 flex-start */
+  justify-content: center;
   height: 24vh;
   gap: 1vw;
 }
@@ -1287,6 +1778,23 @@ const getResourceEmoji = (type: string) => {
   margin-top: 1vh;
   padding: 1vh 2vw;
   height: 12vh;
+  position: relative;
+}
+
+.timeline-progress {
+  height: 100%;
+  width: 130px;
+  background-color: #ef4444;
+  border-radius: 2px;
+}
+
+.timeline-points {
+  display: flex;
+  justify-content: space-between;
+  width: 520px;
+  position: absolute;
+  top: 50%;
+  transform: translate(0%, -50%);
 }
 
 .timeline-track {
@@ -1294,7 +1802,92 @@ const getResourceEmoji = (type: string) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 0.9rem;
+  padding-top: 1.2rem;
+}
+
+.point {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.point-marker {
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  background-color: #e5e7eb;
+}
+
+.point.done .point-marker,
+.point.current .point-marker {
+  background-color: #ef4444;
+}
+
+.point-label {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 8px;
+}
+
+.point-time {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+
+.speech-summary {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 30rem;
+  /* 높이 100% 설정 */
+  width: 30rem;
+  background-color: #fef2f2;
+  border-radius: 8px;
+  padding: 20px;
+  overflow-y: auto;
+  /* 내용이 넘칠 경우 스크롤 표시 */
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.summary-badge {
+  background-color: #ef4444;
+  color: white;
+  padding: 4px 16px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.summary-time {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.summary-content {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  flex: 1;
+  /* 남은 공간 모두 차지 */
+  overflow-y: auto;
+  /* 내용이 넘칠 경우 스크롤 */
+  margin-bottom: 12px;
+}
+
+.summary-tags {
+  display: flex;
+  gap: 8px;
 }
 
 .progress-bar {
@@ -1365,6 +1958,284 @@ const getResourceEmoji = (type: string) => {
   font-size: 12px;
 }
 
+.tapsButton {
+  padding: 12px 20px;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.analysis-panel {
+  width: 320px;
+  height: 870px;
+  background-color: white;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.analysis-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  width: 136px;
+  height: 32px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  background-color: #f3f4f6;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.tab.active {
+  font-family: inherit;
+  background-color: #eef2ff;
+  color: #4f46e5;
+}
+
+.quick-input {
+  background-color: #f9fafb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.quick-input h3 {
+  font-size: 13px;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.quick-input textarea {
+  font-family: inherit;
+  width: 100%;
+  height: 48px;
+  border-radius: 6px;
+  border: none;
+  font-size: 12px;
+  color: #9ca3af;
+  resize: none;
+}
+
+.submit-button {
+  margin-top: 8px;
+  padding: 6px 12px;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-family: inherit;
+}
+
+.submit-button:hover {
+  background-color: #4338ca;
+}
+
+.saved-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.note {
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.note.prep {
+  background-color: #eef2ff;
+}
+
+.note.logic {
+  background-color: #fef2f2;
+}
+
+.note.quick {
+  background-color: #ecfdf5;
+}
+
+.note-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.note-badge {
+  padding: 4px 12px;
+  border-radius: 10px;
+  font-size: 11px;
+  color: white;
+}
+
+.note.prep .note-badge {
+  background-color: #818cf8;
+}
+
+.note.logic .note-badge {
+  background-color: #ef4444;
+}
+
+.note.quick .note-badge {
+  background-color: #065f46;
+}
+
+.note-time {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.note-content {
+  font-size: 13px;
+}
+
+.note.prep .note-content,
+.note.logic .note-content,
+.note.quick .note-content {
+  color: #111827;
+  font-weight: 500;
+}
+
+.structure {
+  background-color: #fef2f2;
+}
+
+.evidence {
+  background-color: #ecfdf5;
+}
+
+.counter {
+  background-color: #eef2ff;
+}
+
+.note.counter .note-badge {
+  background-color: #818cf8;
+}
+
+.note.structure .note-badge {
+  background-color: #ef4444;
+}
+
+.note.evidence .note-badge {
+  background-color: #065f46;
+}
+
+/* Timeline Section Styles */
+.timeline-section {
+  background-color: none;
+  /* padding: 24px; */
+  max-height: 73px;
+  position: relative;
+}
+
+.timeline-header {
+  position: absolute;
+  bottom: 0;
+  right: 10rem;
+}
+
+.timeline-header h2 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.timeline-header p {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.timeline-summary-container {
+  display: flex;
+}
+
+.timeline-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.argument-tabs {
+  display: flex;
+  gap: 12px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.argument-tab {
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
+  background-color: white;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.argument-tab.active {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+.modal-overlay2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  z-index: 2100;
+}
+
+.tori-mascot {
+  animation: wobble 1s infinite alternate ease-in-out;
+}
+
+@keyframes wobble {
+  0% {
+    transform: rotate(-5deg);
+  }
+
+  100% {
+    transform: rotate(5deg);
+  }
+}
+
+@media (max-width: 1180px) {
+  .timeline-header {
+    display: none;
+  }
+}
+
+/* 반응형 */
 @keyframes pulse {
 
   0%,
@@ -1391,10 +2262,6 @@ const getResourceEmoji = (type: string) => {
 
   .video-section {
     height: 50vh;
-  }
-
-  .main-speaker-video {
-    height: 30vh;
   }
 
   .participant-videos {

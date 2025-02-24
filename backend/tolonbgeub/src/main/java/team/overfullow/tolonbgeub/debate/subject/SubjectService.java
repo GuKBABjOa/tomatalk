@@ -25,6 +25,17 @@ public class SubjectService {
 
     private final List<Subject> subjectCache = new ArrayList<>(); // 모든 주제 캐싱
 
+<<<<<<< HEAD
+    @PostConstruct
+    public void loadAllSubject(){
+        log.info("🔄 모든 주제를 데이터베이스에서 불러옵니다...");
+        subjectCache.clear();
+        subjectCache.addAll(subjectRepository.findAll()); // 모든 주제 가져오기
+        log.info("✅ 총 {}개의 주제가 캐싱되었습니다.", subjectCache.size());
+    }
+
+=======
+>>>>>>> a29b106a6e616e80d4fbb87eabc0e66a040e978c
     public SubjectResponse getById(Long topicId) {
         return mapToSubjectResponse(subjectRepository.findById(topicId)
                 .orElseThrow(() -> new SubjectException(HttpStatus.NOT_FOUND, "주제를 찾을 수 없습니다")));
@@ -50,8 +61,11 @@ public class SubjectService {
     }
 
     public RandomSubjectResponse getRandomSubjects() {
+<<<<<<< HEAD
+=======
         subjectCache.clear();
         subjectCache.addAll(subjectRepository.findAll()); // 모든 주제 가져오기
+>>>>>>> a29b106a6e616e80d4fbb87eabc0e66a040e978c
         if (subjectCache.size() < 4) {
             throw new SubjectException(HttpStatus.NOT_FOUND, "주제 개수가 4개보다 적습니다.");
         }
