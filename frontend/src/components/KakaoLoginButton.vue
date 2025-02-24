@@ -1,7 +1,7 @@
 <template>
   <button class="start-button" :style="{
     backgroundColor: buttonColor,
-    borderRadius: buttonRadius + 'px',
+    borderRadius: buttonRadius,
     padding: buttonPadding,
     fontSize: buttonFontSize,
     color: buttonTextColor,
@@ -58,16 +58,24 @@ const getImageUrl = (filename: string): string => {
 
 <style scoped>
 .start-button {
+  height: 3.75rem;
+  /* 기존 60px → 3.75rem */
+  width: 10.625rem;
+  /* 기존 170px → 10.625rem */
+  border-radius: 1.75rem;
+  /* 기존 28px → 1.75rem */
   display: flex;
   align-items: center;
-  border: none;
-  cursor: pointer;
+  justify-content: center;
   font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .kakao-icon {
-  width: 28px;
-  height: 28px;
+  width: 1.3rem;
+  /* 기존 28px → 1.75rem */
+  height: 1.3rem;
 }
 </style>

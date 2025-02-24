@@ -2,23 +2,25 @@
   <div class="debate-container">
     <!-- Header -->
     <header class="header">
-      <h1 class="title">실전 토론 시작하기</h1>
+      <div class="header-content">
+        <h1 class="title">실전 토론 시작하기</h1>
 
-      <!-- Step Indicators -->
-      <div class="steps">
-        <div class="step active">
-          <div class="step-circle">1</div>
-          <span class="step-text">토론 방식 선택</span>
-        </div>
-        <div class="step-line"></div>
-        <div class="step">
-          <div class="step-circle">2</div>
-          <span class="step-text">주제 선택</span>
-        </div>
-        <div class="step-line"></div>
-        <div class="step">
-          <div class="step-circle">3</div>
-          <span class="step-text">상대 매칭하기</span>
+        <!-- Step Indicators -->
+        <div class="steps">
+          <div class="step active">
+            <div class="step-circle">1</div>
+            <span class="step-text">토론 방식 선택</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step">
+            <div class="step-circle">2</div>
+            <span class="step-text">주제 선택</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step">
+            <div class="step-circle">3</div>
+            <span class="step-text">상대 매칭하기</span>
+          </div>
         </div>
       </div>
     </header>
@@ -27,12 +29,8 @@
     <div class="content">
       <!-- Format Cards -->
       <div class="format-cards">
-        <div
-          v-for="format in formats"
-          :key="format.id"
-          :class="['format-card', { selected: selectedFormat === format.id }]"
-          @click="selectFormat(format.id)"
-        >
+        <div v-for="format in formats" :key="format.id"
+          :class="['format-card', { selected: selectedFormat === format.id }]" @click="selectFormat(format.id)">
           <div class="format-icon">{{ format.emoji }}</div>
           <div class="format-info">
             <h3>{{ format.title }}</h3>
@@ -59,25 +57,17 @@
         <section class="detail-section">
           <h3>진행 방식</h3>
           <div class="process-box">
-            <div
-              v-for="(step, index) in currentFormat.process"
-              :key="index"
-              class="process-step"
-            >
+            <div v-for="(step, index) in currentFormat.process" :key="index" class="process-step">
               {{ index + 1 }}. {{ step }}
             </div>
           </div>
         </section>
 
         <!-- Tips -->
-        <section class="detail-section">
+        <section class="detail-section2">
           <h3>토리의 Tip</h3>
           <div class="tips-box">
-            <div
-              v-for="(tip, index) in currentFormat.tips"
-              :key="index"
-              class="tip"
-            >
+            <div v-for="(tip, index) in currentFormat.tips" :key="index" class="tip">
               💡 {{ tip }}
             </div>
           </div>
@@ -113,44 +103,25 @@ interface DebateFormat {
 const formats: DebateFormat[] = [
   {
     id: "casual",
-    title: "캐쥬얼 토론",
+    title: "Casual 토론",
     emoji: "🗣️",
     description:
-      "토마톡의 캐쥬얼 토론은 기존 토론의 장점을 결합하여 누구나 쉽게 참여할 수 있도록 설계되었습니다. 찬성과 반대 양측이 각각의 주장을 펼치고 서로의 의견을 교환하며, 관중들의 실시간 피드백을 받을 수 있습니다.",
+      "토론은 4명이 참가하며, 랜덤으로 찬성(2명)과 반대(2명)이 배정됩니다. 하지만 같은 진영이라도 팀이 아니며, 기여도에 따라 순위가 차등 결정됩니다. 같은 진영의 주장이라도 논리적으로 맞지 않다면 지적할 수 있습니다. 논리적으로 사고하고 설득력 있는 주장을 펼쳐보세요!",
     duration: "30분",
     difficulty: 2,
-    shortDescription: "쉽고 재미있게 시작하는 토론",
+    shortDescription: "토론 실력을 키우는 실전 방식",
     process: [
-      "준비 시간 (5분): 주제 확인 및 논리 구성",
-      "입론 (각 3분): 찬성/반대 측의 주장 발표",
-      "반론 (각 2분): 상대방 주장에 대한 반론",
-      "최종 발언 (각 2분): 마지막 주장 정리",
+      "참가자 4명이 랜덤으로 찬성(2명)과 반대(2명) 진영으로 배정됩니다.",
+      "같은 진영이지만 팀이 아니며, 기여도에 따라 순위가 매겨집니다.",
+      "준비 시간 (5분): 주제를 확인하고 논리를 구성합니다.",
+      "입론 (각 5분): 찬성 1명 → 반대 1명 → 찬성 1명 → 반대 1명 순서로 발언합니다.",
+      "두 번째 주장 (각 3분): 동일한 순서로 추가 주장을 펼칩니다.",
+      "같은 진영의 주장이라도 논리적으로 맞지 않다면 지적할 수 있습니다.",
     ],
     tips: [
-      "입론에서는 핵심 주장을 먼저 말하고, 그 근거를 차례대로 제시하세요.",
-      "반론할 때는 상대방의 주장 중 가장 약한 부분을 공략하세요.",
-      "감정적인 표현보다는 논리적인 근거를 제시하세요.",
-    ],
-  },
-  {
-    id: "bp",
-    title: "BP 토론",
-    emoji: "🏛️",
-    description: "영국 의회식 토론 방식으로 진행되는 전문적인 토론입니다.",
-    duration: "45분",
-    difficulty: 4,
-    shortDescription: "영국 의회식 토론",
-    process: [
-      "준비 시간 (15분)",
-      "찬성 측 제1 발언 (7분)",
-      "반대 측 제1 발언 (7분)",
-      "찬성 측 제2 발언 (7분)",
-      "반대 측 제2 발언 (7분)",
-    ],
-    tips: [
-      "각 발언은 POI(Point of Information)를 포함할 수 있습니다.",
-      "첫 1분과 마지막 1분은 POI가 금지됩니다.",
-      "심사 기준: 내용, 방법, 태도를 종합적으로 평가합니다.",
+      "같은 진영이라도 경쟁 관계이므로 논리적으로 우위를 점하세요.",
+      "기여도가 높은 참가자가 더 높은 평가를 받습니다.",
+      "상대방뿐만 아니라 같은 진영의 논리적 오류도 지적할 수 있습니다.",
     ],
   },
 ];
@@ -184,17 +155,24 @@ onMounted(() => {
 }
 
 .header {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
   background: linear-gradient(180deg, #fff1f1 0%, #ffffff 100%);
-  padding: 48px 48px;
-  padding-left: 90px;
+  padding: 48px 0px;
+  /* padding-left: 90px; */
   margin-bottom: 40px;
 }
 
+.header-content {
+  width: 75%;
+  margin: 0 auto;
+}
+
 .title {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: bold;
   color: #111827;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
 }
 
 .steps {
@@ -207,6 +185,11 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.step-text {
+  font-size: 14px;
+  color: #6b7280;
 }
 
 .step-circle {
@@ -234,11 +217,11 @@ onMounted(() => {
 .content {
   display: flex;
   gap: 20px;
-  padding: 0 48px;
+  margin-bottom: 0.25rem;
 }
 
 .format-cards {
-  width: 300px;
+  max-width: 300px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -291,7 +274,7 @@ onMounted(() => {
   display: flex;
   gap: 20px;
   color: #4b5563;
-  font-size: 14px;
+  font-size: 0.75rem;
 }
 
 .format-detail-panel {
@@ -302,8 +285,12 @@ onMounted(() => {
 }
 
 .detail-section {
-  width: 700px;
+  max-width: 700px;
   margin-bottom: 40px;
+}
+
+.detail-section2 {
+  max-width: 700px;
 }
 
 .detail-section h3 {
@@ -329,8 +316,8 @@ onMounted(() => {
 }
 
 .next-button {
-  position: absolute;
-  right: 10px;
+  position: fixed;
+  right: 3vw;
   top: 50%;
   width: 48px;
   height: 48px;

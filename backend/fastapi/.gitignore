@@ -12,3 +12,9 @@ env/
 # 환경 변수 파일
 .env
 .env.*
+
+# 모델 파일 제외
+app/ai/ai_models/*
+!app/ai/ai_models/config.json
+!app/ai/ai_models/tokenizer.json
+!app/ai/ai_models/vocab.txt

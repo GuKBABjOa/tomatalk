@@ -1,4 +1,3 @@
-// DebateJourney.vue
 <template>
   <div class="journey-container">
     <div class="title-section">
@@ -9,15 +8,10 @@
     <div class="timeline" :class="{ 'timeline-visible': isVisible }">
       <div class="progress-line"></div>
 
-      <div
-        v-for="(step, index) in steps"
-        :key="index"
-        class="journey-step"
-        :style="{
-          '--step-delay': `${0.2 * (index + 1)}s`,
-          '--step-color': step.color,
-        }"
-      >
+      <div v-for="(step, index) in steps" :key="index" class="journey-step" :style="{
+        '--step-delay': `${0.2 * (index + 1)}s`,
+        '--step-color': step.color,
+      }">
         <div class="step-circle">
           <span class="step-number">{{ step.number }}</span>
           <span class="step-icon">{{ step.icon }}</span>

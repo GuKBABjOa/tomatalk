@@ -4,21 +4,12 @@
       <div class="modal-content" @click.stop>
         <h3 class="modal-title">모든 참가자가 준비되었습니다</h3>
         <div class="profile-container">
-          <template
-            v-for="(participant, index) in participantsData"
-            :key="participant.name"
-          >
-            <div
-              class="profile-item"
-              :class="{ 'current-user': participant.name === 'YOU' }"
-            >
+          <template v-for="(participant, index) in participantsData" :key="participant.name">
+            <div class="profile-item" :class="{ 'current-user': participant.name === 'YOU' }">
               <ProfileImage :src="participant.image" :size="50" />
               <span class="profile-name">{{ participant.name }}</span>
             </div>
-            <div
-              v-if="index < participantsData.length - 1"
-              class="connector"
-            ></div>
+            <div v-if="index < participantsData.length - 1" class="connector"></div>
           </template>
         </div>
         <div class="discussion-info">
@@ -31,15 +22,9 @@
             <div class="countdown">
               <svg class="timer-circle" viewBox="0 0 50 50">
                 <circle class="timer-circle-bg" r="20" cx="25" cy="25" />
-                <circle
-                  class="timer-circle-progress"
-                  r="20"
-                  cx="25"
-                  cy="25"
-                  :style="{
-                    strokeDashoffset: `${(1 - countdown / 5) * 125.6}px`,
-                  }"
-                />
+                <circle class="timer-circle-progress" r="20" cx="25" cy="25" :style="{
+                  strokeDashoffset: `${(1 - countdown / 5) * 125.6}px`,
+                }" />
               </svg>
               <span class="timer-number">{{ countdown }}</span>
             </div>
@@ -87,7 +72,10 @@ onMounted(async () => {
       clearInterval(interval);
       emit("startDiscussion");
       emit("resetMatching");
-      router.push(`/debate/${props.debateId}`); // debateId 사용하여 라우팅
+      router.push({
+        name: "debatePrepare",
+        params: { debateId: props.debateId }, // debateId 전달
+      });
     }
   }, 1000);
 });

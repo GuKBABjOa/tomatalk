@@ -12,9 +12,10 @@
       </h2>
 
       <div class="hero-buttons">
-        <LoginButton class="action-button" buttonColor="white" :buttonRadius="28" buttonPadding="16px 40px"
-          buttonFontSize="16px" buttonTextColor="black" :hasBorder="true" buttonBorder="2px solid #ff6b6b"
+        <LoginButton class="action-button" buttonColor="white" :buttonRadius="1.75" buttonPadding="1rem 2.5rem"
+          buttonFontSize="1.125rem" buttonTextColor="black" :hasBorder="true" buttonBorder="0.125rem solid #ff6b6b"
           buttonBorderColor="#ff6b6b" hoverColor="#ff6b6b" />
+
         <router-link to="/info" class="action-button secondary-button">
           더 알아보기
         </router-link>
@@ -67,7 +68,6 @@ const handleMouseLeave = () => {
 <style scoped>
 /* 공통 스타일 */
 .hero {
-  height: 300px;
   background: linear-gradient(to bottom, #fff1f1, #ffffff);
 
   /* 배경색만 전체 화면 너비 */
@@ -77,21 +77,27 @@ const handleMouseLeave = () => {
   width: 100vw;
   display: flex;
   justify-content: center;
-  margin-bottom: 200px;
+  height: 18.75rem;
+  /* 기존 300px → 18.75rem */
+  margin-bottom: 12.5rem;
+  /* 기존 200px → 12.5rem */
 }
 
 .hero>div {
   width: 100%;
-  max-width: 500px;
   display: flex;
   align-items: center;
-  padding: 0 48px;
+  max-width: 31.25rem;
+  /* 기존 500px → 31.25rem */
+  padding: 0 2rem;
+  /* 기존 48px → 3rem */
 }
 
 .hero-content {
   width: 100%;
   display: flex;
-  margin-left: 90px;
+  margin-left: 0rem;
+  /* 기존 90px → 5.625rem */
   flex-direction: column;
   align-items: flex-start;
   position: relative;
@@ -99,10 +105,11 @@ const handleMouseLeave = () => {
 }
 
 .hero-title {
-  font-size: 56px;
+  padding-top: 4rem;
+  font-size: 3.5rem;
   font-weight: 800;
   color: #111827;
-  line-height: 1.2;
+  line-height: 1.5;
 }
 
 .hero-title .highlight {
@@ -111,8 +118,10 @@ const handleMouseLeave = () => {
 }
 
 .hero-description {
-  margin-top: 20px;
-  font-size: 22px;
+  font-size: 1.4rem;
+  /* 기존 1.4rem → 1.25rem */
+  margin-top: 1rem;
+  /* 기존 20px → 1rem */
   color: #4b5563;
   line-height: 1.7;
 }
@@ -121,8 +130,10 @@ const handleMouseLeave = () => {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 20px;
-  margin-top: 40px;
+  gap: 1rem;
+  /* 기존 20px → 1rem */
+  margin-top: 2rem;
+  /* 기존 2.5rem → 2rem */
 }
 
 .action-button {
@@ -135,8 +146,12 @@ const handleMouseLeave = () => {
   background-color: white;
   color: #000000;
   border: 2px solid #ff6b6b;
-  height: 60px;
-  width: 170px;
+  height: 3.75rem;
+  /* 기존 60px → 60 / 16 = 3.75rem */
+  width: 10.625rem;
+  /* 기존 170px → 170 / 16 = 10.625rem */
+  border-radius: 1.75rem;
+  /* 기존 28px → 28 / 16 = 1.75rem */
   text-decoration: none;
   border-radius: 28px;
   font-family: inherit;
@@ -148,7 +163,7 @@ const handleMouseLeave = () => {
 
 /* 캐릭터 섹션 */
 .character-section {
-  margin-right: 300px;
+  margin-right: 12.5rem;
   position: relative;
   cursor: pointer;
 }
@@ -199,8 +214,9 @@ const handleMouseLeave = () => {
 }
 
 .tori-character {
-  width: 300px;
-  height: 300px;
+  width: 18.75rem;
+  /* 기존 300px → 300 / 16 = 18.75rem */
+  height: 18.75rem;
   border-radius: 50%;
   position: absolute;
   top: 50%;
@@ -238,14 +254,20 @@ const handleMouseLeave = () => {
   opacity: 0;
   visibility: hidden;
   position: absolute;
-  padding: 24px;
-  border-radius: 16px;
+
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  width: 400px;
+
   transition: all 0.3s ease;
   left: 30%;
   transform: translateX(-50%);
-  font-size: 20px;
+  padding: 1.5rem;
+  /* 기존 24px → 1.5rem */
+  border-radius: 1rem;
+  /* 기존 16px → 1rem */
+  width: 23rem;
+  /* 기존 400px → 20rem */
+  font-size: 1rem;
+  /* 기존 20px → 1rem */
 }
 
 .highlight {
@@ -257,11 +279,12 @@ const handleMouseLeave = () => {
 .hover-text.is-visible {
   opacity: 1;
   visibility: visible;
+  transform: translateY(-0.5rem);
 }
 
 .text-line {
-  margin: 8px 0;
-  font-size: 16px;
+  margin: 0.5rem 0;
+  font-size: 0.9px;
   color: #4b5563;
 }
 
@@ -270,25 +293,24 @@ const handleMouseLeave = () => {
   font-weight: 700;
 }
 
-/* 모바일 대응 */
-@media (max-width: 768px) {
-  .character-section {
-    flex-direction: column;
-    text-align: center;
+@media (max-width: 48rem) {
+
+  /* 기존 768px → 48rem */
+  .hero-title {
+    font-size: 2.5rem;
+    /* 기존 40px → 2.5rem */
   }
 
-  .tori-character {
-    animation: fadeIn 0.5s ease-out;
+  .hero-description {
+    font-size: 1.125rem;
+    /* 기존 18px → 1.125rem */
   }
 
-  .character-section:hover .tori-character {
-    animation: none;
-  }
-
-  .hover-text {
-    width: 100%;
-    max-width: 100%;
-    padding: 16px;
+  .secondary-button {
+    height: 3rem;
+    /* 기존 48px → 3rem */
+    width: 8rem;
+    /* 기존 128px → 8rem */
   }
 }
 

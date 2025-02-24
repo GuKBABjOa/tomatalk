@@ -86,25 +86,26 @@ import ModuleItem from "@/components/ModuleItem.vue";
 import AIDebate from "@/views/AIDebate.vue";
 
 // 초기값을 'theory'로 설정하여 처음 진입시 theory 탭이 보이도록 함
-const activeTab = ref < "theory" | "ai" > ("theory");
+const activeTab = ref<"theory" | "ai">("theory");
 </script>
 
 <style scoped>
 .debate-practice {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 .header-container {
   margin-bottom: 32px;
 }
 
-.header-content {
+/* .header-content {
   background-color: #f8f9fa;
   padding: 24px;
   border-radius: 12px;
-}
+} */
 
 .header-top {
   display: flex;
@@ -132,8 +133,8 @@ const activeTab = ref < "theory" | "ai" > ("theory");
 .learning-content {
   background: white;
   border-radius: 12px;
-  padding: 24px;
-  border: 1px solid #e5e7eb;
+  /* padding: 24px; */
+  /* border: 1px solid #e5e7eb; */
 }
 
 .tab-navigation {
@@ -174,9 +175,9 @@ const activeTab = ref < "theory" | "ai" > ("theory");
 
 .stage {
   background-color: white;
-  padding: 24px;
+  /* padding: 24px;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e5e7eb; */
 }
 
 .stage-header {

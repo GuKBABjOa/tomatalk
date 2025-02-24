@@ -10,10 +10,12 @@ import OngoingDebate from "@/views/OngoingDebate.vue";
 import DebateWaiting from "@/views/DebateWaiting.vue";
 import Debate from "@/views/Debate.vue";
 import DebateWatch from "@/views/DebateForAudience.vue";
-import Report from "@/views/Report.vue";
-import PrepResult from "@/views/PrepResult.vue";
+import Feedback from "@/views/DebateReportMain.vue";
+import DebateCount from "@/components/DebateCount.vue";
+import Score from "@/components/Score.vue";
 import PrepExplain from "@/views/PrepExplain.vue";
 import PrepPracticeDetail from "@/views/PrepPracticeDetail.vue";
+import PrepResult from "@/views/PrepResult.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -76,34 +78,39 @@ const router = createRouter({
       component: DebateWatch,
     },
     {
-      path: "/report",
-      name: "report",
-      component: Report,
+      path: "/stats/debate-count",
+      name: "debateCount",
+      component: DebateCount,
     },
     {
-      path: "/report",
-      name: "report",
-      component: Report,
+      path: "/stats/score",
+      name: "score",
+      component: Score,
     },
     {
-      path: '/prep/explain',
-      name: 'PrepExplain',
-      component: PrepExplain
+      path: "/stats/feedback",
+      name: "feedback",
+      component: Feedback,
     },
     {
-      path: '/prep/detail',
-      name: 'PrepDetail',
-      component: PrepPracticeDetail
+      path: "/prep/explain",
+      name: "PrepExplain",
+      component: PrepExplain,
     },
     {
-      path: '/prep/result',
-      name: 'PrepResult',
-      component: PrepResult
+      path: "/prep/detail",
+      name: "PrepDetail",
+      component: PrepPracticeDetail,
     },
     {
-      path: '/prep',
-      redirect: '/prep/explain'
-    }
+      path: "/prep/result",
+      name: "PrepResult",
+      component: PrepResult,
+    },
+    {
+      path: "/prep",
+      redirect: "/prep/explain",
+    },
   ],
 });
 

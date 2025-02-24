@@ -6,14 +6,16 @@
         <div class="welcome-info">
           <div class="topic-section">
             <h2>토론 주제</h2>
-            <p>인공지능 기술이 일자리를 대체하는 것은 불가피한가?{{ subject }}</p>
           </div>
-          <div class="stance-section">
-            <h2>내 입장 : {{ myStance }}</h2>
+          <div class="flex justify-between">
+            <p class="subject">{{ subject }}</p>
+            <div class="stance-section">
+              <h2>내 입장 : {{ myStance }}</h2>
+            </div>
           </div>
         </div>
-        <div class="timer-section">
-          <h2>남은 시간</h2>
+        <div class="timer-section flex justify-between">
+          <h2>곧 토론이 시작됩니다!</h2>
           <div class="timer">{{ formatTime }}</div>
         </div>
       </div>
@@ -94,11 +96,13 @@
       <div class="right-panel">
         <div class="search-area">
           <input v-model="searchQuery" placeholder="메모나 자료 검색" />
-          <button @click="searchItems" class="search-button">🔍</button>
         </div>
         <h3 class="result">{{ searchQuery ? "검색 결과" : "최근 저장됨" }}</h3>
         <div class="saved-items">
-          <div v-for="item in mockSavedItems" :key="item.id" class="saved-item">
+          <div v-for="item in filteredItems" :key="item.id" class="saved-item" :class="{
+            'memo-item': item.type === 'memo',
+            'resource-item': item.type === 'resource',
+          }">
             <div class="item-header">
               <span class="item-title">{{ item.title }}</span>
               <span class="item-type">
@@ -110,15 +114,16 @@
               </span>
             </div>
             <div class="item-tags">
-              <span v-for="tag in item.tags" :key="tag" class="tag">
+              <span v-for="tag in item.tags" :key="tag" class="tag" :class="{
+                'memo-tag': item.type === 'memo',
+                'resource-tag': item.type === 'resource',
+              }">
                 # {{ tag }}
               </span>
             </div>
             <div class="item-content">
               {{
-                item.content.length > 100
-                  ? item.content.slice(0, 100) + "..."
-                  : item.content
+                item.content
               }}
             </div>
             <div class="item-footer">
@@ -135,6 +140,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useWebSocket } from "@/composables/useWebSocket";
 import { useRouter } from "vue-router";
+import { useSavedItemsStore } from "@/stores/savedItems";
 import axios from 'axios'
 
 
@@ -152,16 +158,16 @@ const { debateState } = useWebSocket(wsUrl);
 const currentStatus = computed(() => debateState.value?.status || "PREPARING");
 
 // 상태 변화 감지하여 페이지 이동
-watch(currentStatus, (newStatus) => {
-  if (newStatus === "WAITING") {
-    console.log(`🚀 토론 시작! debate 페이지로 이동합니다. (debateId: ${props.debateId})`);
+// watch(currentStatus, (newStatus) => {
+//   if (newStatus === "WAITING") {
+//     console.log(`🚀 토론 시작! debate 페이지로 이동합니다. (debateId: ${props.debateId})`);
 
-    router.push({
-      name: "debate",
-      params: { debateId: props.debateId }, // debateId 전달
-    })
-  }
-})
+//     router.push({
+//       name: "debate",
+//       params: { debateId: props.debateId },
+//     })
+//   }
+// })
 
 const subject = ref<string>("") // 토론 주제
 const participant = ref<boolean>(true) // 토론 참여자인 경우 true, 아닐 경우 false
@@ -174,7 +180,7 @@ const fetchDebateRoomInfo = async () => {
       throw new Error("로그인이 필요합니다.")
     }
 
-    const response = await axios.get(`/api/debates/${props.debateId}/roominfo`, {
+    const response = await axios.get(`/api/debates/${props.debateId}/room`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -201,13 +207,32 @@ const myStance = computed(() => {
   const myParticipant = participants.find((p: { userId: string }) => p.userId === myUserId);
 
   // 입장 (찬성 or 반대) 반환, 없으면 "알 수 없음"
-  return myParticipant ? myParticipant.position : "알 수 없음";
+  return myParticipant ? myParticipant.position : "찬성";
+});
+
+// 메모 관련 복구 ---------------------------------------------------------
+const savedItemsStore = useSavedItemsStore(); // pinia에서 저장된 메모 리스트 가져오기
+const filteredItems = computed(() => {
+  const query = searchQuery.value.toLowerCase().trim();
+
+  if (!query) return savedItemsStore.savedItems;
+
+  return savedItemsStore.savedItems.filter((item) => {
+    const title = item.title?.toLowerCase() || "";
+    const content = item.content?.toLowerCase() || "";
+    const tags = item.tags || [];
+
+    return (
+      title.includes(query) ||
+      content.includes(query) ||
+      tags.some((tag: string) => tag.toLowerCase().includes(query))
+    );
+  });
 });
 
 
-
 // 기존 코드 -------------------------------------------------------------
-const timeLeft = ref(0); // 남은 시간 (초)
+const timeLeft = ref(20); // 남은 시간 (초)
 const timer = ref<NodeJS.Timeout | null>(null);
 
 // // 남은 시간을 MM:SS 형식으로 변환
@@ -218,45 +243,69 @@ const formatTime = computed(() => {
 });
 
 // time update 함수
-const updateTimeLeft = () => {
-  if (!debateState.value || !debateState.value.currentSpeakEndTime) {
-    timeLeft.value = 0;
-    return;
-  }
+// const updateTimeLeft = () => {
+//   if (!debateState.value || !debateState.value.currentSpeakEndTime) {
+//     timeLeft.value = 0;
+//     return;
+//   }
 
-  const endTime = new Date(debateState.value.currentSpeakEndTime).getTime();
-  const now = new Date().getTime();
-  timeLeft.value = Math.max(0, Math.floor((endTime - now) / 1000));
-};
+//   const endTime = new Date(debateState.value.currentSpeakEndTime).getTime();
+//   const now = new Date().getTime();
+//   timeLeft.value = Math.max(0, Math.floor((endTime - now) / 1000));
+// };
 
 // 타이머 시작 함수 (1초마다 업데이트)
+// const startTimer = () => {
+//   updateTimeLeft(); // 초기값 설정
+
+//   if (timer.value) clearInterval(timer.value); // 기존 타이머 제거
+
+//   timer.value = setInterval(() => {
+//     updateTimeLeft();
+//     if (timeLeft.value <= 0) {
+//       if (timer.value !== null) {
+//         clearInterval(timer.value);
+//       }
+//       timer.value = null;
+//       console.log("⏳ 준비 시간이 종료되었습니다!");
+//     }
+//   }, 1000);
+// };
 const startTimer = () => {
-  updateTimeLeft(); // 초기값 설정
+  timeLeft.value = 20; // 20초로 고정
 
   if (timer.value) clearInterval(timer.value); // 기존 타이머 제거
 
   timer.value = setInterval(() => {
-    updateTimeLeft();
-    if (timeLeft.value <= 0) {
-      if (timer.value !== null) {
-        clearInterval(timer.value);
-      }
+    if (timeLeft.value > 0) {
+      timeLeft.value--;
+    } else {
+      clearInterval(timer.value!);
       timer.value = null;
-      console.log("⏳ 준비 시간이 종료되었습니다!");
     }
   }, 1000);
 };
 
 // `currentSpeakEndTime`이 변경될 때 타이머 재시작
-watch(() => debateState.value?.currentSpeakEndTime, (newTime) => {
-  if (!newTime) return; // newTime이 없으면 실행 안 함
-  console.log("⏳ 새로운 발언 시간이 설정됨:", newTime);
-  startTimer();
-});
+// watch(() => debateState.value?.currentSpeakEndTime, (newTime) => {
+//   if (!newTime) return; // newTime이 없으면 실행 안 함
+//   console.log("⏳ 새로운 발언 시간이 설정됨:", newTime);
+//   startTimer();
+// });
 
 onMounted(() => {
-  startTimer();
+  console.log("20초 후 토론 페이지로 이동합니다.")
+
   fetchDebateRoomInfo();
+  startTimer();
+
+  setTimeout(() => {
+    console.log('드가자')
+    router.push({
+      name: "debateRoom",
+      params: { debateId: props.debateId }, // debateId 전달
+    });
+  }, 20000); // 20초 후 이동
 });
 
 onUnmounted(() => {
@@ -287,39 +336,6 @@ const uploadedFile = ref<File | null>(null);
 
 // Search-related states
 const searchQuery = ref("");
-const savedItems = ref<any[]>([]);
-
-// Mock saved items
-const mockSavedItems = ref([
-  {
-    id: "1",
-    title: "AI 기술의 노동시장 영향 분석",
-    content:
-      "AI 기술의 발전이 노동시장에 미치는 복합적인 영향에 대한 초기 메모입니다. 기술 발전에 따른 일자리 변화와 새로운 직업 창출 가능성을 중점적으로 탐구합니다.",
-    type: "memo",
-    tags: ["AI", "노동시장", "기술"],
-    createdAt: "2024.02.17",
-  },
-  {
-    id: "2",
-    title: "AI 일자리 대체 통계 보고서",
-    content:
-      "다양한 산업 분야에서 AI 기술로 인한 일자리 대체 현황에 대한 최신 통계 자료",
-    type: "resource",
-    resourceType: "url",
-    tags: ["통계", "일자리", "AI"],
-    createdAt: "2024.02.16",
-  },
-  {
-    id: "3",
-    title: "AI 윤리와 고용 정책 연구",
-    content:
-      "AI 기술 발전에 따른 윤리적 고려사항과 고용 정책의 방향성에 대한 심층 분석",
-    type: "memo",
-    tags: ["윤리", "정책", "AI"],
-    createdAt: "2024.02.15",
-  },
-]);
 
 // Memo tag management
 const addMemoTag = () => {
@@ -353,7 +369,7 @@ const handleFileUpload = (event: Event) => {
   }
 };
 
-// Save methods
+// 메모와 자료 저장 로직직
 const saveMemo = () => {
   if (!memoTitle.value.trim()) {
     alert("메모 제목을 입력해주세요");
@@ -369,7 +385,7 @@ const saveMemo = () => {
     createdAt: new Date().toLocaleDateString("ko-KR"),
   };
 
-  savedItems.value.unshift(newMemo);
+  savedItemsStore.addMemo(newMemo);
 
   // Reset memo inputs
   memoContent.value = "";
@@ -396,7 +412,7 @@ const saveResource = () => {
     createdAt: new Date().toLocaleDateString("ko-KR"),
   };
 
-  savedItems.value.unshift(newResource);
+  savedItemsStore.addResource(newResource);
 
   // Reset resource inputs
   resourceUrl.value = "";
@@ -404,17 +420,6 @@ const saveResource = () => {
   resourceTags.value = [];
   uploadedFile.value = null;
   selectedResourceType.value = "url";
-};
-
-// Search functionality
-const searchItems = () => {
-  const query = searchQuery.value.toLowerCase();
-  return savedItems.value.filter(
-    (item) =>
-      item.title.toLowerCase().includes(query) ||
-      item.tags.some((tag: string) => tag.toLowerCase().includes(query)) ||
-      item.content.toLowerCase().includes(query)
-  );
 };
 
 // Helper method for resource type emoji
@@ -437,8 +442,8 @@ const getResourceEmoji = (type: string) => {
 .debate-preparation-container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 20px;
   background: #ffffff;
+  max-height: 100vh;
 }
 
 .welcome-section {
@@ -447,7 +452,7 @@ const getResourceEmoji = (type: string) => {
   border: 2px solid #cacaca;
   padding: 20px;
   margin-top: 20px;
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 .topic-section h2 {
@@ -458,7 +463,7 @@ const getResourceEmoji = (type: string) => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  height: 100%;
+  /* height: 100%; */
   padding: 0 20px;
 }
 
@@ -466,21 +471,40 @@ const getResourceEmoji = (type: string) => {
   flex: 2;
 }
 
-.topic-section,
+/* .topic-section,
 .stance-section {
   margin-bottom: 16px;
+} */
+
+.timer-section {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
-.topic-section h2,
-.stance-section h2,
 .timer-section h2 {
   font-size: 18px;
   font-weight: bold;
   color: #111827;
-  margin-bottom: 8px;
 }
 
-.topic-section p {
+.topic-section h2 {
+  font-size: 18px;
+  font-weight: bold;
+  color: #111827;
+}
+
+.stance-section {
+  display: flex;
+  align-items: flex-end;
+}
+
+.stance-section h2 {
+  font-size: 18px;
+  font-weight: bold;
+  color: #111827;
+}
+
+.subject {
   font-size: 24px;
   color: #ff6b6b;
   font-weight: bold;
@@ -506,7 +530,7 @@ const getResourceEmoji = (type: string) => {
 }
 
 .timer {
-  font-size: 32px;
+  font-size: 1.5rem;
   font-weight: bold;
   color: #ff6b6b;
 }
@@ -556,7 +580,7 @@ const getResourceEmoji = (type: string) => {
 
 .content-area textarea {
   width: 100%;
-  height: 360px;
+  height: 180px;
   margin-bottom: 16px;
   padding: 16px;
   border: 1px solid #e5e7eb;
@@ -579,6 +603,7 @@ const getResourceEmoji = (type: string) => {
 .tag-input input {
   flex: 1;
   margin-right: 10px;
+  margin-bottom: 1rem;
 }
 
 .tag-input button {
@@ -599,6 +624,7 @@ const getResourceEmoji = (type: string) => {
   display: inline-flex;
   align-items: center;
   font-size: 14px;
+  margin-bottom: 12px;
 }
 
 .tags .tag button {
@@ -660,15 +686,6 @@ const getResourceEmoji = (type: string) => {
   border-radius: 8px 0 0 8px;
 }
 
-.search-button {
-  padding: 12px 20px;
-  background: #ff6b6b;
-  color: white;
-  border: none;
-  border-radius: 0 8px 8px 0;
-  cursor: pointer;
-}
-
 .result {
   font-size: 18px;
   font-weight: bold;
@@ -692,6 +709,40 @@ const getResourceEmoji = (type: string) => {
   overflow-y: auto;
 }
 
+/* 메모 스타일 */
+.memo-item {
+  background: #fff1f1;
+  /* 연한 핑크 */
+}
+
+/* 자료 스타일 */
+.resource-item {
+  background: #f0f9ff;
+  /* 연한 블루 */
+}
+
+/* 메모 태그 스타일 */
+.memo-tag {
+  background: #ff6b6b;
+  /* 진한 핑크 */
+  color: white;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  margin-right: 6px;
+}
+
+/* 자료 태그 스타일 */
+.resource-tag {
+  background: #3b82f6;
+  /* 진한 블루 */
+  color: white;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  margin-right: 6px;
+}
+
 .item-header {
   display: flex;
   justify-content: space-between;
@@ -713,7 +764,7 @@ const getResourceEmoji = (type: string) => {
 }
 
 .item-tags .tag {
-  background: #ff6b6b;
+  /* background: #ff6b6b; */
   color: white;
   margin-right: 8px;
   padding: 4px 8px;
@@ -732,6 +783,7 @@ const getResourceEmoji = (type: string) => {
 }
 
 .tagbutton {
-  height: 3rem;
+  height: 100%;
+  margin-bottom: 8px;
 }
 </style>
